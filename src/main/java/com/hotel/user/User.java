@@ -12,10 +12,10 @@ package com.hotel.user;
  */
 public abstract class User {
 
-    private String id;
-    private String name;
-    private String email;
-    private String passwordHash;   // stored as "salt:hash", never the raw password
+    protected String id;
+    protected String name;
+    protected String email;
+    protected String passwordHash;   // stored as "salt:hash", never the raw password
 
     protected User(String id, String name, String email, String passwordHash) {
         this.id = id;
@@ -36,14 +36,17 @@ public abstract class User {
         return false;
     }
 
-    public boolean canManageUsers() {
+    public boolean canManageGuestUsers() {
         return false;
     }
+    public boolean canManageStaffUsers() {return false;}
+    public boolean canManageAdminUsers() {return false;}
 
     public boolean canRecordPayment() {
         return false;
     }
 
+    public boolean canBookForThemselves() {return false;}
     public boolean canManageAnyBooking() {
         return false;
     }
@@ -51,10 +54,17 @@ public abstract class User {
     public boolean canCheckInGuests() {
         return false;
     }
+    public boolean canCheckOutGuests() {return false;}
 
+    public boolean canAddReviews() {return false;}
     public boolean canModerateReviews() {
         return false;
     }
+
+    public boolean canViewStaffUsers() {return false;}
+    public boolean canViewAdminUsers() {return false;}
+    public boolean canViewGuestUsers() {return false;}
+
 
     // ---- getters / setters ----
 
