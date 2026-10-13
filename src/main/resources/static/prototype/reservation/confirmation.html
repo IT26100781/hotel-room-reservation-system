@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Booking confirmed · The Orchid Estate</title>
+  <link rel="icon" href="../../img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../js/tailwind.config.js"></script>
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../../css/theme.css">
+</head>
+<!-- Owner: Reservation component. Shown after a successful booking (redirect here with the new booking id). -->
+<body data-root="../" data-layout="public" data-active="bookings" data-user="guest">
+  <div data-slot="header"></div>
+
+  <main class="mx-auto max-w-3xl px-4 sm:px-6 pt-10">
+    <div class="steps justify-center">
+      <div class="step done"><span class="step-dot"><i data-lucide="check"></i></span>Choose room</div>
+      <span class="step-line"></span>
+      <div class="step done"><span class="step-dot"><i data-lucide="check"></i></span>Review &amp; confirm</div>
+      <span class="step-line"></span>
+      <div class="step current"><span class="step-dot"><i data-lucide="check"></i></span>Booked</div>
+    </div>
+
+    <div class="card mt-10 overflow-hidden">
+      <div class="panel-dark px-8 py-10 text-center relative overflow-hidden">
+        <div class="absolute inset-0 opacity-25"><img class="img-cover" src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=1200&q=60" alt=""></div>
+        <div class="relative">
+          <span class="mx-auto grid place-items-center w-16 h-16 rounded-full bg-brass text-forest-900"><i data-lucide="check" class="w-8 h-8"></i></span>
+          <h1 class="font-display text-5xl font-semibold mt-5">Your stay is reserved</h1>
+          <p class="text-ivory/70 mt-2">We've saved your room. See you in the hills, Nethmi.</p>
+        </div>
+      </div>
+
+      <div class="p-8">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p class="label !mb-1">Booking reference</p>
+            <p class="font-display text-4xl font-semibold text-forest tracking-wide">BK1024</p>
+          </div>
+          <div class="flex gap-2">
+            <span class="badge badge-active">Active</span>
+            <span class="badge badge-pending">Payment pending</span>
+          </div>
+        </div>
+
+        <dl class="mt-8 grid sm:grid-cols-4 gap-6 text-sm">
+          <div><dt class="label !mb-1">Room</dt><dd class="font-semibold">Estate Suite · 301</dd></div>
+          <div><dt class="label !mb-1">Check-in</dt><dd class="font-semibold">Mon, 12 Oct 2026</dd></div>
+          <div><dt class="label !mb-1">Check-out</dt><dd class="font-semibold">Thu, 15 Oct 2026</dd></div>
+          <div><dt class="label !mb-1">Estimated total</dt><dd class="font-semibold">LKR 124,200</dd></div>
+        </dl>
+
+        <div class="ornament my-8"><span></span></div>
+
+        <h2 class="font-display text-2xl font-semibold text-forest">What happens next</h2>
+        <ol class="mt-5 relative border-l border-line ml-3 space-y-6">
+          <li class="pl-6 relative"><span class="absolute -left-[9px] top-0.5 w-4 h-4 rounded-full bg-brass ring-4 ring-paper"></span><p class="font-semibold">Arrive from 2:00 pm on 12 Oct</p><p class="text-sm text-muted">Show your booking reference at the front desk.</p></li>
+          <li class="pl-6 relative"><span class="absolute -left-[9px] top-0.5 w-4 h-4 rounded-full bg-line ring-4 ring-paper"></span><p class="font-semibold">Check in and pay</p><p class="text-sm text-muted">Pay by cash (extra 5% off) or card. Staff record it for you.</p></li>
+          <li class="pl-6 relative"><span class="absolute -left-[9px] top-0.5 w-4 h-4 rounded-full bg-line ring-4 ring-paper"></span><p class="font-semibold">After your stay</p><p class="text-sm text-muted">Leave a verified review from My bookings.</p></li>
+        </ol>
+
+        <div class="mt-10 flex flex-wrap gap-3">
+          <a href="my-bookings.html" class="btn btn-primary"><i data-lucide="calendar-days"></i>View my bookings</a>
+          <a href="../index.html" class="btn btn-outline">Back to home</a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div data-slot="footer"></div>
+  <script src="../../js/layout.js"></script>
+  <script src="../../js/app.js"></script>
+</body>
+</html>
