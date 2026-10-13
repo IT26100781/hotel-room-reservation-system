@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guest stories · The Orchid Estate</title>
+  <link rel="icon" href="../../img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../js/tailwind.config.js"></script>
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../../css/theme.css">
+</head>
+<!-- Owner: Review component (reviews.txt: id | bookingId | guestId | rating | verified | text).
+     VerifiedReview vs PublicReview decides the badge. -->
+<body data-root="../" data-layout="public" data-active="reviews" data-user="none">
+  <div data-slot="header"></div>
+
+  <main class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 pt-12">
+    <div class="grid lg:grid-cols-[1fr_420px] gap-10 items-end">
+      <div>
+        <span class="eyebrow">Guest stories</span>
+        <h1 class="font-display text-5xl sm:text-6xl font-semibold text-forest mt-4">In their own words</h1>
+        <p class="mt-4 text-ink/65 max-w-xl">Reviews marked <span class="badge badge-verified">Verified</span> come from guests who stayed with us and reviewed their own booking.</p>
+        <a href="write.html" class="btn btn-brass mt-6"><i data-lucide="pencil"></i>Write a review</a>
+      </div>
+
+      <!-- Rating summary -->
+      <div class="card card-pad">
+        <div class="flex items-center gap-5">
+          <p class="font-display text-7xl font-semibold text-forest leading-none">4.8</p>
+          <div>
+            <span data-stars="5"></span>
+            <p class="text-sm text-muted mt-1">Based on 312 reviews</p>
+          </div>
+        </div>
+        <ul class="mt-6 space-y-2.5 text-sm">
+          <li class="flex items-center gap-3"><span class="w-3 text-muted">5</span><div class="bar flex-1"><span style="width:84%"></span></div><span class="w-9 text-right text-muted">84%</span></li>
+          <li class="flex items-center gap-3"><span class="w-3 text-muted">4</span><div class="bar flex-1"><span style="width:11%"></span></div><span class="w-9 text-right text-muted">11%</span></li>
+          <li class="flex items-center gap-3"><span class="w-3 text-muted">3</span><div class="bar flex-1"><span style="width:3%"></span></div><span class="w-9 text-right text-muted">3%</span></li>
+          <li class="flex items-center gap-3"><span class="w-3 text-muted">2</span><div class="bar flex-1"><span style="width:1%"></span></div><span class="w-9 text-right text-muted">1%</span></li>
+          <li class="flex items-center gap-3"><span class="w-3 text-muted">1</span><div class="bar flex-1"><span style="width:1%"></span></div><span class="w-9 text-right text-muted">1%</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-12 flex flex-wrap gap-2" data-chip-filter="#review-grid" data-chip-attr="kind">
+      <button type="button" class="chip active" data-chip="all">All reviews</button>
+      <button type="button" class="chip" data-chip="verified"><i data-lucide="badge-check" class="w-4 h-4"></i>Verified stays</button>
+      <button type="button" class="chip" data-chip="standard">Standard</button>
+      <button type="button" class="chip" data-chip="deluxe">Deluxe</button>
+      <button type="button" class="chip" data-chip="suite">Suite</button>
+    </div>
+
+    <div id="review-grid" class="mt-8 columns-1 md:columns-2 lg:columns-3 gap-6 [&>*]:mb-6 [&>*]:break-inside-avoid">
+      <!-- JSP: <c:forEach var="rv" items="${reviews}"> -->
+      <figure class="card card-pad" data-item data-kind="verified suite">
+        <div class="flex items-center justify-between"><span data-stars="5"></span><span class="badge badge-verified">Verified</span></div>
+        <blockquote class="mt-4 font-display text-2xl leading-snug text-forest">"We woke to mist over the tea fields every morning. The suite terrace is the best seat in Sri Lanka."</blockquote>
+        <figcaption class="mt-5 flex items-center gap-3 text-sm"><span class="avatar">RB</span><span><span class="font-semibold block">Ravindu B.</span><span class="text-muted">Estate Suite</span></span></figcaption>
+      </figure>
+      <figure class="card card-pad" data-item data-kind="verified deluxe">
+        <div class="flex items-center justify-between"><span data-stars="5"></span><span class="badge badge-verified">Verified</span></div>
+        <blockquote class="mt-4 text-ink/80 leading-relaxed">"Quiet, warm and beautifully run. Check-in took two minutes and they remembered our tea order from the first evening. The balcony view at sunrise is worth the trip alone."</blockquote>
+        <figcaption class="mt-5 flex items-center gap-3 text-sm"><span class="avatar">SC</span><span><span class="font-semibold block">Sarah C.</span><span class="text-muted">Deluxe Room</span></span></figcaption>
+      </figure>
+      <figure class="card card-pad" data-item data-kind="verified standard">
+        <div class="flex items-center justify-between"><span data-stars="5"></span><span class="badge badge-verified">Verified</span></div>
+        <blockquote class="mt-4 text-ink/80 leading-relaxed">"Simple room, spotless, and the breakfast hoppers were worth the trip on their own."</blockquote>
+        <figcaption class="mt-5 flex items-center gap-3 text-sm"><span class="avatar">AF</span><span><span class="font-semibold block">Ashan F.</span><span class="text-muted">Standard Room</span></span></figcaption>
+      </figure>
+      <figure class="card card-pad" data-item data-kind="public">
+        <div class="flex items-center justify-between"><span data-stars="4"></span><span class="badge badge-outline">Public</span></div>
+        <blockquote class="mt-4 text-ink/80 leading-relaxed">"Stopped by for high tea on the terrace. Lovely gardens and very friendly staff. Will come back to stay next time."</blockquote>
+        <figcaption class="mt-5 flex items-center gap-3 text-sm"><span class="avatar">TK</span><span><span class="font-semibold block">Tharushi K.</span><span class="text-muted">Visitor</span></span></figcaption>
+      </figure>
+      <figure class="card card-pad" data-item data-kind="verified suite">
+        <div class="flex items-center justify-between"><span data-stars="4"></span><span class="badge badge-verified">Verified</span></div>
+        <blockquote class="mt-4 text-ink/80 leading-relaxed">"Huge, quiet and warm. The sofa bed was comfortable for our son. Would book again."</blockquote>
+        <figcaption class="mt-5 flex items-center gap-3 text-sm"><span class="avatar">DJ</span><span><span class="font-semibold block">Dilini J.</span><span class="text-muted">Estate Suite</span></span></figcaption>
+      </figure>
+      <figure class="card card-pad" data-item data-kind="verified deluxe">
+        <div class="flex items-center justify-between"><span data-stars="5"></span><span class="badge badge-verified">Verified</span></div>
+        <blockquote class="mt-4 font-display text-2xl leading-snug text-forest">"The garden room smelled of roses every evening. Pure calm."</blockquote>
+        <figcaption class="mt-5 flex items-center gap-3 text-sm"><span class="avatar avatar-brass">NP</span><span><span class="font-semibold block">Nethmi P.</span><span class="text-muted">Deluxe Room</span></span></figcaption>
+      </figure>
+      <figure class="card card-pad" data-item data-kind="verified standard">
+        <div class="flex items-center justify-between"><span data-stars="3"></span><span class="badge badge-verified">Verified</span></div>
+        <blockquote class="mt-4 text-ink/80 leading-relaxed">"Lovely place, but the Standard room is quite small for two people with big suitcases. Great breakfast."</blockquote>
+        <figcaption class="mt-5 flex items-center gap-3 text-sm"><span class="avatar">MR</span><span><span class="font-semibold block">Mohamed R.</span><span class="text-muted">Standard Room</span></span></figcaption>
+      </figure>
+    </div>
+    <div class="hidden card card-pad text-center" data-empty-for="#review-grid">No reviews in this category yet.</div>
+  </main>
+
+  <div data-slot="footer"></div>
+  <script src="../../js/layout.js"></script>
+  <script src="../../js/app.js"></script>
+</body>
+</html>
