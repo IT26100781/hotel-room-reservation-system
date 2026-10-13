@@ -1,5 +1,6 @@
 package com.hotel.user.admin.dao;
 
+import com.hotel.config.DataConfig;
 import com.hotel.user.admin.model.Staff;
 import com.hotel.util.FileHelper;
 
@@ -10,7 +11,7 @@ import java.util.List;
 public class StaffDAO {
     public List<Staff> findAllStaff() throws IOException {
         List<Staff> staff = new ArrayList<>();
-        List<String> lines =  FileHelper.readLines("Staff.txt");
+        List<String> lines =  FileHelper.readLines(DataConfig.STAFF_FILE);
         for (String line : lines) {
             Staff s = Staff.fromFileString(line);
             if(s != null){
@@ -18,6 +19,28 @@ public class StaffDAO {
             }
         }
         return staff;
+    }
+    public Staff findById(String id) throws IOException {
+        for (Staff b : findAllStaff()) {
+            if (b.getId().equals(id)) {
+                return b;
+            }
+        }
+        return null;
+    }
+    public Staff findByEmail(String email) throws IOException {
+        for (Staff b : findAllStaff()) {
+            if (b.getEmail().equalsIgnoreCase(email)) {
+                return b;
+            }
+        }
+        return null;
+    }
+    public void saveStaff(Staff staff) throws IOException {
+        String line = staff.toFileString();
+
+        FileHelper.appendLine(DataConfig.STAFF_FILE, line);
+
     }
 
 
