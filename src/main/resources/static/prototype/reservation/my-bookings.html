@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My bookings · The Orchid Estate</title>
+  <link rel="icon" href="../../img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../js/tailwind.config.js"></script>
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../../css/theme.css">
+</head>
+<!-- Owner: Reservation component. Shows ONLY the logged-in guest's bookings (guestId from session).
+     "Completed" and "No-show" are derived on read: checkOut < today / checkIn < today and not checked in. -->
+<body data-root="../" data-layout="public" data-active="bookings" data-user="guest">
+  <div data-slot="header"></div>
+
+  <main class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 pt-12" data-tab-scope>
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+      <div>
+        <span class="eyebrow">Your account</span>
+        <h1 class="font-display text-5xl font-semibold text-forest mt-4">My bookings</h1>
+      </div>
+      <a href="../room/list.html" class="btn btn-primary"><i data-lucide="plus"></i>New booking</a>
+    </div>
+
+    <div class="tabs mt-8">
+      <button type="button" class="tab active" data-tab="upcoming">Upcoming <span class="count">2</span></button>
+      <button type="button" class="tab" data-tab="past">Completed <span class="count">2</span></button>
+      <button type="button" class="tab" data-tab="cancelled">Cancelled <span class="count">1</span></button>
+    </div>
+
+    <!-- ============ UPCOMING ============ -->
+    <div class="mt-8 space-y-6" data-tab-panel="upcoming">
+      <article class="card overflow-hidden grid md:grid-cols-[260px_1fr]">
+        <div class="h-52 md:h-full"><img class="img-cover" src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=600&q=80" alt="Estate Suite"></div>
+        <div class="p-6 sm:p-7">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="mono text-xs text-muted tracking-wider">BK1024</p>
+              <h2 class="font-display text-3xl font-semibold text-forest">Estate Suite · Room 301</h2>
+            </div>
+            <div class="flex flex-wrap gap-2"><span class="badge badge-active">Active</span><span class="badge badge-pending">Payment pending</span></div>
+          </div>
+          <dl class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+            <div><dt class="label !mb-1">Check-in</dt><dd class="font-semibold">Mon, 12 Oct</dd></div>
+            <div><dt class="label !mb-1">Check-out</dt><dd class="font-semibold">Thu, 15 Oct</dd></div>
+            <div><dt class="label !mb-1">Nights</dt><dd class="font-semibold">3</dd></div>
+            <div><dt class="label !mb-1">Estimated</dt><dd class="font-semibold">LKR 124,200</dd></div>
+          </dl>
+          <div class="mt-6 pt-5 border-t border-line flex flex-wrap items-center justify-between gap-3">
+            <p class="text-sm text-muted flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-brass"></i>Arriving in 5 days</p>
+            <button class="btn btn-danger-outline btn-sm" data-modal-open="cancel-modal" data-booking="BK1024" data-room="Estate Suite · 12–15 Oct"><i data-lucide="x"></i>Cancel booking</button>
+          </div>
+        </div>
+      </article>
+
+      <article class="card overflow-hidden grid md:grid-cols-[260px_1fr]">
+        <div class="h-52 md:h-full"><img class="img-cover" src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=600&q=80" alt="Deluxe Room"></div>
+        <div class="p-6 sm:p-7">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="mono text-xs text-muted tracking-wider">BK1031</p>
+              <h2 class="font-display text-3xl font-semibold text-forest">Deluxe Valley Room · 201</h2>
+            </div>
+            <div class="flex flex-wrap gap-2"><span class="badge badge-active">Active</span><span class="badge badge-pending">Payment pending</span></div>
+          </div>
+          <dl class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+            <div><dt class="label !mb-1">Check-in</dt><dd class="font-semibold">Sun, 20 Dec</dd></div>
+            <div><dt class="label !mb-1">Check-out</dt><dd class="font-semibold">Thu, 24 Dec</dd></div>
+            <div><dt class="label !mb-1">Nights</dt><dd class="font-semibold">4</dd></div>
+            <div><dt class="label !mb-1">Estimated</dt><dd class="font-semibold">LKR 100,800</dd></div>
+          </dl>
+          <div class="mt-6 pt-5 border-t border-line flex flex-wrap items-center justify-between gap-3">
+            <p class="text-sm text-muted flex items-center gap-2"><i data-lucide="sparkles" class="w-4 h-4 text-brass"></i>Christmas in the hills</p>
+            <button class="btn btn-danger-outline btn-sm" data-modal-open="cancel-modal" data-booking="BK1031" data-room="Deluxe Valley Room · 20–24 Dec"><i data-lucide="x"></i>Cancel booking</button>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- ============ COMPLETED ============ -->
+    <div class="mt-8 space-y-6 hidden" data-tab-panel="past">
+      <article class="card overflow-hidden grid md:grid-cols-[260px_1fr]">
+        <div class="h-52 md:h-full"><img class="img-cover" src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80" alt="Deluxe Room"></div>
+        <div class="p-6 sm:p-7">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="mono text-xs text-muted tracking-wider">BK0987</p>
+              <h2 class="font-display text-3xl font-semibold text-forest">Deluxe Garden Room · 202</h2>
+            </div>
+            <div class="flex flex-wrap gap-2"><span class="badge badge-completed">Completed</span><span class="badge badge-paid">Paid</span></div>
+          </div>
+          <dl class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+            <div><dt class="label !mb-1">Check-in</dt><dd class="font-semibold">Wed, 2 Sep</dd></div>
+            <div><dt class="label !mb-1">Check-out</dt><dd class="font-semibold">Sat, 5 Sep</dd></div>
+            <div><dt class="label !mb-1">Nights</dt><dd class="font-semibold">3</dd></div>
+            <div><dt class="label !mb-1">Paid</dt><dd class="font-semibold">LKR 71,820</dd></div>
+          </dl>
+          <div class="mt-6 pt-5 border-t border-line flex flex-wrap items-center justify-between gap-3">
+            <p class="text-sm text-muted">How was your stay?</p>
+            <a href="../review/write.html" class="btn btn-brass btn-sm"><i data-lucide="star"></i>Write a review</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="card overflow-hidden grid md:grid-cols-[260px_1fr]">
+        <div class="h-52 md:h-full"><img class="img-cover" src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=600&q=80" alt="Standard Room"></div>
+        <div class="p-6 sm:p-7">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="mono text-xs text-muted tracking-wider">BK0952</p>
+              <h2 class="font-display text-3xl font-semibold text-forest">Standard Room · 101</h2>
+            </div>
+            <div class="flex flex-wrap gap-2"><span class="badge badge-completed">Completed</span><span class="badge badge-paid">Paid</span></div>
+          </div>
+          <dl class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+            <div><dt class="label !mb-1">Check-in</dt><dd class="font-semibold">Fri, 14 Aug</dd></div>
+            <div><dt class="label !mb-1">Check-out</dt><dd class="font-semibold">Sun, 16 Aug</dd></div>
+            <div><dt class="label !mb-1">Nights</dt><dd class="font-semibold">2</dd></div>
+            <div><dt class="label !mb-1">Paid</dt><dd class="font-semibold">LKR 31,635</dd></div>
+          </dl>
+          <div class="mt-6 pt-5 border-t border-line flex flex-wrap items-center justify-between gap-3">
+            <span class="badge badge-verified no-dot"><i data-lucide="badge-check"></i>You reviewed this stay</span>
+            <span data-stars="5"></span>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <!-- ============ CANCELLED ============ -->
+    <div class="mt-8 space-y-6 hidden" data-tab-panel="cancelled">
+      <article class="card overflow-hidden grid md:grid-cols-[260px_1fr] opacity-80">
+        <div class="h-52 md:h-full grayscale"><img class="img-cover" src="https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=600&q=80" alt="Estate Suite"></div>
+        <div class="p-6 sm:p-7">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p class="mono text-xs text-muted tracking-wider">BK0990</p>
+              <h2 class="font-display text-3xl font-semibold text-forest">Estate Suite · Room 302</h2>
+            </div>
+            <div class="flex flex-wrap gap-2"><span class="badge badge-cancelled">Cancelled</span><span class="badge badge-refunded">Refunded</span></div>
+          </div>
+          <dl class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+            <div><dt class="label !mb-1">Check-in</dt><dd class="font-semibold line-through text-muted">Fri, 18 Sep</dd></div>
+            <div><dt class="label !mb-1">Check-out</dt><dd class="font-semibold line-through text-muted">Sun, 20 Sep</dd></div>
+            <div><dt class="label !mb-1">Nights</dt><dd class="font-semibold">2</dd></div>
+            <div><dt class="label !mb-1">Refunded</dt><dd class="font-semibold">LKR 82,800</dd></div>
+          </dl>
+        </div>
+      </article>
+    </div>
+  </main>
+
+  <!-- Cancel confirmation -->
+  <div class="modal" id="cancel-modal" role="dialog" aria-modal="true" aria-labelledby="cancel-title">
+    <div class="modal-box">
+      <span class="stat-icon !bg-clay/10 !text-clay"><i data-lucide="calendar-x"></i></span>
+      <h2 id="cancel-title" class="font-display text-3xl font-semibold text-forest mt-4">Cancel this booking?</h2>
+      <p class="mt-2 text-sm text-ink/70"><span class="font-semibold" data-fill="booking">BK</span>, <span data-fill="room"></span>. The room will be released for other guests. This can't be undone.</p>
+      <!-- JSP: <form method="post" action=".../reservations/cancel"><input type="hidden" name="bookingId"> -->
+      <div class="mt-6 flex justify-end gap-2">
+        <button class="btn btn-ghost" data-modal-close>Keep booking</button>
+        <button class="btn btn-danger" data-demo-click="Booking cancelled (prototype)">Yes, cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div data-slot="footer"></div>
+  <script src="../../js/layout.js"></script>
+  <script src="../../js/app.js"></script>
+</body>
+</html>

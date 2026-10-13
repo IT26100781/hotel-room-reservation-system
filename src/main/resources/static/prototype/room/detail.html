@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Estate Suite · The Orchid Estate</title>
+  <link rel="icon" href="../../img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../js/tailwind.config.js"></script>
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../../css/theme.css">
+</head>
+<!-- Owner: Room component. Description/amenities come from the room subclass (getDescription(), getAmenities()). -->
+<body data-root="../" data-layout="public" data-active="rooms" data-user="guest">
+  <div data-slot="header"></div>
+
+  <main class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 pt-8">
+    <nav class="text-sm text-muted flex items-center gap-2" aria-label="Breadcrumb">
+      <a href="../index.html" class="hover:text-forest">Home</a><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      <a href="list.html" class="hover:text-forest">Rooms</a><i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+      <span class="text-forest font-medium">Estate Suite</span>
+    </nav>
+
+    <!-- Gallery -->
+    <div class="mt-6 grid md:grid-cols-[1.4fr_1fr] gap-4">
+      <div class="arch h-[420px] md:h-[520px] img-zoom">
+        <img class="img-cover" src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1200&q=80" alt="Estate Suite bedroom">
+      </div>
+      <div class="grid grid-rows-2 gap-4">
+        <div class="rounded-[22px] overflow-hidden img-zoom"><img class="img-cover" src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=800&q=80" alt="Suite living room"></div>
+        <div class="rounded-[22px] overflow-hidden img-zoom relative">
+          <img class="img-cover" src="https://images.unsplash.com/photo-1559599238-308793637427?auto=format&fit=crop&w=800&q=80" alt="Suite bed detail">
+          <span class="absolute bottom-4 right-4 badge no-dot bg-paper/90 text-forest"><i data-lucide="sparkles"></i>3 photos</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-12 grid lg:grid-cols-[1fr_380px] gap-12 items-start">
+      <!-- Details -->
+      <div>
+        <p class="text-xs tracking-[.22em] uppercase text-brass font-bold">Suite · Room 301</p>
+        <h1 class="font-display text-5xl sm:text-6xl font-semibold text-forest mt-2">Estate Suite</h1>
+        <div class="mt-5 flex flex-wrap gap-2">
+          <span class="badge badge-outline no-dot"><i data-lucide="users"></i>Up to 4 guests</span>
+          <span class="badge badge-outline no-dot"><i data-lucide="ruler"></i>62 m²</span>
+          <span class="badge badge-outline no-dot"><i data-lucide="bed-double"></i>King + sofa bed</span>
+          <span class="badge badge-active">Available</span>
+        </div>
+
+        <p class="mt-8 text-lg leading-relaxed text-ink/75">
+          Our largest rooms sit on the top floor of the old planter's bungalow. A separate living room opens onto a
+          panoramic terrace, so you can watch the mist lift off the tea fields with a pot of estate tea. The
+          bathroom has a soaking tub by the window, and afternoon tea is brought to your room every day.
+        </p>
+
+        <div class="ornament my-10"><span></span></div>
+
+        <h2 class="font-display text-3xl font-semibold text-forest">What's included</h2>
+        <!-- JSP: <c:forEach var="a" items="${room.amenities}"> -->
+        <ul class="mt-6 grid sm:grid-cols-2 gap-4">
+          <li class="flex items-center gap-3"><span class="stat-icon"><i data-lucide="mountain"></i></span><span class="text-sm font-medium">Panoramic terrace</span></li>
+          <li class="flex items-center gap-3"><span class="stat-icon"><i data-lucide="sofa"></i></span><span class="text-sm font-medium">Separate living room</span></li>
+          <li class="flex items-center gap-3"><span class="stat-icon"><i data-lucide="bath"></i></span><span class="text-sm font-medium">Soaking tub</span></li>
+          <li class="flex items-center gap-3"><span class="stat-icon"><i data-lucide="coffee"></i></span><span class="text-sm font-medium">Breakfast &amp; afternoon tea</span></li>
+          <li class="flex items-center gap-3"><span class="stat-icon"><i data-lucide="car"></i></span><span class="text-sm font-medium">Station pickup</span></li>
+          <li class="flex items-center gap-3"><span class="stat-icon"><i data-lucide="wifi"></i></span><span class="text-sm font-medium">Fast Wi-Fi</span></li>
+          <li class="flex items-center gap-3"><span class="stat-icon"><i data-lucide="tv"></i></span><span class="text-sm font-medium">Smart TV</span></li>
+          <li class="flex items-center gap-3"><span class="stat-icon"><i data-lucide="wind"></i></span><span class="text-sm font-medium">Fireplace for cool nights</span></li>
+        </ul>
+
+        <div class="ornament my-10"><span></span></div>
+
+        <h2 class="font-display text-3xl font-semibold text-forest">Good to know</h2>
+        <dl class="mt-6 grid sm:grid-cols-3 gap-6 text-sm">
+          <div><dt class="label">Check-in</dt><dd class="font-semibold text-forest">From 2:00 pm</dd></div>
+          <div><dt class="label">Check-out</dt><dd class="font-semibold text-forest">Until 11:00 am</dd></div>
+          <div><dt class="label">Cancellation</dt><dd class="font-semibold text-forest">Free, before check-in</dd></div>
+        </dl>
+
+        <div class="ornament my-10"><span></span></div>
+
+        <div class="flex items-end justify-between gap-4">
+          <h2 class="font-display text-3xl font-semibold text-forest">Guests in this suite said</h2>
+          <a href="../review/list.html" class="text-sm font-semibold text-forest hover:text-brass">All reviews →</a>
+        </div>
+        <div class="mt-6 grid sm:grid-cols-2 gap-5">
+          <figure class="card card-pad">
+            <div class="flex items-center justify-between"><span data-stars="5"></span><span class="badge badge-verified">Verified</span></div>
+            <blockquote class="mt-4 text-ink/80 leading-relaxed">"The terrace at sunrise is unforgettable. Afternoon tea was a lovely touch every single day."</blockquote>
+            <figcaption class="mt-4 text-sm font-semibold">Ravindu B.</figcaption>
+          </figure>
+          <figure class="card card-pad">
+            <div class="flex items-center justify-between"><span data-stars="4"></span><span class="badge badge-verified">Verified</span></div>
+            <blockquote class="mt-4 text-ink/80 leading-relaxed">"Huge, quiet and warm. The sofa bed was comfortable for our son. Would book again."</blockquote>
+            <figcaption class="mt-4 text-sm font-semibold">Dilini J.</figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <!-- Booking card -->
+      <aside class="lg:sticky lg:top-28" data-calc-scope>
+        <!-- JSP: action="${pageContext.request.contextPath}/reservations/new" method="get" with roomId -->
+        <form action="../reservation/book.html" method="get" data-booking-calc data-default-dates data-rate="46000" data-discount="0.10"
+              class="card card-pad">
+          <input type="hidden" name="roomId" value="R301">
+          <p><span class="font-display text-4xl font-semibold text-forest">LKR 46,000</span> <span class="text-sm text-muted">/ night</span></p>
+
+          <div class="mt-6 grid grid-cols-2 border border-line rounded-2xl overflow-hidden">
+            <label class="block p-3 border-r border-line">
+              <span class="label !mb-1">Check-in</span>
+              <input type="date" name="checkIn" required class="w-full bg-transparent text-sm font-semibold text-forest focus:outline-none">
+            </label>
+            <label class="block p-3">
+              <span class="label !mb-1">Check-out</span>
+              <input type="date" name="checkOut" required class="w-full bg-transparent text-sm font-semibold text-forest focus:outline-none">
+            </label>
+            <label class="block p-3 col-span-2 border-t border-line">
+              <span class="label !mb-1">Guests</span>
+              <select name="guests" class="w-full bg-transparent text-sm font-semibold text-forest focus:outline-none">
+                <option>1 guest</option><option selected>2 guests</option><option>3 guests</option><option>4 guests</option>
+              </select>
+            </label>
+          </div>
+
+          <dl class="mt-6 space-y-3 text-sm">
+            <div class="flex justify-between"><dt class="text-ink/70" data-out="rate-x-nights">—</dt><dd data-out="subtotal">—</dd></div>
+            <div class="flex justify-between text-brass"><dt class="flex items-center gap-1.5"><i data-lucide="crown" class="w-4 h-4"></i>VIP discount (10%)</dt><dd data-out="discount">—</dd></div>
+            <div class="flex justify-between border-t border-line pt-3 font-semibold text-forest text-base"><dt>Estimated total</dt><dd data-out="total">—</dd></div>
+          </dl>
+
+          <button type="submit" class="btn btn-primary btn-lg btn-block mt-6">Reserve this suite</button>
+          <p class="mt-4 text-xs text-muted flex gap-2"><i data-lucide="info" class="w-4 h-4 shrink-0"></i>You won't be charged now. Payment is made at the front desk, and cash payments get a further 5% off.</p>
+        </form>
+      </aside>
+    </div>
+  </main>
+
+  <div data-slot="footer"></div>
+  <script src="../../js/layout.js"></script>
+  <script src="../../js/app.js"></script>
+</body>
+</html>
