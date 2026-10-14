@@ -251,4 +251,22 @@ public class StaffService {
         }
         return count > 1;
     }
+    public boolean hasAnyAdminRole() throws IOException {
+        List<Staff> staffList = staffDAO.findAllStaff();
+        for(Staff staff : staffList) {
+            if (staff.getRole() == Role.ADMIN && staff.isActive()) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public Staff createFirstAdmin(String name,String email,String password) throws IOException {
+        boolean hasAnyAdminRole = hasAnyAdminRole();
+        if(hasAnyAdminRole){
+            throw new IllegalStateException("Admin Role already exists");
+        }else{
+            return createAccount(name,email,password,Role.ADMIN);
+        }
+
+    }
 }
