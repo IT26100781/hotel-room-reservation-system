@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoice · The Orchid Estate</title>
+  <link rel="icon" href="../../img/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="../../css/theme.css">
+</head>
+<body data-root="../" data-layout="staff" data-active="payments" data-page="invoice">
+  <div data-slot="sidebar"></div>
+  <div class="lg:pl-72 min-h-screen">
+    <div data-slot="topbar"></div>
+    <main class="content max-w-4xl print-full">
+      <div class="no-print flex flex-wrap items-center justify-between gap-3">
+        <a href="list.html" class="text-sm text-muted inline-flex items-center gap-1.5"><i data-lucide="arrow-left"></i>Back to payments</a>
+        <button id="print" class="btn btn-outline btn-sm" data-print disabled><i data-lucide="printer"></i>Print / Save as PDF</button>
+      </div>
+      <div id="message" class="message" role="status"></div>
+      <article id="invoice" class="card invoice-paper mt-6" hidden>
+        <header class="flex flex-col sm:flex-row justify-between gap-8">
+          <div>
+            <div class="flex items-center gap-3"><img src="../../img/favicon.svg" width="44" height="44" alt=""><div><p class="font-display text-2xl font-semibold text-forest">The Orchid Estate</p><p class="eyebrow mt-1">Hill Country · Sri Lanka</p></div></div>
+            <p class="mt-5 text-sm text-muted">12 Estate Road, Nuwara Eliya<br>+94 52 222 0198 · stay@orchidestate.lk</p>
+          </div>
+          <div class="sm:text-right invoice-identifiers">
+            <p id="document-type" class="font-display text-5xl font-semibold text-forest">Invoice</p>
+            <dl class="mt-3 text-sm">
+              <div><dt>Payment </dt><dd id="invoice-payment" class="mono"></dd></div>
+              <div><dt>Booking </dt><dd id="invoice-booking" class="mono"></dd></div>
+              <div><dt>Issued </dt><dd id="invoice-date"></dd></div>
+            </dl>
+            <p id="document-number" class="mono text-xs text-muted mt-2"></p>
+          </div>
+        </header>
+        <div class="ornament my-10"><span>❧</span></div>
+        <div class="grid sm:grid-cols-3 gap-6 text-sm">
+          <div><p class="label">Billed to</p><p id="invoice-guest" class="font-semibold"></p><p id="invoice-email" class="text-muted"></p><span id="invoice-vip-badge" class="badge badge-vip mt-2" hidden><i data-lucide="crown"></i>VIP guest</span></div>
+          <div><p class="label">Stay</p><p id="invoice-room" class="font-semibold"></p><p id="invoice-stay" class="text-muted"></p></div>
+          <div><p class="label">Payment method</p><p id="invoice-method" class="font-semibold"></p><p id="invoice-method-note" class="text-muted"></p></div>
+        </div>
+        <div class="table-wrap mt-10"><table class="table">
+          <thead><tr><th>Description</th><th class="text-right">Nights</th><th class="text-right">Rate</th><th class="text-right">Amount</th></tr></thead>
+          <tbody>
+            <tr><td id="invoice-description"></td><td id="invoice-nights" class="text-right"></td><td id="invoice-rate" class="text-right"></td><td id="invoice-amount" class="text-right"></td></tr>
+            <tr id="invoice-vip-row" class="text-brass"><td id="invoice-vip-label" colspan="3"></td><td id="invoice-vip" class="text-right"></td></tr>
+            <tr id="invoice-cash-row" class="text-sage"><td id="invoice-cash-label" colspan="3"></td><td id="invoice-discount" class="text-right"></td></tr>
+          </tbody>
+        </table></div>
+        <div class="invoice-footer mt-6 flex flex-col sm:flex-row justify-between gap-6">
+          <span id="invoice-status" class="paid-stamp"></span>
+          <div class="sm:text-right"><p id="invoice-total-label" class="text-sm text-muted"></p><p id="invoice-total" class="font-display text-5xl font-semibold text-forest"></p></div>
+        </div>
+        <p id="invoice-note" class="text-sm text-muted mt-6"></p>
+        <p class="mt-12 text-center text-xs text-muted">Thank you for staying with us. We hope to welcome you back to the hills soon.</p>
+      </article>
+    </main>
+  </div>
+  <script src="../../js/api.js"></script><script src="../../js/layout.js"></script><script src="../../js/app.js"></script>
+</body>
+</html>
