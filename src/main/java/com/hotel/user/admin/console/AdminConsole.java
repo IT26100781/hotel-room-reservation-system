@@ -74,7 +74,7 @@ public class AdminConsole {
                 System.out.println("Please enter your choice to continue...");
                 char choice = input.nextLine().charAt(0);
                 if(choice == '0'){
-                    break;
+                    return;
                 }else if(choice == '1'){
                     try{
                         printStaffTable(staffService.listStaff(currentUser));
