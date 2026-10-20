@@ -1,81 +1,66 @@
 package com.hotel.room.model;
 
-public class Room {
-    protected String roomId;
-    protected String type;
-    protected double rate;
-    protected int capacity;
-    protected String[] amenities;
-    protected String status; //  "active", "maintenance", "retired"
+public abstract class Room {
+    private String roomId;
+    private String roomName; // එකතු කළා: e.g. "Estate Suite", "Deluxe Valley Room"
+    private int roomNumber;
+    private double baseRate;
+    private int capacity;
+    private int roomSize;    // එකතු කළා: e.g. 24, 34, 62 (m²)
+    private String imageUrl; // එකතු කළා: image link
+    private String status;   // "active", "maintenance", "retired"
 
-    public Room() {
-    }
-
-    // Full Parameterized Constructor
-    public Room(String roomId, String type, double rate, int capacity, String[] amenities, String status) {
+    public Room(String roomId, String roomName, int roomNumber, double baseRate, int capacity, int roomSize, String imageUrl, String status) {
         this.roomId = roomId;
-        this.type = type;
-        this.rate = rate;
+        this.roomName = roomName;
+        this.roomNumber = roomNumber;
+        this.baseRate = baseRate;
         this.capacity = capacity;
-        this.amenities = amenities;
+        this.roomSize = roomSize;
+        this.imageUrl = imageUrl;
         this.status = status;
     }
+
+    // Abstract methods
+    public abstract String[] getAmenities();
+    public abstract String getDescription();
 
     // Getters and Setters
-    public String getRoomId() {
-        return roomId;
-    }
+    public String getRoomId() { return roomId; }
+    public void setRoomId(String roomId) { this.roomId = roomId; }
 
-    public void setRoomId(String roomId) {
-        this.roomId = roomId;
-    }
+    public String getRoomName() { return roomName; }
+    public void setRoomName(String roomName) { this.roomName = roomName; }
 
-    public String getType() {
-        return type;
-    }
+    public int getRoomNumber() { return roomNumber; }
+    public void setRoomNumber(int roomNumber) { this.roomNumber = roomNumber; }
 
-    public void setType(String type) {
-        this.type = type;
-    }
+    public double getBaseRate() { return baseRate; }
+    public void setBaseRate(double baseRate) { this.baseRate = baseRate; }
 
-    public double getRate() {
-        return rate;
-    }
+    public int getCapacity() { return capacity; }
+    public void setCapacity(int capacity) { this.capacity = capacity; }
 
-    public void setRate(double rate) {
-        this.rate = rate;
-    }
+    public int getRoomSize() { return roomSize; }
+    public void setRoomSize(int roomSize) { this.roomSize = roomSize; }
 
-    public int getCapacity() {
-        return capacity;
-    }
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
-    public void setCapacity(int capacity) {
-        this.capacity = capacity;
-    }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 
-    public String[] getAmenities() {
-        return amenities;
-    }
-
-    public void setAmenities(String[] amenities) {
-        this.amenities = amenities;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-
-    public String getDescription() {
-        return "Room ID: " + roomId + " | Type: " + type + " | Rate: $" + rate + " | Status: " + status;
-    }
-
-    public double calculateRate() {
-        return this.rate;
+    // File saving helper (CSV format updated)
+    public String toFileString() {
+        return String.format("%s,%s,%s,%d,%.2f,%d,%d,%s,%s",
+                roomId,
+                getClass().getSimpleName(),
+                roomName,
+                roomNumber,
+                baseRate,
+                capacity,
+                roomSize,
+                imageUrl,
+                status);
     }
 }
