@@ -1,0 +1,70 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.util.List" %>
+<%@ page import="com.hotel.room.model.Room" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rooms - Staff Portal</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 30px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #1b3b2b; color: white; }
+        .room-img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
+        .btn-edit { background: #ffc107; padding: 5px 10px; color: black; text-decoration: none; border-radius: 4px; }
+        .btn-add { background: #28a745; color: white; padding: 8px 12px; text-decoration: none; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h2>Rooms Management</h2>
+    <a href="add-room.jsp" class="btn-add">+ Add Room</a>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Room</th>
+                <th>Type</th>
+                <th>Rate / night</th>
+                <th>Capacity</th>
+                <th>Size</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <%
+                List<Room> rooms = (List<Room>) request.getAttribute("rooms");
+                if (rooms != null && !rooms.isEmpty()) {
+                    for (Room r : rooms) {
+            %>
+            <tr>
+                <td>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <img src="<%= r.getImageUrl() %>" class="room-img" alt="Room Image"/>
+                        <div>
+                            <strong><%= r.getRoomName() %></strong><br/>
+                            <small><%= r.getRoomId() %></small>
+                        </div>
+                    </div>
+                </td>
+                <td><%= r.getClass().getSimpleName().replace("Room", "") %></td>
+                <td>LKR <%= String.format("%,.2f", r.getBaseRate()) %></td>
+                <td><%= r.getCapacity() %> guests</td>
+                <td><%= r.getRoomSize() %> m²</td>
+                <td><strong><%= r.getStatus() %></strong></td>
+                <td>
+                    <a href="update-room?roomId=<%= r.getRoomId() %>" class="btn-edit">Edit</a>
+                </td>
+            </tr>
+            <%
+                    }
+                } else {
+            %>
+            <tr>
+                <td colspan="7">No rooms found.</td>
+            </tr>
+            <% } %>
+        </tbody>
+    </table>
+</body>
+</html>
