@@ -2,13 +2,12 @@ package com.hotel.user.guest.model;
 
 import com.hotel.user.Role;
 import com.hotel.user.User;
-import com.hotel.util.FileHelper;
 
-public class guest extends User {
+public class Guest extends User {
 
-    private String guestType;
+    protected String guestType;
 
-    public guest(String id, String name, String email, String passwordHash) {
+    public Guest(String id, String name, String email, String passwordHash) {
         super(id,name,email,passwordHash);
     }
     @Override public Role getRole(){
@@ -23,7 +22,9 @@ public class guest extends User {
     public void setGuestType(String guestType){
         this.guestType = guestType;
     }
-
+    public double getDiscount() {
+        return 0;
+    }
 
 
 
