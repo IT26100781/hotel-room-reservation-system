@@ -2,13 +2,13 @@ package com.hotel.room.model;
 
 public abstract class Room {
     private String roomId;
-    private String roomName; // එකතු කළා: e.g. "Estate Suite", "Deluxe Valley Room"
+    private String roomName;
     private int roomNumber;
     private double baseRate;
     private int capacity;
-    private int roomSize;    // එකතු කළා: e.g. 24, 34, 62 (m²)
-    private String imageUrl; // එකතු කළා: image link
-    private String status;   // "active", "maintenance", "retired"
+    private int roomSize;
+    private String imageUrl;
+    private String status;
 
     public Room(String roomId, String roomName, int roomNumber, double baseRate, int capacity, int roomSize, String imageUrl, String status) {
         this.roomId = roomId;
@@ -21,11 +21,9 @@ public abstract class Room {
         this.status = status;
     }
 
-    // Abstract methods
     public abstract String[] getAmenities();
     public abstract String getDescription();
 
-    // Getters and Setters
     public String getRoomId() { return roomId; }
     public void setRoomId(String roomId) { this.roomId = roomId; }
 
@@ -50,7 +48,6 @@ public abstract class Room {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
-    // File saving helper (CSV format updated)
     public String toFileString() {
         return String.format("%s,%s,%s,%d,%.2f,%d,%d,%s,%s",
                 roomId,

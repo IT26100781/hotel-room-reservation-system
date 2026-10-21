@@ -9,7 +9,7 @@ public class RoomService {
 
     private static final String FILE_PATH = "rooms.txt";
 
-    // 1. CREATE
+    //  CREATE
     public boolean addRoom(Room room) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FILE_PATH, true))) {
             writer.write(room.toFileString());
@@ -21,7 +21,7 @@ public class RoomService {
         }
     }
 
-    // 2. READ ALL
+    //  READ ALL
     public List<Room> getAllRooms() {
         List<Room> rooms = new ArrayList<>();
         File file = new File(FILE_PATH);
@@ -73,7 +73,7 @@ public class RoomService {
         }
     }
 
-    // 3. SEARCH & FILTER
+    //  SEARCH & FILTER
     public List<Room> searchRooms(String type, Double maxPrice, Integer minCapacity) {
         List<Room> allRooms = getAllRooms();
         List<Room> filteredRooms = new ArrayList<>();
@@ -94,7 +94,7 @@ public class RoomService {
         return filteredRooms;
     }
 
-    // 4. UPDATE
+    //  UPDATE
     public boolean updateRoom(Room updatedRoom) {
         List<Room> rooms = getAllRooms();
         boolean found = false;
@@ -110,7 +110,7 @@ public class RoomService {
         return found && saveAllRoomsToFile(rooms);
     }
 
-    // 5. SOFT DELETE
+    //  SOFT DELETE
     public boolean deleteRoom(String roomId) {
         List<Room> rooms = getAllRooms();
         boolean found = false;
