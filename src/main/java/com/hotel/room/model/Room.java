@@ -1,5 +1,9 @@
 package com.hotel.room.model;
 
+/**
+ * Abstract base class representing a hotel room.
+ * Subclasses (StandardRoom, DeluxeRoom, SuiteRoom) override amenities and description.
+ */
 public abstract class Room {
     private String roomId;
     private String roomName;
@@ -18,7 +22,7 @@ public abstract class Room {
         this.capacity = capacity;
         this.roomSize = roomSize;
         this.imageUrl = imageUrl;
-        this.status = status;
+        this.status = status != null ? status : "active";
     }
 
     public abstract String[] getAmenities();
@@ -48,8 +52,32 @@ public abstract class Room {
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+    public String getType() {
+        return getClass().getSimpleName();
+    }
+
+    public String getTypeDisplayName() {
+        return getClass().getSimpleName().replace("Room", "");
+    }
+
+    public String getFormattedRate() {
+        return String.format("%,.2f", baseRate);
+    }
+
+    public boolean isActive() {
+        return "active".equalsIgnoreCase(status);
+    }
+
+    public boolean isMaintenance() {
+        return "maintenance".equalsIgnoreCase(status);
+    }
+
+    public boolean isRetired() {
+        return "retired".equalsIgnoreCase(status);
+    }
+
     public String toFileString() {
-        return String.format("%s,%s,%s,%d,%.2f,%d,%d,%s,%s",
+        return String.format("%s|%s|%s|%d|%.2f|%d|%d|%s|%s",
                 roomId,
                 getClass().getSimpleName(),
                 roomName,
@@ -57,7 +85,7 @@ public abstract class Room {
                 baseRate,
                 capacity,
                 roomSize,
-                imageUrl,
+                imageUrl != null ? imageUrl : "",
                 status);
     }
 }
