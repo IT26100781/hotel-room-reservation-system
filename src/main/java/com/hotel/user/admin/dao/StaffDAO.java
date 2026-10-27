@@ -1,82 +1,77 @@
 package com.hotel.user.admin.dao;
 
-import com.hotel.config.DataConfig;
-import com.hotel.user.admin.model.Staff;
-import com.hotel.util.FileHelper;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import com.hotel.user.Role;
+import com.hotel.user.admin.model.Admin;
+import com.hotel.user.admin.model.Staff;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 
+@Repository
+
 public class StaffDAO {
-    public List<Staff> findAllStaff() throws IOException {
-        List<Staff> staff = new ArrayList<>();
-        List<String> lines =  FileHelper.readLines(DataConfig.STAFF_FILE);
-        for (String line : lines) {
-            Staff s = Staff.fromFileString(line);
-            if(s != null){
-                staff.add(s);
-            }
-        }
-        return staff;
+    private final JdbcTemplate jdbcTemplate;
+    public  StaffDAO(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
-    public Staff findById(String id) throws IOException {
-        for (Staff b : findAllStaff()) {
-            if (b.getId().equals(id)) {
-                return b;
-            }
-        }
-        return null;
-    }
-    public Staff findByEmail(String email) throws IOException {
-        for (Staff b : findAllStaff()) {
-            if (b.getEmail().equalsIgnoreCase(email)) {
-                return b;
-            }
-        }
-        return null;
-    }
-    public void saveStaff(Staff staff) throws IOException {
-        String line = staff.toFileString();
 
-        FileHelper.appendLine(DataConfig.STAFF_FILE, line);
+    private Staff mapRow(ResultSet rs, int rowNum) throws SQLException {
+        String id = rs.getString("id");
+        String name = rs.getString("name");
+        String email = rs.getString("email");
+        String passwordHash = rs.getString("password_hash");
+        String role = rs.getString("role");
+        boolean status = rs.getBoolean("active");
 
+        if(role.equalsIgnoreCase(Role.STAFF.name())){
+            return new Staff(id,name,email,passwordHash,status);
+        }
+        if(role.equalsIgnoreCase(Role.ADMIN.name())){
+            return new Admin(id,name,email,passwordHash,status);
+        }
+        throw new IllegalStateException("Invalid role");
     }
-    public boolean updateStaff(Staff updated) throws IOException {
-        List<Staff> staff = findAllStaff();
-        boolean isFound = false;
-        for(int i = 0; i < staff.size(); i++){
-            if(staff.get(i).getId().equals(updated.getId())){
-                staff.set(i, updated);
-                isFound = true;
-                break;
-            }
-        }
-        if(!isFound){
-            return false;
-        }
-        writeAll(staff);
-        return true;
+
+    public List<Staff> findAllStaff() {
+        String sql = "SELECT id, name, email, password_hash, role, active FROM staff ORDER BY id";
+        return jdbcTemplate.query(sql,this::mapRow);
     }
-    public boolean deleteStaff(String id) throws IOException {
-        List<Staff> staff = findAllStaff();
-        for (int i = 0; i < staff.size(); i++) {
-            if (staff.get(i).getId().equals(id)) {
-                staff.remove(i);
-                writeAll(staff);
-                return true;
-            }
-        }
-        return false;
+
+    public Staff findById(String id) {
+        String sql = "SELECT id, name, email, password_hash, role, active FROM staff WHERE id = ?";
+        List<Staff> found = jdbcTemplate.query(sql,this::mapRow,id);
+        return found.isEmpty() ? null : found.get(0);
+    }
+
+    public Staff findByEmail(String email){
+        String sql = "SELECT id, name, email, password_hash, role, active FROM staff WHERE email = ?";
+        List<Staff> found = jdbcTemplate.query(sql,this::mapRow,email);
+        return found.isEmpty() ? null : found.get(0);
 
     }
-    private void writeAll(List<Staff> staff) throws IOException {
-        List<String> lines = new ArrayList<>();
-        for (Staff b : staff) {
-            lines.add(b.toFileString());
-        }
-        FileHelper.writeLines(DataConfig.STAFF_FILE,lines);
+
+    public boolean saveStaff(Staff staff) {
+        String sql= "INSERT INTO staff (id, name, email, password_hash, role, active) VALUES (?, ?, ?, ?, ?, ?)";
+        int rows = jdbcTemplate.update(sql,staff.getId(),staff.getName(),staff.getEmail(),staff.getPasswordHash(),staff.getRole().name(),staff.isActive());
+        return rows == 1;
     }
+    public boolean updateStaff(Staff updated){
+        String sql ="UPDATE staff SET name = ?, email = ?, password_hash = ?, role = ?, active = ? WHERE id = ?";
+        int rows = jdbcTemplate.update(sql,updated.getName(),updated.getEmail(),updated.getPasswordHash(),updated.getRole().name(),updated.isActive(),updated.getId());
+        return rows == 1;
+
+    }
+
+    public boolean deleteStaff(String id){
+        String sql = "DELETE FROM staff WHERE id = ?";
+        int rows = jdbcTemplate.update(sql,id);
+        return rows == 1;
+    }
+
 
 
 }

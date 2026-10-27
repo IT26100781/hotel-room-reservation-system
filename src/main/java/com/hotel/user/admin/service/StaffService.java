@@ -5,6 +5,7 @@ import com.hotel.user.User;
 import com.hotel.user.admin.dao.StaffDAO;
 import com.hotel.user.admin.model.Admin;
 import com.hotel.user.admin.model.Staff;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.regex.Pattern;
 import static com.hotel.util.PasswordUtil.hash;
 import static com.hotel.util.PasswordUtil.matchesPassword;
 
+@Service
 public class StaffService {
     // calles StaffDao
     private final StaffDAO staffDAO;
@@ -23,7 +25,7 @@ public class StaffService {
         this.staffDAO = staffDAO;
     }
     //auto increment staffId
-    private String nextId() throws IOException {
+    private String nextId() {
         //Staff ID format is S+ 2 numbers eg: S01
         //Create list to store staff objects
         List<Staff> staffList = staffDAO.findAllStaff();
@@ -84,7 +86,7 @@ public class StaffService {
         }
     }
     //add new staff to system
-    public Staff addStaff(User currentUser,String name,String email,String password) throws IOException {
+    public Staff addStaff(User currentUser,String name,String email,String password){
         boolean canAddStaff = currentUser.canManageStaffUsers();
         if(!canAddStaff){
             throw new SecurityException("You don't have permission to add staff");
@@ -92,7 +94,7 @@ public class StaffService {
         Staff staff = createAccount(name,email,password,Role.STAFF);
         return  staff;
     }
-    public Staff addAdmin(User currentUser,String name,String email,String password) throws IOException {
+    public Staff addAdmin(User currentUser,String name,String email,String password) {
         boolean canAddAdmin = currentUser.canManageAdminUsers();
         if(!canAddAdmin){
             throw new SecurityException("You don't have permission to add admin");
@@ -121,14 +123,14 @@ public class StaffService {
         }
         return staff;
     }
-    public List<Staff> listStaff(User currentUser) throws IOException {
+    public List<Staff> listStaff(User currentUser){
         if(currentUser.canViewStaffUsers()){
             return staffDAO.findAllStaff();
         }else{
             throw new SecurityException("You don't have permission to view staff");
         }
     }
-    public Staff updateStaffDetails(User currentUser,String id,String name,String email) throws IOException {
+    public Staff updateStaffDetails(User currentUser,String id,String name,String email) {
         boolean canUpdateStaff = currentUser.canManageStaffUsers() || currentUser.getId().equals(id);
         if(!canUpdateStaff){
             throw new SecurityException("You don't have permission to update staff");
@@ -136,7 +138,7 @@ public class StaffService {
         Staff staff = updateAccount(id,name,email);
         return staff;
     }
-    public Staff updateAdminDetails(User currentUser,String id,String name,String email) throws IOException {
+    public Staff updateAdminDetails(User currentUser,String id,String name,String email) {
         boolean canUpdateAdmin = currentUser.canManageAdminUsers() || currentUser.getId().equals(id);
         if(!canUpdateAdmin){
             throw new SecurityException("You don't have permission to update admin");
@@ -144,7 +146,7 @@ public class StaffService {
         Staff admin = updateAccount(id,name,email);
         return admin;
     }
-    public Staff changeRole (User currentUser,String id) throws IOException {
+    public Staff changeRole (User currentUser,String id) {
         boolean canChangeRole = currentUser.canManageAdminUsers();
         if(!canChangeRole){
             throw new SecurityException("You don't have permission to change role");
@@ -170,7 +172,7 @@ public class StaffService {
         }
 
     }
-    public boolean setActive(User currentUser,String id,boolean isActive) throws IOException {
+    public boolean setActive(User currentUser,String id,boolean isActive) {
         boolean canSetActive = currentUser.canManageAdminUsers() && !currentUser.getId().equals(id);
         if(!canSetActive){
             throw new SecurityException(currentUser.getId().equals(id)?"You can't deactivate your own account":"You don't have permission to set active");
@@ -190,7 +192,7 @@ public class StaffService {
     }
 
     //helpers
-    private Staff createAccount(String name,String email,String password,Role role) throws IOException {
+    private Staff createAccount(String name,String email,String password,Role role) {
         validatePassword(password);
         validateName(name);
         name = name.trim();
@@ -218,7 +220,7 @@ public class StaffService {
         }
         return null;
     }
-    private Staff updateAccount(String id,String name,String email) throws IOException {
+    private Staff updateAccount(String id,String name,String email) {
         if(id == null || id.isEmpty()){
             throw new IllegalArgumentException("ID cannot be empty");
         }
@@ -241,7 +243,7 @@ public class StaffService {
         staffDAO.updateStaff(staff);
         return staff;
     }
-    private boolean areMoreThanOneAdmin() throws IOException {
+    private boolean areMoreThanOneAdmin() {
         List<Staff> staffList = staffDAO.findAllStaff();
         int count =0;
         for(Staff staff : staffList){
@@ -251,7 +253,7 @@ public class StaffService {
         }
         return count > 1;
     }
-    public boolean hasAnyAdminRole() throws IOException {
+    public boolean hasAnyAdminRole() {
         List<Staff> staffList = staffDAO.findAllStaff();
         for(Staff staff : staffList) {
             if (staff.getRole() == Role.ADMIN && staff.isActive()) {
@@ -260,7 +262,7 @@ public class StaffService {
         }
         return false;
     }
-    public Staff createFirstAdmin(String name,String email,String password) throws IOException {
+    public Staff createFirstAdmin(String name,String email,String password){
         boolean hasAnyAdminRole = hasAnyAdminRole();
         if(hasAnyAdminRole){
             throw new IllegalStateException("Admin Role already exists");
