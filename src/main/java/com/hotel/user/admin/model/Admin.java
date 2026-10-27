@@ -1,7 +1,6 @@
 package com.hotel.user.admin.model;
 
 import com.hotel.user.Role;
-import com.hotel.util.FileHelper;
 
 public class Admin extends Staff{
     private final Role role = Role.ADMIN;

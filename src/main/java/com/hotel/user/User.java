@@ -27,8 +27,6 @@ public abstract class User {
     /** Each subclass reports its own role. */
     public abstract Role getRole();
 
-    /** Each subclass writes itself as one line of its own data file. */
-    public abstract String toFileString();
 
     // ---- permissions (default-deny) ----
 

@@ -2,7 +2,7 @@ package com.hotel.user.admin.model;
 
 import com.hotel.user.Role;
 import com.hotel.user.User;
-import com.hotel.util.FileHelper;
+
 
 public class Staff extends User {
     private final Role role = Role.STAFF;
@@ -22,23 +22,6 @@ public class Staff extends User {
         return Role.STAFF;
     }
 
-    @Override
-    public String toFileString() {
-        return FileHelper.join(id, name,email,passwordHash ,getRole() ,status? "active":"inactive");
-    }
-    public static Staff fromFileString(String recordLine) {
-        String[] record = FileHelper.split(recordLine);
-        if (record.length != 6) {
-            return null;
-        }
-        boolean isActive = record[5].equals("active");
-        if(record[4].equals(Role.ADMIN.name())){
-            return  new Admin(record[0],record[1],record[2],record[3],isActive);
-        } else if (record[4].equals(Role.STAFF.name())) {
-            return new Staff(record[0],record[1],record[2],record[3],isActive);
-        }
-        return null;
-    }
 
     // getters and setters
 
