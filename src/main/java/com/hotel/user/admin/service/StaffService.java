@@ -16,7 +16,7 @@ import static com.hotel.util.PasswordUtil.matchesPassword;
 
 @Service
 public class StaffService {
-    // calles StaffDao
+    // calls StaffDao
     private final StaffDAO staffDAO;
     // defines accepted email regex pattern
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
@@ -24,6 +24,7 @@ public class StaffService {
     public StaffService(StaffDAO staffDAO) {
         this.staffDAO = staffDAO;
     }
+
     //auto increment staffId
     private String nextId() {
         //Staff ID format is S+ 2 numbers eg: S01
@@ -47,6 +48,7 @@ public class StaffService {
         return String.format("S%02d", largest +1);
 
     }
+
     // validators for email, name and password
     private void validateEmail(String email) throws IllegalArgumentException{
         if (email == null || email.isBlank()) {
@@ -85,6 +87,7 @@ public class StaffService {
             throw new IllegalArgumentException("Name contains invalid symbols");
         }
     }
+
     //add new staff to system
     public Staff addStaff(User currentUser,String name,String email,String password){
         boolean canAddStaff = currentUser.canManageStaffUsers();
@@ -94,6 +97,7 @@ public class StaffService {
         Staff staff = createAccount(name,email,password,Role.STAFF);
         return  staff;
     }
+    // add new admin to system
     public Staff addAdmin(User currentUser,String name,String email,String password) {
         boolean canAddAdmin = currentUser.canManageAdminUsers();
         if(!canAddAdmin){
@@ -130,7 +134,17 @@ public class StaffService {
             throw new SecurityException("You don't have permission to view staff");
         }
     }
+    // find staff by id
+    public Staff findStaffById(String id,User currentUser){
+        if(currentUser.canViewStaffUsers()){
+            return staffDAO.findById(id);
+        }else {
+            throw new SecurityException("You don't have permission to view staff");
+        }
+    }
+    // update staff details
     public Staff updateStaffDetails(User currentUser,String id,String name,String email) {
+        // checks whether either user changes their own profile or has access to edit other staff profiles
         boolean canUpdateStaff = currentUser.canManageStaffUsers() || currentUser.getId().equals(id);
         if(!canUpdateStaff){
             throw new SecurityException("You don't have permission to update staff");
@@ -138,7 +152,9 @@ public class StaffService {
         Staff staff = updateAccount(id,name,email);
         return staff;
     }
+    // update staff details
     public Staff updateAdminDetails(User currentUser,String id,String name,String email) {
+        // checks whether either user changes their own profile or has access to edit other staff profiles
         boolean canUpdateAdmin = currentUser.canManageAdminUsers() || currentUser.getId().equals(id);
         if(!canUpdateAdmin){
             throw new SecurityException("You don't have permission to update admin");
@@ -146,6 +162,7 @@ public class StaffService {
         Staff admin = updateAccount(id,name,email);
         return admin;
     }
+    // change role
     public Staff changeRole (User currentUser,String id) {
         boolean canChangeRole = currentUser.canManageAdminUsers();
         if(!canChangeRole){
@@ -172,6 +189,7 @@ public class StaffService {
         }
 
     }
+    // set user active
     public boolean setActive(User currentUser,String id,boolean isActive) {
         boolean canSetActive = currentUser.canManageAdminUsers() && !currentUser.getId().equals(id);
         if(!canSetActive){
