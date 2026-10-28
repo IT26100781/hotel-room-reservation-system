@@ -107,7 +107,7 @@ public class StaffService {
         return admin;
     }
     // login
-    public User login(String email,String password) throws IOException {
+    public User login(String email,String password){
         if(email == null || email.isBlank()){
             throw new IllegalArgumentException("Email cannot be empty");
         }
