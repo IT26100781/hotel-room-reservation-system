@@ -1,0 +1,11 @@
+<%@ page pageEncoding="UTF-8" %>
+<%-- The brand mark (arch + orchid). Colour comes from the surrounding text colour. --%>
+<svg viewBox="0 0 40 40" class="w-9 h-9 text-brass" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <path d="M8 36V18a12 12 0 0 1 24 0v18"/>
+  <path d="M4 36h32"/>
+  <path d="M20 31V19"/>
+  <path d="M20 19c-4.2-.6-6.6-3.6-6.6-8 4.2.3 6.6 3.3 6.6 8z"/>
+  <path d="M20 19c4.2-.6 6.6-3.6 6.6-8-4.2.3-6.6 3.3-6.6 8z"/>
+  <path d="M20 17.5c-1.8-2.6-1.8-5.6 0-8.5 1.8 2.9 1.8 5.9 0 8.5z"/>
+  <path d="M20 27c-2.2 0-3.8-1-4.6-2.8M20 27c2.2 0 3.8-1 4.6-2.8"/>
+</svg>
