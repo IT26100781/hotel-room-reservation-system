@@ -135,7 +135,7 @@ public class StaffService {
         }
     }
     // find staff by id
-    public Staff findStaffById(String id,User currentUser){
+    public Staff findStaffById(User currentUser,String id){
         if(currentUser.canViewStaffUsers()){
             return staffDAO.findById(id);
         }else {
@@ -223,7 +223,7 @@ public class StaffService {
             throw new IllegalArgumentException("Role cannot be null");
         }
         if(staffDAO.findByEmail(email)!= null){
-            throw new IllegalArgumentException("Email already exists ");
+            throw new IllegalArgumentException("Email already exists");
         }
         String id = nextId();
         String passwordHash = hash(password);
