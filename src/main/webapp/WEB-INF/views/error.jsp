@@ -12,8 +12,8 @@
 <c:choose>
   <c:when test="${status == 403}">
     <c:set var="pageTitle" value="Access denied"/>
-    <c:set var="heading" value="This door is for staff only"/>
-    <c:set var="text" value="You don't have permission to open this page. If you think that's a mistake, sign in with a different account."/>
+    <c:set var="heading" value="This door is locked for you"/>
+    <c:set var="text" value="Your account doesn't have permission to open this page. If you think that's a mistake, ask an administrator or sign in with a different account."/>
     <c:set var="icon" value="key-round"/>
   </c:when>
   <c:when test="${status == 404}">
