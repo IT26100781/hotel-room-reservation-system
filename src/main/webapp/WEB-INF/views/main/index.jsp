@@ -1,0 +1,290 @@
+<%@ page pageEncoding="UTF-8" %>
+<%@ include file="/WEB-INF/views/common/init.jspf" %>
+<%--
+  Home page (GET /). Shown by HomeServlet (@WebServlet("")).
+  Static content for now; the search form sends type and capacity to the room module's /rooms page.
+--%>
+<!DOCTYPE html>
+<html lang="en">
+<c:set var="pageTitle" value="Boutique hotel in the hill country"/>
+<%@ include file="/WEB-INF/views/common/head.jspf" %>
+<body>
+  <c:set var="activeNav" value="home"/>
+  <%@ include file="/WEB-INF/views/common/public-header.jspf" %>
+
+  <main>
+    <!-- ============ HERO ============ -->
+    <section class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 pt-10 lg:pt-16">
+      <div class="grid lg:grid-cols-12 gap-12 items-center">
+        <div class="lg:col-span-6 reveal">
+          <span class="eyebrow">Hill Country · Sri Lanka</span>
+          <h1 class="font-display text-[3.2rem] leading-[1.02] sm:text-7xl lg:text-[5.4rem] font-semibold text-forest mt-6">
+            Stay where time <em class="italic font-medium text-brass">slows down.</em>
+          </h1>
+          <p class="mt-6 text-lg text-ink/70 max-w-lg leading-relaxed">
+            Twenty-four rooms and suites above the tea terraces of Nuwara Eliya. Mountain mornings,
+            unhurried dinners and a front desk that remembers your name.
+          </p>
+          <div class="mt-9 flex flex-wrap gap-3">
+            <a href="${ctx}/rooms" class="btn btn-primary btn-lg">Explore rooms <i data-lucide="arrow-right"></i></a>
+            <a href="${ctx}/reviews" class="btn btn-outline btn-lg">Read guest stories</a>
+          </div>
+          <dl class="mt-12 grid grid-cols-3 max-w-md divide-x divide-line">
+            <div class="pr-4">
+              <dt class="text-xs text-muted uppercase tracking-widest">Rooms</dt>
+              <dd class="font-display text-4xl text-forest font-semibold">24</dd>
+            </div>
+            <div class="px-4">
+              <dt class="text-xs text-muted uppercase tracking-widest">Rating</dt>
+              <dd class="font-display text-4xl text-forest font-semibold">4.8<span class="text-brass text-2xl">★</span></dd>
+            </div>
+            <div class="pl-4">
+              <dt class="text-xs text-muted uppercase tracking-widest">Altitude</dt>
+              <dd class="font-display text-4xl text-forest font-semibold">1,868<span class="text-lg text-muted">m</span></dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="lg:col-span-6 relative reveal">
+          <div class="arch h-[440px] sm:h-[560px] lg:ml-10 shadow-2xl shadow-forest/20 img-zoom">
+            <img class="img-cover" src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80" alt="Pool terrace facing the mountains">
+          </div>
+          <!-- rotating badge -->
+          <div class="absolute -left-2 sm:left-0 bottom-16 w-32 h-32 rounded-full bg-ivory grid place-items-center shadow-xl shadow-forest/10">
+            <svg viewBox="0 0 120 120" class="absolute inset-0 w-full h-full rotating-badge text-forest" aria-hidden="true">
+              <defs><path id="badge-circle" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/></defs>
+              <text font-size="9.6" letter-spacing="2.6" font-weight="700" fill="currentColor"><textPath href="#badge-circle">BOUTIQUE ESTATE · SINCE 1998 ·</textPath></text>
+            </svg>
+            <i data-lucide="flower-2" class="w-7 h-7 text-brass"></i>
+          </div>
+          <!-- floating price card -->
+          <div class="absolute right-3 sm:-right-4 -bottom-6 card px-5 py-4 flex items-center gap-4">
+            <span class="stat-icon"><i data-lucide="moon"></i></span>
+            <div>
+              <p class="text-xs text-muted uppercase tracking-widest">Tonight from</p>
+              <p class="font-display text-2xl font-semibold text-forest">LKR 18,500 <span class="text-sm font-sans font-medium text-muted">/ night</span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search bar -->
+            <form action="${ctx}/rooms" method="get" data-booking-calc data-default-dates
+            class="card mt-20 p-3 sm:p-4 grid gap-3 md:grid-cols-[1fr_1fr_.8fr_1fr_auto] items-end reveal">
+        <label class="block px-3 py-2">
+          <span class="label">Check-in</span>
+          <input type="date" name="checkIn" required class="w-full bg-transparent font-semibold text-forest focus:outline-none">
+        </label>
+        <label class="block px-3 py-2 md:border-l md:border-line">
+          <span class="label">Check-out</span>
+          <input type="date" name="checkOut" required class="w-full bg-transparent font-semibold text-forest focus:outline-none">
+        </label>
+        <label class="block px-3 py-2 md:border-l md:border-line">
+          <span class="label">Guests</span>
+          <select name="capacity" class="w-full bg-transparent font-semibold text-forest focus:outline-none">
+            <option value="1">1 guest</option>
+            <option value="2" selected>2 guests</option>
+            <option value="3">3 guests</option>
+            <option value="4">4 guests</option>
+          </select>
+        </label>
+        <label class="block px-3 py-2 md:border-l md:border-line">
+          <span class="label">Room type</span>
+          <select name="type" class="w-full bg-transparent font-semibold text-forest focus:outline-none">
+            <option value="">Any room</option>
+            <option value="standard">Standard</option>
+            <option value="deluxe">Deluxe</option>
+            <option value="suite">Suite</option>
+          </select>
+        </label>
+        <button type="submit" class="btn btn-brass btn-lg h-full min-h-[3.5rem]"><i data-lucide="search"></i>Check availability</button>
+      </form>
+      <p class="mt-3 text-center text-xs text-muted"><span data-out="nights">—</span> · payment is taken at the front desk, never online</p>
+    </section>
+
+    <!-- ============ ROOMS ============ -->
+    <section class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 mt-28">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 reveal">
+        <div>
+          <p class="sec-num text-2xl">01</p>
+          <h2 class="font-display text-4xl sm:text-5xl font-semibold text-forest mt-1">Rooms &amp; suites</h2>
+          <p class="mt-3 text-ink/65 max-w-xl">Three ways to stay, each with breakfast on the terrace and a view of the hills.</p>
+        </div>
+        <a href="${ctx}/rooms" class="btn btn-outline">See all rooms <i data-lucide="arrow-right"></i></a>
+      </div>
+
+      <div class="mt-12 grid md:grid-cols-3 gap-8">
+        <article class="group reveal">
+          <a href="${ctx}/rooms?type=standard" class="block arch h-[380px] img-zoom">
+            <img class="img-cover" src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=800&q=80" alt="Standard room with queen bed">
+          </a>
+          <div class="mt-5 flex items-start justify-between gap-4">
+            <div>
+              <h3 class="font-display text-3xl font-semibold text-forest">Standard Room</h3>
+              <p class="text-sm text-muted mt-1 flex items-center gap-3"><span class="inline-flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i>2 guests</span><span class="inline-flex items-center gap-1"><i data-lucide="ruler" class="w-4 h-4"></i>24 m²</span></p>
+            </div>
+            <p class="text-right"><span class="block text-xs text-muted">from</span><span class="font-semibold text-forest">LKR 18,500</span></p>
+          </div>
+          <p class="mt-3 text-sm text-ink/65 leading-relaxed">Queen bed, garden view and a rain shower. Calm and simple.</p>
+        </article>
+
+        <article class="group reveal md:mt-12">
+          <a href="${ctx}/rooms?type=deluxe" class="block arch h-[380px] img-zoom">
+            <img class="img-cover" src="https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=800&q=80" alt="Deluxe room with balcony">
+          </a>
+          <div class="mt-5 flex items-start justify-between gap-4">
+            <div>
+              <h3 class="font-display text-3xl font-semibold text-forest">Deluxe Room</h3>
+              <p class="text-sm text-muted mt-1 flex items-center gap-3"><span class="inline-flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i>3 guests</span><span class="inline-flex items-center gap-1"><i data-lucide="ruler" class="w-4 h-4"></i>34 m²</span></p>
+            </div>
+            <p class="text-right"><span class="block text-xs text-muted">from</span><span class="font-semibold text-forest">LKR 28,000</span></p>
+          </div>
+          <p class="mt-3 text-sm text-ink/65 leading-relaxed">King bed, private valley balcony, a deep bathtub and a daybed.</p>
+        </article>
+
+        <article class="group reveal">
+          <a href="${ctx}/rooms?type=suite" class="block arch h-[380px] img-zoom">
+            <img class="img-cover" src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="Estate suite with living area">
+          </a>
+          <div class="mt-5 flex items-start justify-between gap-4">
+            <div>
+              <h3 class="font-display text-3xl font-semibold text-forest">Estate Suite</h3>
+              <p class="text-sm text-muted mt-1 flex items-center gap-3"><span class="inline-flex items-center gap-1"><i data-lucide="users" class="w-4 h-4"></i>4 guests</span><span class="inline-flex items-center gap-1"><i data-lucide="ruler" class="w-4 h-4"></i>62 m²</span></p>
+            </div>
+            <p class="text-right"><span class="block text-xs text-muted">from</span><span class="font-semibold text-forest">LKR 46,000</span></p>
+          </div>
+          <p class="mt-3 text-sm text-ink/65 leading-relaxed">A separate living room, panoramic terrace and afternoon tea served daily.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ============ THE ESTATE ============ -->
+    <section id="estate" class="mt-32 bg-sand/60 py-24">
+      <div class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-12 items-center">
+        <div class="lg:col-span-5 reveal">
+          <p class="sec-num text-2xl">02</p>
+          <h2 class="font-display text-4xl sm:text-5xl font-semibold text-forest mt-1">An estate for slow mornings</h2>
+          <p class="mt-4 text-ink/65 leading-relaxed">Everything you need is a short walk through the gardens. Nothing is rushed, and nothing is far.</p>
+
+          <ol class="mt-10 space-y-7">
+            <li class="flex gap-5">
+              <span class="font-display italic text-3xl text-brass w-8">i.</span>
+              <div>
+                <h3 class="font-semibold text-forest text-lg">The Fern Spa</h3>
+                <p class="text-sm text-ink/65 mt-1">Ayurvedic treatments and a steam room fed by mountain spring water.</p>
+              </div>
+            </li>
+            <li class="flex gap-5">
+              <span class="font-display italic text-3xl text-brass w-8">ii.</span>
+              <div>
+                <h3 class="font-semibold text-forest text-lg">Terrace dining</h3>
+                <p class="text-sm text-ink/65 mt-1">Hill-country produce, slow-cooked curries and estate-grown tea.</p>
+              </div>
+            </li>
+            <li class="flex gap-5">
+              <span class="font-display italic text-3xl text-brass w-8">iii.</span>
+              <div>
+                <h3 class="font-semibold text-forest text-lg">The heated pool</h3>
+                <p class="text-sm text-ink/65 mt-1">Warm water, cool air and the valley falling away below.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <div class="lg:col-span-7 grid grid-cols-2 gap-5 reveal">
+          <div class="arch h-[440px] row-span-2 img-zoom">
+            <img class="img-cover" src="https://images.unsplash.com/photo-1544161515-4ab6ce6db874?auto=format&fit=crop&w=800&q=80" alt="Spa treatment">
+          </div>
+          <div class="rounded-[22px] overflow-hidden h-[210px] img-zoom">
+            <img class="img-cover" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80" alt="Plated dinner">
+          </div>
+          <div class="rounded-[22px] overflow-hidden h-[210px] img-zoom">
+            <img class="img-cover" src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80" alt="Infinity pool">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ AMENITIES ============ -->
+    <section class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 mt-24">
+      <div class="ornament mb-12"><span></span></div>
+      <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 text-center reveal">
+        <li><span class="stat-icon mx-auto w-14 h-14 rounded-full"><i data-lucide="coffee"></i></span><p class="mt-3 text-sm font-semibold text-forest">Breakfast included</p></li>
+        <li><span class="stat-icon mx-auto w-14 h-14 rounded-full"><i data-lucide="wifi"></i></span><p class="mt-3 text-sm font-semibold text-forest">Fast Wi-Fi</p></li>
+        <li><span class="stat-icon mx-auto w-14 h-14 rounded-full"><i data-lucide="mountain"></i></span><p class="mt-3 text-sm font-semibold text-forest">Valley views</p></li>
+        <li><span class="stat-icon mx-auto w-14 h-14 rounded-full"><i data-lucide="car"></i></span><p class="mt-3 text-sm font-semibold text-forest">Station pickup</p></li>
+        <li><span class="stat-icon mx-auto w-14 h-14 rounded-full"><i data-lucide="leaf"></i></span><p class="mt-3 text-sm font-semibold text-forest">Tea estate walks</p></li>
+        <li><span class="stat-icon mx-auto w-14 h-14 rounded-full"><i data-lucide="concierge-bell"></i></span><p class="mt-3 text-sm font-semibold text-forest">24-hour front desk</p></li>
+      </ul>
+    </section>
+
+    <!-- ============ REVIEWS ============ -->
+    <section class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 mt-28">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 reveal">
+        <div>
+          <p class="sec-num text-2xl">03</p>
+          <h2 class="font-display text-4xl sm:text-5xl font-semibold text-forest mt-1">Guest stories</h2>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="font-display text-5xl font-semibold text-forest">4.8</span>
+          <div>
+            <span data-stars="5"></span>
+            <p class="text-xs text-muted mt-1">from 312 verified stays</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-10 grid md:grid-cols-3 gap-6">
+        <figure class="card card-pad card-hover reveal">
+          <i data-lucide="quote" class="w-8 h-8 text-brass/60"></i>
+          <blockquote class="mt-4 font-display text-2xl leading-snug text-forest">"We woke to mist over the tea fields every morning. The suite terrace is the best seat in Sri Lanka."</blockquote>
+          <figcaption class="mt-6 flex items-center gap-3">
+            <span class="avatar">RB</span>
+            <span class="text-sm"><span class="font-semibold block">Ravindu B.</span><span class="text-muted">Estate Suite</span></span>
+            <span class="badge badge-verified ml-auto">Verified</span>
+          </figcaption>
+        </figure>
+        <figure class="card card-pad card-hover reveal">
+          <i data-lucide="quote" class="w-8 h-8 text-brass/60"></i>
+          <blockquote class="mt-4 font-display text-2xl leading-snug text-forest">"Quiet, warm and beautifully run. Check-in took two minutes and they remembered our tea order."</blockquote>
+          <figcaption class="mt-6 flex items-center gap-3">
+            <span class="avatar">SC</span>
+            <span class="text-sm"><span class="font-semibold block">Sarah C.</span><span class="text-muted">Deluxe Room</span></span>
+            <span class="badge badge-verified ml-auto">Verified</span>
+          </figcaption>
+        </figure>
+        <figure class="card card-pad card-hover reveal">
+          <i data-lucide="quote" class="w-8 h-8 text-brass/60"></i>
+          <blockquote class="mt-4 font-display text-2xl leading-snug text-forest">"Simple room, spotless, and the breakfast hoppers were worth the trip on their own."</blockquote>
+          <figcaption class="mt-6 flex items-center gap-3">
+            <span class="avatar">AF</span>
+            <span class="text-sm"><span class="font-semibold block">Ashan F.</span><span class="text-muted">Standard Room</span></span>
+            <span class="badge badge-verified ml-auto">Verified</span>
+          </figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ============ CTA ============ -->
+    <section class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 mt-28">
+      <div class="panel-dark rounded-[28px] overflow-hidden grid md:grid-cols-2 reveal">
+        <div class="p-10 sm:p-14">
+          <span class="eyebrow">Members save more</span>
+          <h2 class="font-display text-4xl sm:text-5xl font-semibold mt-5 leading-tight">Your window seat is <em class="italic text-brass-light">waiting.</em></h2>
+          <p class="mt-5 text-ivory/65 max-w-md">Create a free account to book in seconds, manage your stays and leave a verified review after you check out. VIP guests enjoy 10% off every stay.</p>
+          <div class="mt-8 flex flex-wrap gap-3">
+            <a href="${ctx}/register" class="btn btn-brass btn-lg">Create an account</a>
+            <a href="${ctx}/login" class="btn btn-lg text-ivory border border-ivory/25 hover:bg-ivory/10">Sign in</a>
+          </div>
+        </div>
+        <div class="min-h-[280px]">
+          <img class="img-cover" src="https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=1000&q=80" alt="Balcony overlooking the lake and mountains">
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <%@ include file="/WEB-INF/views/common/footer.jspf" %>
+  <script src="${ctx}/js/app.js"></script>
+</body>
+</html>
