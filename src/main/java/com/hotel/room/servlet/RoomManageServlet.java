@@ -4,35 +4,25 @@ import com.hotel.room.model.Room;
 import com.hotel.room.service.RoomService;
 import com.hotel.user.User;
 import com.hotel.util.SessionUtil;
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.List;
 
 /**
  * Controller for Staff/Admin room management page.
- * Corresponds to prototype/room/manage.html.
+ * Only mapped under /admin/rooms so it is protected by StaffAuthFilter.
  */
-@WebServlet(urlPatterns = {"/admin/rooms", "/room-list"})
+@WebServlet("/admin/rooms")
 public class RoomManageServlet extends HttpServlet {
 
+    @Autowired
     private RoomService roomService;
-
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-        ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
-        if (context != null) {
-            this.roomService = context.getBean(RoomService.class);
-        }
-    }
 
     public void setRoomService(RoomService roomService) {
         this.roomService = roomService;
@@ -42,9 +32,9 @@ public class RoomManageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        User currentUser = SessionUtil.getCurrentUser(request.getSession());
-        if (currentUser != null && !currentUser.canManageRooms()) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only admins can manage rooms.");
+        User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
+        if (currentUser == null || !currentUser.canManageRooms()) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have permission to manage rooms.");
             return;
         }
 
@@ -52,20 +42,24 @@ public class RoomManageServlet extends HttpServlet {
         String typeFilter = request.getParameter("type");
         String search = request.getParameter("search");
 
-        List<Room> rooms;
+        List<Room> allRooms = roomService.getAllRooms();
+        // Calculate metrics in a single pass over all rooms (1 query)
+        RoomService.RoomMetrics metrics = roomService.getMetrics(allRooms);
+
+        List<Room> displayedRooms;
         if ((statusFilter != null && !statusFilter.isEmpty())
                 || (typeFilter != null && !typeFilter.isEmpty())
                 || (search != null && !search.isEmpty())) {
-            rooms = roomService.searchRooms(search, typeFilter, statusFilter, null, null);
+            displayedRooms = roomService.searchRooms(search, typeFilter, statusFilter, null, null);
         } else {
-            rooms = roomService.getAllRooms();
+            displayedRooms = allRooms;
         }
 
-        request.setAttribute("rooms", rooms);
-        request.setAttribute("totalCount", roomService.getTotalCount());
-        request.setAttribute("activeCount", roomService.getActiveCount());
-        request.setAttribute("maintenanceCount", roomService.getMaintenanceCount());
-        request.setAttribute("retiredCount", roomService.getRetiredCount());
+        request.setAttribute("rooms", displayedRooms);
+        request.setAttribute("totalCount", metrics.getTotal());
+        request.setAttribute("activeCount", metrics.getActive());
+        request.setAttribute("maintenanceCount", metrics.getMaintenance());
+        request.setAttribute("retiredCount", metrics.getRetired());
 
         request.getRequestDispatcher("/WEB-INF/views/room/manage.jsp").forward(request, response);
     }

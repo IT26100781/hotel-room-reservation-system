@@ -1,35 +1,52 @@
 package com.hotel.room.service;
 
 import com.hotel.room.dao.RoomDAO;
-import com.hotel.room.model.DeluxeRoom;
 import com.hotel.room.model.Room;
-import com.hotel.room.model.StandardRoom;
-import com.hotel.room.model.SuiteRoom;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.hotel.room.model.RoomStatus;
+import com.hotel.user.User;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-//Service layer for room business operations.
-// Managed as a Spring Service bean and delegates database persistence to RoomDAO.
+/**
+ * Service layer for room business operations.
+ * Enforces business validation rules and permission checks matching the team's StaffService pattern.
+ */
 @Service
 public class RoomService {
 
     private final RoomDAO roomDAO;
 
-    @Autowired
     public RoomService(RoomDAO roomDAO) {
         this.roomDAO = roomDAO;
     }
 
+    /**
+     * DTO containing summary counts calculated in a single pass.
+     */
+    public static class RoomMetrics {
+        private final int total;
+        private final int active;
+        private final int maintenance;
+        private final int retired;
 
-//      add all rooms.
+        public RoomMetrics(int total, int active, int maintenance, int retired) {
+            this.total = total;
+            this.active = active;
+            this.maintenance = maintenance;
+            this.retired = retired;
+        }
+
+        public int getTotal() { return total; }
+        public int getActive() { return active; }
+        public int getMaintenance() { return maintenance; }
+        public int getRetired() { return retired; }
+    }
+
     public List<Room> getAllRooms() {
         return roomDAO.findAll();
     }
-
-//     add a room by its ID.
 
     public Room getRoomById(String id) {
         if (id == null || id.trim().isEmpty()) {
@@ -38,18 +55,41 @@ public class RoomService {
         return roomDAO.findById(id.trim());
     }
 
-//    add a room by its room number.
     public Room getRoomByNumber(int roomNumber) {
+        if (roomNumber <= 0) {
+            return null;
+        }
         return roomDAO.findByRoomNumber(roomNumber);
     }
-//    Filter rooms by search term, type, status, max price, and min capacity.
 
+    /**
+     * Calculates dashboard metric counts in a single pass over the rooms list (1 query).
+     */
+    public RoomMetrics getMetrics(List<Room> rooms) {
+        int active = 0;
+        int maintenance = 0;
+        int retired = 0;
+        for (Room r : rooms) {
+            if (r.getStatus() == RoomStatus.ACTIVE) {
+                active++;
+            } else if (r.getStatus() == RoomStatus.MAINTENANCE) {
+                maintenance++;
+            } else if (r.getStatus() == RoomStatus.RETIRED) {
+                retired++;
+            }
+        }
+        return new RoomMetrics(rooms.size(), active, maintenance, retired);
+    }
+
+    /**
+     * Filter rooms by search keyword, room type, status, max price, and min capacity.
+     */
     public List<Room> searchRooms(String searchTerm, String type, String status, Double maxPrice, Integer minCapacity) {
         List<Room> allRooms = getAllRooms();
         List<Room> filtered = new ArrayList<>();
 
         for (Room room : allRooms) {
-            // Search keyword filter (by room name, id, or number)
+            // Search keyword filter
             if (searchTerm != null && !searchTerm.trim().isEmpty()) {
                 String term = searchTerm.trim().toLowerCase();
                 boolean matchesKeyword = room.getRoomName().toLowerCase().contains(term)
@@ -62,12 +102,12 @@ public class RoomService {
 
             // Status filter
             if (status != null && !status.trim().isEmpty() && !"ALL".equalsIgnoreCase(status)) {
-                if (!status.equalsIgnoreCase(room.getStatus())) {
+                if (!status.equalsIgnoreCase(room.getStatus().getValue())) {
                     continue;
                 }
             }
 
-            // Type filter
+            // Room type filter
             if (type != null && !type.trim().isEmpty() && !"ALL".equalsIgnoreCase(type)) {
                 String normalizedType = type.trim().toLowerCase();
                 String roomType = room.getType().toLowerCase();
@@ -91,134 +131,113 @@ public class RoomService {
         return filtered;
     }
 
-//    Add a new room after business validation
-    public boolean addRoom(Room room) {
+    /**
+     * Validates room business rules. Throws IllegalArgumentException on invalid input.
+     */
+    private void validateRoom(Room room, boolean isUpdate) {
         if (room == null) {
-            return false;
+            throw new IllegalArgumentException("Room details cannot be null");
         }
-
-        // Validate room number
         if (room.getRoomNumber() <= 0) {
-            return false;
+            throw new IllegalArgumentException("Room number must be greater than 0");
+        }
+        if (room.getRoomName() == null || room.getRoomName().trim().isEmpty()) {
+            throw new IllegalArgumentException("Room name cannot be empty");
+        }
+        if (room.getRoomName().trim().length() > 100) {
+            throw new IllegalArgumentException("Room name cannot exceed 100 characters");
+        }
+        if (room.getBaseRate() <= 0) {
+            throw new IllegalArgumentException("Rate per night must be greater than 0");
+        }
+        if (room.getCapacity() < 1) {
+            throw new IllegalArgumentException("Capacity must be at least 1 guest");
+        }
+        if (room.getCapacity() > room.getMaxAllowedCapacity()) {
+            throw new IllegalArgumentException("Maximum capacity for a " + room.getTypeDisplayName()
+                    + " is " + room.getMaxAllowedCapacity() + " guests");
+        }
+        if (room.getRoomSize() <= 0) {
+            throw new IllegalArgumentException("Room size must be greater than 0");
+        }
+        if (room.getStatus() == null) {
+            throw new IllegalArgumentException("Room status must be selected");
         }
 
-        // Prevent duplicate room numbers
-        if (roomDAO.existsByRoomNumber(room.getRoomNumber(), null)) {
-            return false;
+        // Duplicate room number check
+        String excludeId = isUpdate ? room.getRoomId() : null;
+        if (roomDAO.existsByRoomNumber(room.getRoomNumber(), excludeId)) {
+            throw new IllegalArgumentException("Room number " + room.getRoomNumber() + " is already taken");
+        }
+    }
+
+    /**
+     * Add a new room with authorization and validation checks.
+     */
+    public void addRoom(User currentUser, Room room) {
+        if (currentUser == null || !currentUser.canManageRooms()) {
+            throw new SecurityException("You do not have permission to add rooms");
         }
 
-        // Auto-generate Room ID if not provided (e.g. R + room number: R204)
+        // Auto-generate ID if needed: R + room number (e.g. R204)
         if (room.getRoomId() == null || room.getRoomId().trim().isEmpty()) {
             room.setRoomId("R" + room.getRoomNumber());
         }
 
-        // Check if ID is already in use
         if (roomDAO.findById(room.getRoomId()) != null) {
-            return false;
+            throw new IllegalArgumentException("Room ID " + room.getRoomId() + " already exists");
         }
 
-        // Validate rate and capacity
-        if (room.getBaseRate() < 0 || room.getCapacity() <= 0) {
-            return false;
-        }
+        validateRoom(room, false);
 
-        if (room.getStatus() == null || room.getStatus().trim().isEmpty()) {
-            room.setStatus("active");
+        boolean saved = roomDAO.save(room);
+        if (!saved) {
+            throw new IllegalStateException("Failed to insert room record into the database");
         }
-
-        return roomDAO.save(room);
     }
 
-//    Update an existing room after business validation.
-
-    public boolean updateRoom(Room room) {
-        if (room == null || room.getRoomId() == null) {
-            return false;
+    /**
+     * Update an existing room with authorization and validation checks.
+     */
+    public void updateRoom(User currentUser, Room room) {
+        if (currentUser == null || !currentUser.canManageRooms()) {
+            throw new SecurityException("You do not have permission to update rooms");
+        }
+        if (room.getRoomId() == null || room.getRoomId().trim().isEmpty()) {
+            throw new IllegalArgumentException("Room ID is required for updates");
         }
 
-        // Check that room exists
         Room existing = roomDAO.findById(room.getRoomId());
         if (existing == null) {
-            return false;
+            throw new IllegalArgumentException("Room with ID " + room.getRoomId() + " does not exist");
         }
 
-        // Validate uniqueness of room number
-        if (roomDAO.existsByRoomNumber(room.getRoomNumber(), room.getRoomId())) {
-            return false;
-        }
+        validateRoom(room, true);
 
-        if (room.getBaseRate() < 0 || room.getCapacity() <= 0) {
-            return false;
+        boolean updated = roomDAO.update(room);
+        if (!updated) {
+            throw new IllegalStateException("Failed to update room record in the database");
         }
-
-        return roomDAO.update(room);
     }
 
-//    add a room
-
-    public boolean retireRoom(String id) {
+    /**
+     * Soft-delete/retire a room so existing reservations remain valid.
+     */
+    public void retireRoom(User currentUser, String id) {
+        if (currentUser == null || !currentUser.canManageRooms()) {
+            throw new SecurityException("You do not have permission to retire rooms");
+        }
         if (id == null || id.trim().isEmpty()) {
-            return false;
+            throw new IllegalArgumentException("Room ID cannot be empty");
         }
-        return roomDAO.updateStatus(id.trim(), "retired");
-    }
-//    Permanently delete a room
-    public boolean deleteRoom(String id) {
-        if (id == null || id.trim().isEmpty()) {
-            return false;
+        Room room = roomDAO.findById(id.trim());
+        if (room == null) {
+            throw new IllegalArgumentException("Room with ID " + id + " does not exist");
         }
-        return roomDAO.delete(id.trim());
-    }
 
-//    Helper to instantiate a Room subclass based on type name.
-
-    public Room createRoomInstance(String type, String roomId, String roomName, int roomNumber,
-                                   double baseRate, int capacity, int roomSize, String imageUrl, String status) {
-        if (type == null) {
-            type = "StandardRoom";
+        boolean updated = roomDAO.updateStatus(id.trim(), RoomStatus.RETIRED.getValue());
+        if (!updated) {
+            throw new IllegalStateException("Failed to retire room " + id);
         }
-        String normalized = type.trim().toLowerCase();
-        if (normalized.contains("suite")) {
-            return new SuiteRoom(roomId, roomName, roomNumber, baseRate, capacity, roomSize, imageUrl, status);
-        } else if (normalized.contains("deluxe")) {
-            return new DeluxeRoom(roomId, roomName, roomNumber, baseRate, capacity, roomSize, imageUrl, status);
-        } else {
-            return new StandardRoom(roomId, roomName, roomNumber, baseRate, capacity, roomSize, imageUrl, status);
-        }
-    }
-
-    // Dashboard Statistics Helpers
-    public int getTotalCount() {
-        return getAllRooms().size();
-    }
-
-    public int getActiveCount() {
-        int count = 0;
-        for (Room r : getAllRooms()) {
-            if ("active".equalsIgnoreCase(r.getStatus())) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public int getMaintenanceCount() {
-        int count = 0;
-        for (Room r : getAllRooms()) {
-            if ("maintenance".equalsIgnoreCase(r.getStatus())) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public int getRetiredCount() {
-        int count = 0;
-        for (Room r : getAllRooms()) {
-            if ("retired".equalsIgnoreCase(r.getStatus())) {
-                count++;
-            }
-        }
-        return count;
     }
 }

@@ -1,37 +1,28 @@
 package com.hotel.room.servlet;
 
 import com.hotel.room.model.Room;
+import com.hotel.room.model.RoomStatus;
 import com.hotel.room.service.RoomService;
 import com.hotel.user.User;
 import com.hotel.util.SessionUtil;
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
 /**
  * Handles creation and updating of room records.
- * Invoked by the form at prototype/room/form.html.
+ * Invoked by the form at /admin/rooms/form.
  */
 @WebServlet("/admin/rooms/save")
 public class RoomSaveServlet extends HttpServlet {
 
+    @Autowired
     private RoomService roomService;
-
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-        ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
-        if (context != null) {
-            this.roomService = context.getBean(RoomService.class);
-        }
-    }
 
     public void setRoomService(RoomService roomService) {
         this.roomService = roomService;
@@ -41,111 +32,87 @@ public class RoomSaveServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        User currentUser = SessionUtil.getCurrentUser(request.getSession());
-        if (currentUser != null && !currentUser.canManageRooms()) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Only admins can manage rooms.");
+        User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
+        if (currentUser == null || !currentUser.canManageRooms()) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have permission to manage rooms.");
             return;
         }
 
         String roomId = request.getParameter("roomId");
-        String roomType = request.getParameter("type");
-        if (roomType == null || roomType.isEmpty()) {
-            roomType = request.getParameter("roomType");
-        }
-        if (roomType == null || roomType.isEmpty()) {
-            roomType = "StandardRoom";
-        }
-
+        String type = request.getParameter("type");
         String roomNoStr = request.getParameter("roomNo");
-        if (roomNoStr == null || roomNoStr.isEmpty()) {
-            roomNoStr = request.getParameter("roomNumber");
-        }
-
+        String roomName = request.getParameter("roomName");
         String rateStr = request.getParameter("rate");
-        if (rateStr == null || rateStr.isEmpty()) {
-            rateStr = request.getParameter("baseRate");
-        }
-
         String capacityStr = request.getParameter("capacity");
         String roomSizeStr = request.getParameter("roomSize");
-        String roomName = request.getParameter("roomName");
         String imageUrl = request.getParameter("imageUrl");
-        String status = request.getParameter("status");
+        String statusStr = request.getParameter("status");
 
-        int roomNumber = 0;
+        Room room = null;
+        boolean isUpdate = (roomId != null && !roomId.trim().isEmpty());
+
         try {
-            if (roomNoStr != null) {
+            if (type == null || type.trim().isEmpty()) {
+                throw new IllegalArgumentException("Please select a room type");
+            }
+            if (roomNoStr == null || roomNoStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Room number is required");
+            }
+
+            int roomNumber;
+            try {
                 roomNumber = Integer.parseInt(roomNoStr.trim());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Room number must be a valid whole number");
             }
-        } catch (NumberFormatException ignored) {}
 
-        double baseRate = 0.0;
-        try {
-            if (rateStr != null) {
-                baseRate = Double.parseDouble(rateStr.trim());
+            if (rateStr == null || rateStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Rate per night is required");
             }
-        } catch (NumberFormatException ignored) {}
+            double rate;
+            try {
+                rate = Double.parseDouble(rateStr.trim());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Rate per night must be a valid number");
+            }
 
-        int capacity = 2;
-        try {
-            if (capacityStr != null) {
+            if (capacityStr == null || capacityStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Capacity is required");
+            }
+            int capacity;
+            try {
                 capacity = Integer.parseInt(capacityStr.trim());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Capacity must be a valid whole number");
             }
-        } catch (NumberFormatException ignored) {}
 
-        int roomSize = 0;
-        try {
-            if (roomSizeStr != null && !roomSizeStr.trim().isEmpty()) {
+            if (roomSizeStr == null || roomSizeStr.trim().isEmpty()) {
+                throw new IllegalArgumentException("Room size is required");
+            }
+            int roomSize;
+            try {
                 roomSize = Integer.parseInt(roomSizeStr.trim());
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Room size must be a valid whole number");
             }
-        } catch (NumberFormatException ignored) {}
 
-        if (roomName == null || roomName.trim().isEmpty()) {
-            String displayTypeName = roomType.replace("Room", "");
-            roomName = displayTypeName + " " + (roomNumber > 0 ? roomNumber : "");
-        }
+            RoomStatus status = RoomStatus.fromString(statusStr);
 
-        if (imageUrl == null || imageUrl.trim().isEmpty()) {
-            String lowerType = roomType.toLowerCase();
-            if (lowerType.contains("suite")) {
-                imageUrl = "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=700&q=80";
-                if (roomSize == 0) roomSize = 62;
-            } else if (lowerType.contains("deluxe")) {
-                imageUrl = "https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=700&q=80";
-                if (roomSize == 0) roomSize = 44;
+            // Construct room instance using the single, exact factory method
+            room = Room.create(type, roomId, roomName != null ? roomName.trim() : "", roomNumber, rate, capacity, roomSize, imageUrl != null ? imageUrl.trim() : "", status);
+
+            if (isUpdate) {
+                roomService.updateRoom(currentUser, room);
+                response.sendRedirect(request.getContextPath() + "/admin/rooms?done=updated");
             } else {
-                imageUrl = "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=700&q=80";
-                if (roomSize == 0) roomSize = 32;
+                roomService.addRoom(currentUser, room);
+                response.sendRedirect(request.getContextPath() + "/admin/rooms?done=added");
             }
-        }
 
-        if (status == null || status.trim().isEmpty()) {
-            status = "active";
-        }
-
-        boolean isUpdate = false;
-        if (roomId != null && !roomId.trim().isEmpty()) {
-            Room existing = roomService.getRoomById(roomId.trim());
-            if (existing != null) {
-                isUpdate = true;
-            }
-        } else {
-            roomId = "R" + roomNumber;
-        }
-
-        Room room = roomService.createRoomInstance(roomType, roomId, roomName, roomNumber, baseRate, capacity, roomSize, imageUrl, status);
-
-        boolean success;
-        if (isUpdate) {
-            success = roomService.updateRoom(room);
-        } else {
-            success = roomService.addRoom(room);
-        }
-
-        if (success) {
-            response.sendRedirect(request.getContextPath() + "/admin/rooms");
-        } else {
-            request.setAttribute("errorMessage", "Failed to save room. Check for duplicate room numbers or invalid rates.");
+        } catch (SecurityException e) {
+            response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            request.setAttribute("error", e.getMessage());
             request.setAttribute("room", room);
             request.getRequestDispatcher("/WEB-INF/views/room/form.jsp").forward(request, response);
         }

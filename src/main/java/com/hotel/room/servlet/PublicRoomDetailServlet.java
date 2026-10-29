@@ -2,34 +2,24 @@ package com.hotel.room.servlet;
 
 import com.hotel.room.model.Room;
 import com.hotel.room.service.RoomService;
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
 /**
  * Public room detail page for guests.
- * Corresponds to prototype/room/detail.html.
+ * Corresponds to /rooms/detail.
  */
 @WebServlet("/rooms/detail")
 public class PublicRoomDetailServlet extends HttpServlet {
 
+    @Autowired
     private RoomService roomService;
-
-    @Override
-    public void init(ServletConfig config) throws ServletException {
-        super.init(config);
-        ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
-        if (context != null) {
-            this.roomService = context.getBean(RoomService.class);
-        }
-    }
 
     public void setRoomService(RoomService roomService) {
         this.roomService = roomService;
@@ -46,7 +36,7 @@ public class PublicRoomDetailServlet extends HttpServlet {
         }
 
         Room room = roomService.getRoomById(id.trim());
-        if (room == null || "retired".equalsIgnoreCase(room.getStatus())) {
+        if (room == null || room.isRetired()) {
             response.sendError(HttpServletResponse.SC_NOT_FOUND, "Room not found");
             return;
         }

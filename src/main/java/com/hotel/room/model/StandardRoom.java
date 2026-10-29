@@ -1,8 +1,13 @@
 package com.hotel.room.model;
 
 public class StandardRoom extends Room {
-    public StandardRoom(String roomId, String roomName, int roomNumber, double baseRate, int capacity, int roomSize, String imageUrl, String status) {
+
+    public StandardRoom(String roomId, String roomName, int roomNumber, double baseRate, int capacity, int roomSize, String imageUrl, RoomStatus status) {
         super(roomId, roomName, roomNumber, baseRate, capacity, roomSize, imageUrl, status);
+    }
+
+    public StandardRoom(String roomId, String roomName, int roomNumber, double baseRate, int capacity, int roomSize, String imageUrl, String statusStr) {
+        super(roomId, roomName, roomNumber, baseRate, capacity, roomSize, imageUrl, statusStr);
     }
 
     @Override
@@ -20,5 +25,10 @@ public class StandardRoom extends Room {
     @Override
     public String getDescription() {
         return "Queen bed, garden view and a rain shower. Calm and simple.";
+    }
+
+    @Override
+    public int getMaxAllowedCapacity() {
+        return 2;
     }
 }
