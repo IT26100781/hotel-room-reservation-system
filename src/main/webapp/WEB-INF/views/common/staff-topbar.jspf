@@ -1,0 +1,12 @@
+<%@ page pageEncoding="UTF-8" %>
+<%-- Staff portal top bar: menu button (mobile), today's date, link back to the guest site. --%>
+<jsp:useBean id="today" class="java.util.Date"/>
+<div class="no-print header-glass sticky top-0 z-30">
+  <div class="h-16 px-4 sm:px-8 flex items-center gap-4">
+    <button class="lg:hidden btn btn-ghost btn-icon" data-toggle="#side-overlay, #sidebar" aria-label="Open menu"><i data-lucide="menu" class="w-5 h-5"></i></button>
+    <p class="hidden sm:flex items-center gap-2 text-sm text-muted"><i data-lucide="calendar" class="w-4 h-4 text-brass"></i><fmt:formatDate value="${today}" pattern="EEEE, d MMMM yyyy"/></p>
+    <div class="ml-auto flex items-center gap-2">
+      <a href="${ctx}/" class="btn btn-ghost btn-sm"><i data-lucide="hotel"></i><span class="hidden sm:inline">Guest site</span></a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,66 @@
+<%@ page pageEncoding="UTF-8" %>
+<%--
+  Staff portal sidebar.
+  Optional before including:  <c:set var="activeNav" value="staff"/>
+     (dashboard | bookings | payments | guests | rooms | reviews | staff)
+  Links are shown or hidden with the logged-in user's permission methods. This is only for looks:
+  every servlet must still check the permission itself.
+--%>
+<c:set var="sideInitials" value="${fn:toUpperCase(fn:substring(me.name, 0, 1))}${fn:toUpperCase(fn:substring(fn:substringAfter(me.name, ' '), 0, 1))}"/>
+<div id="side-overlay" class="no-print fixed inset-0 z-40 bg-forest-900/50 hidden lg:hidden" data-toggle="#side-overlay, #sidebar"></div>
+<aside id="sidebar" data-toggle-class="-translate-x-full" class="no-print panel-dark fixed inset-y-0 left-0 z-50 w-72 flex flex-col px-5 py-6 -translate-x-full lg:translate-x-0 transition-transform duration-300">
+  <div class="px-1">
+    <a href="${ctx}/" class="flex items-center gap-3 shrink-0" aria-label="The Orchid Estate home">
+      <%@ include file="/WEB-INF/views/common/logo.jspf" %>
+      <span class="leading-none">
+        <span class="font-display text-[1.45rem] font-semibold block text-ivory">The Orchid Estate</span>
+        <span class="text-[9.5px] tracking-[.3em] uppercase text-ivory/50 block mt-1">Hill Country · Sri Lanka</span>
+      </span>
+    </a>
+  </div>
+  <p class="mt-6 mx-1 text-[10px] tracking-[.28em] uppercase text-brass font-bold">Staff portal</p>
+
+  <nav class="mt-2 flex-1 overflow-y-auto pl-3 -ml-3 pr-1" aria-label="Staff">
+    <p class="side-group">Overview</p>
+    <a href="${ctx}/admin" class="side-link ${activeNav == 'dashboard' ? 'active' : ''}"><i data-lucide="layout-dashboard"></i>Dashboard</a>
+
+    <c:if test="${me.canManageAnyBooking() or me.canRecordPayment() or me.canViewGuestUsers()}">
+      <p class="side-group">Front desk</p>
+      <c:if test="${me.canManageAnyBooking()}">
+        <a href="${ctx}/admin/bookings" class="side-link ${activeNav == 'bookings' ? 'active' : ''}"><i data-lucide="calendar-check"></i>Bookings</a>
+      </c:if>
+      <c:if test="${me.canRecordPayment()}">
+        <a href="${ctx}/admin/payments" class="side-link ${activeNav == 'payments' ? 'active' : ''}"><i data-lucide="wallet"></i>Payments</a>
+      </c:if>
+      <c:if test="${me.canViewGuestUsers()}">
+        <a href="${ctx}/admin/guests" class="side-link ${activeNav == 'guests' ? 'active' : ''}"><i data-lucide="users"></i>Guests</a>
+      </c:if>
+    </c:if>
+
+    <c:if test="${me.canManageRooms() or me.canModerateReviews()}">
+      <p class="side-group">Property</p>
+      <c:if test="${me.canManageRooms()}">
+        <a href="${ctx}/admin/rooms" class="side-link ${activeNav == 'rooms' ? 'active' : ''}"><i data-lucide="bed-double"></i>Rooms<span class="side-tag">ADMIN</span></a>
+      </c:if>
+      <c:if test="${me.canModerateReviews()}">
+        <a href="${ctx}/admin/reviews" class="side-link ${activeNav == 'reviews' ? 'active' : ''}"><i data-lucide="message-square-quote"></i>Reviews<span class="side-tag">ADMIN</span></a>
+      </c:if>
+    </c:if>
+
+    <c:if test="${me.canViewStaffUsers()}">
+      <p class="side-group">Administration</p>
+      <a href="${ctx}/admin/staff" class="side-link ${activeNav == 'staff' ? 'active' : ''}"><i data-lucide="user-cog"></i>Staff accounts<span class="side-tag">ADMIN</span></a>
+    </c:if>
+  </nav>
+
+  <div class="mt-4 rounded-2xl bg-ivory/[.06] p-3 flex items-center gap-3">
+    <span class="avatar avatar-brass"><c:out value="${sideInitials}"/></span>
+    <div class="min-w-0 leading-tight">
+      <p class="text-sm font-semibold text-ivory truncate"><c:out value="${me.name}"/></p>
+      <p class="text-[11px] text-ivory/50">${me.role == 'ADMIN' ? 'Administrator' : 'Front desk staff'}</p>
+    </div>
+    <form method="post" action="${ctx}/admin/logout" class="ml-auto">
+      <button type="submit" class="p-2 rounded-lg text-ivory/60 hover:text-ivory hover:bg-ivory/10" title="Sign out" aria-label="Sign out"><i data-lucide="log-out" class="w-4 h-4"></i></button>
+    </form>
+  </div>
+</aside>
