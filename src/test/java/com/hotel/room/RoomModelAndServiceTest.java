@@ -167,7 +167,7 @@ class RoomModelAndServiceTest {
         assertEquals(RoomStatus.RETIRED,     RoomStatus.fromString("retired"));
 
         // Unknown string → default ACTIVE
-        assertEquals(RoomStatus.ACTIVE, RoomStatus.fromString("unknown"));
+        assertThrows(IllegalArgumentException.class,() -> RoomStatus.fromString("unknown"));
         assertEquals(RoomStatus.ACTIVE, RoomStatus.fromString(null));
     }
 

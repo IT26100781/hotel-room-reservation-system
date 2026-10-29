@@ -112,6 +112,10 @@ public class RoomSaveServlet extends HttpServlet {
         } catch (SecurityException e) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
         } catch (IllegalArgumentException | IllegalStateException e) {
+            if (isUpdate && room == null) {
+                room = roomService.getRoomById(roomId);
+                request.setAttribute("room",room);
+            }
             request.setAttribute("error", e.getMessage());
             request.setAttribute("room", room);
             request.getRequestDispatcher("/WEB-INF/views/room/form.jsp").forward(request, response);
