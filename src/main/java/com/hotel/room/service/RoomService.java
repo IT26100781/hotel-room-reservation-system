@@ -5,36 +5,32 @@ import com.hotel.room.model.DeluxeRoom;
 import com.hotel.room.model.Room;
 import com.hotel.room.model.StandardRoom;
 import com.hotel.room.model.SuiteRoom;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Service layer for room business operations.
- * Delegates all database persistence to RoomDAO.
- */
+//Service layer for room business operations.
+// Managed as a Spring Service bean and delegates database persistence to RoomDAO.
+@Service
 public class RoomService {
 
     private final RoomDAO roomDAO;
 
-    public RoomService() {
-        this.roomDAO = new RoomDAO();
-    }
-
+    @Autowired
     public RoomService(RoomDAO roomDAO) {
         this.roomDAO = roomDAO;
     }
 
-    /**
-     * Retrieve all rooms.
-     */
+
+//      add all rooms.
     public List<Room> getAllRooms() {
         return roomDAO.findAll();
     }
 
-    /**
-     * Retrieve a room by its ID.
-     */
+//     add a room by its ID.
+
     public Room getRoomById(String id) {
         if (id == null || id.trim().isEmpty()) {
             return null;
@@ -42,12 +38,12 @@ public class RoomService {
         return roomDAO.findById(id.trim());
     }
 
-    //     get a room by its room number.
-
+//    add a room by its room number.
     public Room getRoomByNumber(int roomNumber) {
         return roomDAO.findByRoomNumber(roomNumber);
     }
-    //    Filter rooms by search term, type, status, max price, and min capacity.
+//    Filter rooms by search term, type, status, max price, and min capacity.
+
     public List<Room> searchRooms(String searchTerm, String type, String status, Double maxPrice, Integer minCapacity) {
         List<Room> allRooms = getAllRooms();
         List<Room> filtered = new ArrayList<>();
@@ -95,7 +91,7 @@ public class RoomService {
         return filtered;
     }
 
-    //    Add a new room after business validation.
+//    Add a new room after business validation
     public boolean addRoom(Room room) {
         if (room == null) {
             return false;
@@ -133,7 +129,7 @@ public class RoomService {
         return roomDAO.save(room);
     }
 
-    //    Update an existing room after business validation.
+//    Update an existing room after business validation.
 
     public boolean updateRoom(Room room) {
         if (room == null || room.getRoomId() == null) {
@@ -158,7 +154,7 @@ public class RoomService {
         return roomDAO.update(room);
     }
 
-    //    add a room.
+//    add a room
 
     public boolean retireRoom(String id) {
         if (id == null || id.trim().isEmpty()) {
@@ -166,14 +162,14 @@ public class RoomService {
         }
         return roomDAO.updateStatus(id.trim(), "retired");
     }
-
-//    Permanently delete a room.
+//    Permanently delete a room
     public boolean deleteRoom(String id) {
         if (id == null || id.trim().isEmpty()) {
             return false;
         }
         return roomDAO.delete(id.trim());
     }
+
 //    Helper to instantiate a Room subclass based on type name.
 
     public Room createRoomInstance(String type, String roomId, String roomName, int roomNumber,

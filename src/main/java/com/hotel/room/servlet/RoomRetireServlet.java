@@ -3,12 +3,14 @@ package com.hotel.room.servlet;
 import com.hotel.room.service.RoomService;
 import com.hotel.user.User;
 import com.hotel.util.SessionUtil;
-
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import java.io.IOException;
 
@@ -18,7 +20,20 @@ import java.io.IOException;
 @WebServlet("/admin/rooms/retire")
 public class RoomRetireServlet extends HttpServlet {
 
-    private final RoomService roomService = new RoomService();
+    private RoomService roomService;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
+        if (context != null) {
+            this.roomService = context.getBean(RoomService.class);
+        }
+    }
+
+    public void setRoomService(RoomService roomService) {
+        this.roomService = roomService;
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

@@ -4,12 +4,14 @@ import com.hotel.room.model.Room;
 import com.hotel.room.service.RoomService;
 import com.hotel.user.User;
 import com.hotel.util.SessionUtil;
-
+import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 import java.io.IOException;
 
@@ -20,7 +22,20 @@ import java.io.IOException;
 @WebServlet("/admin/rooms/save")
 public class RoomSaveServlet extends HttpServlet {
 
-    private final RoomService roomService = new RoomService();
+    private RoomService roomService;
+
+    @Override
+    public void init(ServletConfig config) throws ServletException {
+        super.init(config);
+        ApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
+        if (context != null) {
+            this.roomService = context.getBean(RoomService.class);
+        }
+    }
+
+    public void setRoomService(RoomService roomService) {
+        this.roomService = roomService;
+    }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -57,7 +72,6 @@ public class RoomSaveServlet extends HttpServlet {
         String imageUrl = request.getParameter("imageUrl");
         String status = request.getParameter("status");
 
-        // Parse numeric inputs safely
         int roomNumber = 0;
         try {
             if (roomNoStr != null) {
@@ -86,7 +100,6 @@ public class RoomSaveServlet extends HttpServlet {
             }
         } catch (NumberFormatException ignored) {}
 
-        // Fallbacks for display fields
         if (roomName == null || roomName.trim().isEmpty()) {
             String displayTypeName = roomType.replace("Room", "");
             roomName = displayTypeName + " " + (roomNumber > 0 ? roomNumber : "");
@@ -110,7 +123,6 @@ public class RoomSaveServlet extends HttpServlet {
             status = "active";
         }
 
-        // Check if updating or adding
         boolean isUpdate = false;
         if (roomId != null && !roomId.trim().isEmpty()) {
             Room existing = roomService.getRoomById(roomId.trim());

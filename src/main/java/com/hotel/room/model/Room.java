@@ -1,9 +1,4 @@
 package com.hotel.room.model;
-
-/**
- * Abstract base class representing a hotel room.
- * Subclasses (StandardRoom, DeluxeRoom, SuiteRoom) override amenities and description.
- */
 public abstract class Room {
     private String roomId;
     private String roomName;
