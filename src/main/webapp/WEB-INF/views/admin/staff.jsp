@@ -5,10 +5,11 @@
   Request attributes:
     staffList - List<Staff> to show (required)
     error     - message to show if an action failed (optional)
-  URL parameter ?done=added|updated|status|role shows a success message after a redirect.
+  URL parameter ?done=added|updated|status|role|deleted shows a success message after a redirect.
   Actions on this page post to:
     POST /admin/staff/status  (id, active=true|false)  - activate / deactivate
     POST /admin/staff/role    (id)                     - switch between Staff and Admin
+    POST /admin/staff/delete  (id)                     - permanently delete (only shown for deactivated accounts)
 --%>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,6 +37,7 @@
         <c:when test="${param.done == 'updated'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Details updated.</span></div></c:when>
         <c:when test="${param.done == 'status'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Account status changed.</span></div></c:when>
         <c:when test="${param.done == 'role'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Role changed.</span></div></c:when>
+        <c:when test="${param.done == 'deleted'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Account permanently deleted.</span></div></c:when>
       </c:choose>
       <c:if test="${not empty error}">
         <div class="alert alert-error mt-6"><i data-lucide="shield-alert"></i><span><c:out value="${error}"/></span></div>
@@ -127,6 +129,10 @@
                               <input type="hidden" name="active" value="true">
                               <button type="submit" class="btn btn-ghost btn-sm"><i data-lucide="rotate-ccw"></i>Activate</button>
                             </form>
+                            <button type="button" class="btn btn-ghost btn-sm text-clay" data-modal-open="delete-modal"
+                                    data-staff-id="${fn:escapeXml(s.id)}" data-staff-name="${fn:escapeXml(s.name)}">
+                              <i data-lucide="trash-2"></i>Delete
+                            </button>
                           </c:otherwise>
                         </c:choose>
                       </c:if>
@@ -174,6 +180,38 @@
     </div>
   </div>
 
+  <!-- Delete confirmation: the admin must type the person's name to enable the button -->
+  <div class="modal" id="delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-title">
+    <div class="modal-box">
+      <span class="stat-icon !bg-clay/10 !text-clay"><i data-lucide="trash-2"></i></span>
+      <h2 id="delete-title" class="font-display text-3xl font-semibold text-forest mt-4">Delete <span data-fill="staffName">this account</span>?</h2>
+      <p class="mt-2 text-sm text-ink/70">This permanently removes the account. It can't be undone.</p>
+      <form method="post" action="${ctx}/admin/staff/delete" class="mt-6" id="delete-form">
+        <input type="hidden" name="id" data-fill="staffId">
+        <input type="hidden" id="delete-expected" data-fill="staffName">
+        <label class="label" for="delete-confirm">Type <span class="font-semibold text-ink" data-fill="staffName"></span> to confirm</label>
+        <input id="delete-confirm" class="input" autocomplete="off">
+        <div class="mt-6 flex justify-end gap-2">
+          <button type="button" class="btn btn-ghost" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-danger" id="delete-submit" disabled>Delete permanently</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="${ctx}/js/app.js"></script>
+  <script>
+    (function () {
+      const expected = document.getElementById('delete-expected');
+      const typed = document.getElementById('delete-confirm');
+      const submit = document.getElementById('delete-submit');
+      const check = () => { submit.disabled = typed.value.trim() === '' || typed.value.trim() !== expected.value.trim(); };
+      typed.addEventListener('input', check);
+      // Clear the box each time the pop-up opens for a different person
+      document.querySelectorAll('[data-modal-open="delete-modal"]').forEach((btn) =>
+        btn.addEventListener('click', () => { typed.value = ''; check(); }));
+      document.getElementById('delete-form').addEventListener('submit', (e) => { if (submit.disabled) e.preventDefault(); });
+    })();
+  </script>
 </body>
 </html>

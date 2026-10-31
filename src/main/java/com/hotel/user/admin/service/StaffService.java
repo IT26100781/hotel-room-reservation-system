@@ -211,6 +211,29 @@ public class StaffService {
         staffDAO.updateStaff(staff);
         return true;
     }
+    public void deleteStaff(User currentUser,String id){
+        if(!currentUser.canManageStaffUsers()){
+            throw new SecurityException("You don't have permission to delete staff");
+        }
+        if(currentUser.getId().equals(id)){
+            throw new IllegalArgumentException("You can't delete your own account");
+        }
+        Staff staff= staffDAO.findById(id);
+        if(staff == null){
+            throw new IllegalArgumentException("Invalid staff id");
+        }
+        if(staff.getRole() == Role.ADMIN && !currentUser.canManageAdminUsers()){
+            throw new SecurityException("You don't have permission to delete admin");
+        }
+        if(staff.isActive()){
+            throw new IllegalArgumentException("Deactivate this account before deleting it");
+        }
+        boolean success = staffDAO.deleteStaff(id);
+        if(!success){
+            throw new IllegalStateException("Delete staff failed");
+        }
+
+    }
 
     //helpers
     private Staff createAccount(String name,String email,String password,Role role) {
