@@ -7,7 +7,6 @@ import com.hotel.user.admin.model.Admin;
 import com.hotel.user.admin.model.Staff;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -193,7 +192,11 @@ public class StaffService {
     public boolean setActive(User currentUser,String id,boolean isActive) {
         boolean canSetActive = currentUser.canManageAdminUsers() && !currentUser.getId().equals(id);
         if(!canSetActive){
-            throw new SecurityException(currentUser.getId().equals(id)?"You can't deactivate your own account":"You don't have permission to set active");
+            if (currentUser.getId().equals(id)) {
+                throw new IllegalArgumentException("You can't deactivate your own account");
+            }else{
+                throw new SecurityException("You don't have permission to set active");
+            }
         }
         Staff staff = staffDAO.findById(id);
         if(staff == null){
@@ -255,7 +258,7 @@ public class StaffService {
         staff.setName(name);
         if(staffDAO.findByEmail(email)!= null && !staffDAO.findByEmail(email).getId().equals(id)){
 
-            throw  new IllegalArgumentException("Email already exists ");
+            throw  new IllegalArgumentException("Email already exists");
         }
         staff.setEmail(email);
         staffDAO.updateStaff(staff);
