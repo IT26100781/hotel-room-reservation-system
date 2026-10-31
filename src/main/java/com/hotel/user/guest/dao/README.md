@@ -1,6 +1,5 @@
-# dao
+# Guest DAO
 
-DAO means Data Access Object, and `GuestDAO` goes here.
-It is the only place that reads and writes `data/guests.txt`, using `FileHelper` and the file names in `DataConfig`.
-It has simple methods like `findAll()`, `findById()`, `save()`, `update()` and `delete()`.
-It does not make business decisions, it just loads and stores records.
+`GuestDAO` follows `StaffDAO`: Spring injects `JdbcTemplate`, parameterized SQL accesses the `guests` table, and row mapping creates `RegularGuest` or `VipGuest` instances including their active status.
+
+Methods: `findAllGuests`, `findById`, `findByEmail`, `saveGuest`, `updateGuest`, and `deleteGuest`. Deletion deactivates the record so existing bookings and reviews retain their guest reference.
