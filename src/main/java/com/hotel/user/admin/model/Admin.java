@@ -3,7 +3,6 @@ package com.hotel.user.admin.model;
 import com.hotel.user.Role;
 
 public class Admin extends Staff{
-    private final Role role = Role.ADMIN;
 
     public Admin(String id, String name, String email, String passwordHash,boolean status) {
         super(id,name,email,passwordHash,status);

@@ -5,16 +5,15 @@ import com.hotel.user.User;
 
 
 public class Staff extends User {
-    private final Role role = Role.STAFF;
-    protected boolean status; // true if Active false if Inactive
+    protected boolean active; // true if Active false if Inactive
 
-    public Staff(String id, String name, String email, String passwordHash,boolean status) {
+    public Staff(String id, String name, String email, String passwordHash,boolean active) {
         super(id,name,email,passwordHash);
-        this.status = status;
+        this.active = active;
     }
     public Staff(String id, String name, String email, String passwordHash) {
         super(id,name,email,passwordHash);
-        this.status = true;
+        this.active = true;
     }
 
     @Override
@@ -26,11 +25,11 @@ public class Staff extends User {
     // getters and setters
 
     public boolean isActive() {
-        return status;
+        return active;
     }
 
     public void setActive(boolean status) {
-        this.status = status;
+        this.active = status;
     }
 
     @Override public boolean canViewGuestUsers() {return true;}
