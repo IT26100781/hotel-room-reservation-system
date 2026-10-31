@@ -28,8 +28,8 @@ public class Staff extends User {
         return active;
     }
 
-    public void setActive(boolean status) {
-        this.active = status;
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override public boolean canViewGuestUsers() {return true;}
