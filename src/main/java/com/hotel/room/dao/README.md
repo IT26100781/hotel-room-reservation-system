@@ -1,6 +1,9 @@
 # dao
 
-DAO means Data Access Object, and `RoomDAO` goes here.
-It is the only place that reads and writes `data/rooms.txt`, using `FileHelper` and the file names in `DataConfig`.
-It has simple methods like `findAll()`, `findById()`, `save()`, `update()` and `delete()`.
-It does not make business decisions, it just loads and stores records.
+`RoomDAO` is the only class that runs SQL on the `rooms` table (created and seeded by `src/main/resources/db/03-rooms.sql`).
+
+- Spring creates it (`@Repository`) and passes in a `JdbcTemplate`. Every query uses `?` placeholders.
+- `mapRow` uses `Room.create` so each row comes back as a `StandardRoom`, `DeluxeRoom` or `SuiteRoom`.
+- Methods: `findAll`, `findById`, `findByRoomNumber`, `save`, `update`, `updateStatus`, `existsByRoomNumber`.
+
+Rooms are never deleted, because bookings point at them. Retiring a room only changes its status.

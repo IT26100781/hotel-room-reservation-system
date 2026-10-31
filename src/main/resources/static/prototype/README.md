@@ -23,17 +23,20 @@ You need internet: Tailwind, the Google fonts, the icons (Lucide) and the photos
 ## Converting your page to JSP
 
 1. Copy `prototype/<component>/<page>.html` to `src/main/webapp/WEB-INF/views/<component>/<page>.jsp`.
-2. Add `<%@ page contentType="text/html;charset=UTF-8" %>` and
-   `<%@ taglib prefix="c" uri="jakarta.tags.core" %>` at the top.
-3. Change the asset paths to absolute ones: `../../css/theme.css` becomes
-   `${pageContext.request.contextPath}/css/theme.css`, and the same for the js and img files.
-4. Replace the sample rows and cards with `<c:forEach>` over the list your servlet puts in the request.
-   The `<!-- JSP: ... -->` comments in each page show where.
-5. On each `<form>`, remove `data-demo` and `data-next` and set the real `action` and `method="post"`.
+2. Replace everything above `<body>` with the shared start (see `WEB-INF/views/README.md`):
+   `<%@ page pageEncoding="UTF-8" %>`, then `<%@ include file="/WEB-INF/views/common/init.jspf" %>`,
+   set `pageTitle`, and include `common/head.jspf`.
+3. Replace the `data-slot` placeholders with the shared includes: `common/public-header.jspf` and
+   `common/footer.jspf` for guest pages, or `common/staff-sidebar.jspf` and `common/staff-topbar.jspf` for
+   staff pages. Remove the `data-*` attributes from `<body>` and stop loading `layout.js`.
+4. Change the asset and link paths to absolute ones with `${ctx}`: `../../css/theme.css` becomes
+   `${ctx}/css/theme.css`, and `../room/list.html` becomes `${ctx}/rooms`.
+5. Replace the sample rows and cards with `<c:forEach>` over the list your servlet puts in the request,
+   printing values with `<c:out>`. The `<!-- JSP: ... -->` comments in each page show where.
+6. On each `<form>`, remove `data-demo` and `data-next` and set the real `action` and `method="post"`.
    The comment above each form shows the suggested action.
-6. Header, footer and sidebar: one person creates `WEB-INF/views/common/header.jsp`, `footer.jsp` and
-   `sidebar.jsp` by copying the markup from `js/layout.js`. Every page then uses `<%@ include file="../common/header.jsp" %>`.
-   After that, stop loading `layout.js`.
+
+The admin, guest and room pages in `WEB-INF/views/` are finished examples of this.
 
 ## Rules to keep it consistent
 

@@ -1,7 +1,6 @@
 package com.hotel.user.admin.servlet;
 
 import com.hotel.user.User;
-import com.hotel.user.admin.model.Staff;
 import com.hotel.user.admin.service.StaffService;
 import com.hotel.util.SessionUtil;
 import jakarta.servlet.ServletException;
@@ -12,7 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
-import java.util.List;
 
 @WebServlet("/admin/staff/role")
 public class StaffRoleServlet extends HttpServlet {

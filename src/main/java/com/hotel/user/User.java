@@ -3,7 +3,7 @@ package com.hotel.user;
 /**
  * Shared base class for everyone who can log in.
  *
- * Hierarchy:  User -> Guest -> (RegularGuest, VIPGuest)
+ * Hierarchy:  User -> Guest -> (RegularGuest, VipGuest)
  *             User -> Staff -> Admin
  *
  * Permission methods are DEFAULT-DENY: they all return false here, and subclasses

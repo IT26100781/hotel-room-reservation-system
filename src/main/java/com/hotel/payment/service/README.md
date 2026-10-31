@@ -1,6 +1,11 @@
 # service
 
-This folder holds `PaymentService`, which contains the business rules for the payment component.
-It decides whether an action is valid (for example, checking for duplicates, availability or permissions) before anything is saved.
-It never touches the file directly; it asks the DAO to load or save data.
-Servlets call the service, so all the important logic lives in one place.
+`PaymentService` goes here. It holds the business rules for a payment, and servlets call it instead of the DAO.
+
+Follow `StaffService` or `RoomService`:
+- Mark it `@Service` and take the DAO (and any other component's service it needs) in the constructor.
+- Check the logged-in user's `canX()` permission first and throw `SecurityException` if they are not allowed.
+- Validate the input and throw `IllegalArgumentException` with a clear message the page can show.
+- New ids use the `P` prefix (P01, P02, ...).
+- Payments are staff-only: check `canRecordPayment()`.
+- Get the booking through the Reservation component's service.
