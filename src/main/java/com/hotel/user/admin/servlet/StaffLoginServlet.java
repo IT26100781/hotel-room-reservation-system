@@ -14,13 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
+/**
+ * this servlet handles login of staff
+ */
 @WebServlet("/admin/login")
 public class StaffLoginServlet extends HttpServlet {
     @Autowired
     private StaffService staffService;
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         boolean hasAnyAdmin = staffService.hasAnyAdminRole();
         if (!hasAnyAdmin) {
             response.sendRedirect(request.getContextPath() + "/admin/setup");
@@ -30,7 +34,7 @@ public class StaffLoginServlet extends HttpServlet {
         boolean isLoggedIn = SessionUtil.isLoggedIn(request.getSession(false));
         if (isLoggedIn) {
             User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
-            if (currentUser instanceof Staff ) {
+            if (currentUser instanceof Staff) {
                 response.sendRedirect(request.getContextPath() + "/admin");
                 return;
             }
@@ -39,7 +43,8 @@ public class StaffLoginServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
@@ -48,15 +53,12 @@ public class StaffLoginServlet extends HttpServlet {
             HttpSession session = request.getSession();
             request.changeSessionId();
             SessionUtil.login(session, user);
-            response.sendRedirect(request.getContextPath()+"/admin");
+            response.sendRedirect(request.getContextPath() + "/admin");
             return;
-
         } catch (IllegalArgumentException | SecurityException e) {
             request.setAttribute("error", e.getMessage());
             request.setAttribute("email", email);
             request.getRequestDispatcher("/WEB-INF/views/admin/login.jsp").forward(request, response);
-
         }
     }
-
 }

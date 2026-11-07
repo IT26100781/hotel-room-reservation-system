@@ -35,6 +35,9 @@
         <c:if test="${param.loggedOut == '1'}">
           <div class="alert alert-info"><i data-lucide="log-out"></i><span>You have been signed out.</span></div>
         </c:if>
+        <c:if test="${param.deactivated == '1'}">
+          <div class="alert alert-error"><i data-lucide="shield-alert"></i><span>Your account is no longer active. Please contact an administrator.</span></div>
+        </c:if>
         <c:if test="${not empty error}">
           <div class="alert alert-error"><i data-lucide="shield-alert"></i><span><c:out value="${error}"/></span></div>
         </c:if>

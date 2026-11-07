@@ -12,25 +12,29 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
+/**
+ * Servlet for deleting staff members
+ */
 @WebServlet("/admin/staff/delete")
 public class StaffDeleteServlet extends HttpServlet {
     @Autowired
     private StaffService staffService;
+
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String id = request.getParameter("id");
         User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
         try {
-            staffService.deleteStaff(currentUser,id);
-            response.sendRedirect(request.getContextPath()+"/admin/staff?done=deleted");
+            staffService.deleteStaff(currentUser, id);
+            response.sendRedirect(request.getContextPath() + "/admin/staff?done=deleted");
             return;
-        }catch (SecurityException e) {
+        } catch (SecurityException e) {
             response.sendError(403, e.getMessage());
-        }catch (IllegalArgumentException | IllegalStateException e){
+        } catch (IllegalArgumentException | IllegalStateException e) {
             request.setAttribute("error", e.getMessage());
             request.setAttribute("staffList", staffService.listStaff(currentUser));
             request.getRequestDispatcher("/WEB-INF/views/admin/staff.jsp").forward(request, response);
         }
     }
 }
-

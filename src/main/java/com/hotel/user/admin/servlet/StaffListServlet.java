@@ -14,13 +14,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * StaffListServlet is a servlet Used for handling display staff
+ */
 @WebServlet("/admin/staff")
 public class StaffListServlet extends HttpServlet {
-
     @Autowired
     private StaffService staffService;
+
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         try {
             User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
             List<Staff> staffList = staffService.listStaff(currentUser);
@@ -30,5 +34,4 @@ public class StaffListServlet extends HttpServlet {
             response.sendError(403, e.getMessage());
         }
     }
-
 }

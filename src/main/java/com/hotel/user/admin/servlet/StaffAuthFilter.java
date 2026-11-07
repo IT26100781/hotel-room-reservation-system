@@ -12,17 +12,25 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
+/**
+ * A filter that restricts access to pages under the `/admin/*` URL path.
+ *
+ *Only logged-in staff/Admin users can access it
+ *
+ * admin/login and admin/setup are exceptions
+ */
 @WebFilter("/admin/*")
 public class StaffAuthFilter extends HttpFilter {
     @Override
-    protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+    protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+            throws IOException, ServletException {
         if (request.getServletPath().equals("/admin/login") || request.getServletPath().equals("/admin/setup")) {
             chain.doFilter(request, response);
             return;
         }
         User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
-        if (!(currentUser instanceof Staff)){
-            response.sendRedirect(request.getContextPath()+"/admin/login");
+        if (!(currentUser instanceof Staff)) {
+            response.sendRedirect(request.getContextPath() + "/admin/login");
             return;
         }
         chain.doFilter(request, response);
