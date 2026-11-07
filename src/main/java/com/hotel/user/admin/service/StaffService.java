@@ -95,7 +95,7 @@ public class StaffService {
         if (!canAddStaff) {
             throw new SecurityException("You don't have permission to add staff");
         }
-        Staff staff = createAccount(name, email, password, Role.STAFF);
+        Staff staff = createAccount(name, email, password, Role.STAFF, true);
         return staff;
     }
 
@@ -104,13 +104,13 @@ public class StaffService {
         if (!canAddAdmin) {
             throw new SecurityException("You don't have permission to add admin");
         }
-        Staff admin = createAccount(name, email, password, Role.ADMIN);
+        Staff admin = createAccount(name, email, password, Role.ADMIN, true);
         return admin;
     }
 
     /**
      * handles login
-     *It throws the same error for email not found and password mismatch to prevent attacks
+     * It throws the same error for email not found and password mismatch to prevent attacks
      */
     public User login(String email, String password) {
         if (email == null || email.isBlank()) {
@@ -195,11 +195,13 @@ public class StaffService {
             }
             Staff newStaff = new Staff(id, staff.getName(), staff.getEmail(),
                     staff.getPasswordHash(), staff.isActive());
+            newStaff.setMustChangePassword(staff.isMustChangePassword());
             staffDAO.updateStaff(newStaff);
             return newStaff;
         } else if (role == Role.STAFF) {
             Admin newAdmin = new Admin(id, staff.getName(), staff.getEmail(),
                     staff.getPasswordHash(), staff.isActive());
+            newAdmin.setMustChangePassword(staff.isMustChangePassword());
             staffDAO.updateStaff(newAdmin);
             return newAdmin;
         } else {
@@ -253,8 +255,59 @@ public class StaffService {
         }
     }
 
+    public Staff changeOwnPassword(User currentUser, String currentPassword, String newPassword, String confirmPassword) {
+        Staff currentStaff = staffDAO.findById(currentUser.getId());
+        if (currentStaff == null) {
+            throw new IllegalArgumentException("Invalid staff id");
+        }
+        if (!matchesPassword(currentPassword, currentStaff.getPasswordHash())) {
+            throw new IllegalArgumentException("Incorrect password");
+        }
+        validatePassword(newPassword);
+        if (!newPassword.equals(confirmPassword)) {
+            throw new IllegalArgumentException("New passwords do not match");
+        }
+        if (currentPassword.equals(newPassword)) {
+            throw new IllegalArgumentException("New password should not be the same as old password");
+        }
+        String passwordHash = hash(newPassword);
+        currentStaff.setPasswordHash(passwordHash);
+        currentStaff.setMustChangePassword(false);
+        boolean isUpdated = staffDAO.updateStaff(currentStaff);
+        if (!isUpdated) {
+            throw new IllegalStateException("Password update failed");
+        }
+        return currentStaff;
+    }
+
+    public void resetPassword(User currentUser, String id, String temporaryPassword) {
+        if (!currentUser.canManageStaffUsers()) {
+            throw new SecurityException("You don't have permission to reset staff passwords");
+        }
+        if (currentUser.getId().equals(id)) {
+            throw new IllegalArgumentException("You can't reset your own password here");
+        }
+        Staff staff = staffDAO.findById(id);
+        if (staff == null) {
+            throw new IllegalArgumentException("Invalid staff id");
+        }
+        if (staff.getRole() == Role.ADMIN) {
+            if (!currentUser.canManageAdminUsers()) {
+                throw new SecurityException("You don't have permission to reset admin passwords");
+            }
+        }
+        validatePassword(temporaryPassword);
+        staff.setPasswordHash(hash(temporaryPassword));
+        staff.setMustChangePassword(true);
+        boolean isUpdated = staffDAO.updateStaff(staff);
+        if (!isUpdated) {
+            throw new IllegalStateException("Password update failed");
+        }
+
+    }
+
     //helpers
-    private Staff createAccount(String name, String email, String password, Role role) {
+    private Staff createAccount(String name, String email, String password, Role role, boolean mustChangePassword) {
         validatePassword(password);
         validateName(name);
         name = name.trim();
@@ -273,6 +326,7 @@ public class StaffService {
         String passwordHash = hash(password);
         if (role == Role.STAFF) {
             Staff user = new Staff(id, name, email, passwordHash, true);
+            user.setMustChangePassword(mustChangePassword);
             boolean isSaveSuccess = staffDAO.saveStaff(user);
             if (!isSaveSuccess) {
                 throw new IllegalStateException("Save failed");
@@ -280,6 +334,7 @@ public class StaffService {
             return user;
         } else if (role == Role.ADMIN) {
             Admin user = new Admin(id, name, email, passwordHash, true);
+            user.setMustChangePassword(mustChangePassword);
             boolean isSaveSuccess = staffDAO.saveStaff(user);
             if (!isSaveSuccess) {
                 throw new IllegalStateException("Save failed");
@@ -338,7 +393,7 @@ public class StaffService {
         if (hasAnyAdminRole) {
             throw new IllegalStateException("Admin Role already exists");
         } else {
-            return createAccount(name, email, password, Role.ADMIN);
+            return createAccount(name, email, password, Role.ADMIN, false);
         }
     }
 }

@@ -58,6 +58,7 @@
         </div>
         <button type="submit" class="btn btn-primary btn-lg btn-block"><i data-lucide="key-round"></i>Sign in to portal</button>
         <p class="text-xs text-muted text-center flex items-center justify-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-sage"></i>Authorised staff only. Accounts are created by an administrator.</p>
+        <p class="text-xs text-muted text-center">Forgot your password? Ask an administrator to reset it.</p>
       </form>
 
       <a href="${ctx}/" class="mt-8 flex items-center justify-center gap-2 text-sm text-ivory/60 hover:text-ivory"><i data-lucide="arrow-left" class="w-4 h-4"></i>Back to the guest website</a>

@@ -32,54 +32,62 @@ public class StaffDAO {
         String passwordHash = rs.getString("password_hash");
         String role = rs.getString("role");
         boolean active = rs.getBoolean("active");
+        boolean mustChangePassword = rs.getBoolean("must_change_password");
 
         if (role.equalsIgnoreCase(Role.STAFF.name())) {
-            return new Staff(id, name, email, passwordHash, active);
+            Staff staff = new Staff(id, name, email, passwordHash,active);
+            staff.setMustChangePassword(mustChangePassword);
+            return staff;
         }
         if (role.equalsIgnoreCase(Role.ADMIN.name())) {
-            return new Admin(id, name, email, passwordHash, active);
+            Staff admin = new Admin(id, name, email, passwordHash,active);
+            admin.setMustChangePassword(mustChangePassword);
+            return admin;
         }
         throw new IllegalStateException("Invalid role");
     }
 
     public List<Staff> findAllStaff() {
-        String sql = "SELECT id, name, email, password_hash, role, active FROM staff ORDER BY id";
+        String sql = "SELECT id, name, email, password_hash, role, active,must_change_password FROM staff ORDER BY id";
         return jdbcTemplate.query(sql, this::mapRow);
     }
 
     public Staff findById(String id) {
-        String sql = "SELECT id, name, email, password_hash, role, active FROM staff WHERE id = ?";
+        String sql = "SELECT id, name, email, password_hash, role, active,must_change_password FROM staff WHERE id = ?";
         List<Staff> found = jdbcTemplate.query(sql, this::mapRow, id);
         return found.isEmpty() ? null : found.get(0);
     }
 
     public Staff findByEmail(String email) {
-        String sql = "SELECT id, name, email, password_hash, role, active FROM staff WHERE email = ?";
+        String sql = "SELECT id, name, email, password_hash, role, active,must_change_password FROM staff WHERE email = ?";
         List<Staff> found = jdbcTemplate.query(sql, this::mapRow, email);
         return found.isEmpty() ? null : found.get(0);
     }
 
     public boolean saveStaff(Staff staff) {
-        String sql = "INSERT INTO staff (id, name, email, password_hash, role, active) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO staff (id, name, email, password_hash, role, active,must_change_password) VALUES (?, ?, ?, ?, ?, ?,?)";
         int rows = jdbcTemplate.update(sql,
                 staff.getId(),
                 staff.getName(),
                 staff.getEmail(),
                 staff.getPasswordHash(),
                 staff.getRole().name(),
-                staff.isActive());
+                staff.isActive(),
+                staff.isMustChangePassword());
         return rows == 1;
     }
 
     public boolean updateStaff(Staff updated) {
-        String sql = "UPDATE staff SET name = ?, email = ?, password_hash = ?, role = ?, active = ? WHERE id = ?";
+        String sql = "UPDATE staff SET name = ?, email = ?, password_hash = ?, role = ?, active = ?,must_change_password=? WHERE id = ?";
         int rows = jdbcTemplate.update(sql,
                 updated.getName(),
                 updated.getEmail(),
                 updated.getPasswordHash(),
                 updated.getRole().name(),
                 updated.isActive(),
+                updated.isMustChangePassword(),
                 updated.getId());
+
         return rows == 1;
     }
 

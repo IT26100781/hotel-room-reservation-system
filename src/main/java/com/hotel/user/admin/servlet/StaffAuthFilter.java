@@ -16,9 +16,9 @@ import java.io.IOException;
 
 /**
  * A filter that restricts access to pages under the `/admin/*` URL path.
- *
- *Only logged-in staff/Admin users can access it
- *
+ * <p>
+ * Only logged-in staff/Admin users can access it
+ * <p>
  * admin/login and admin/setup are exceptions
  */
 @WebFilter("/admin/*")
@@ -45,6 +45,12 @@ public class StaffAuthFilter extends HttpFilter {
             return;
         }
         SessionUtil.login(request.getSession(false), freshStaff);
+        String path = request.getServletPath();
+        boolean isAllowedPage = path.equals("/admin/password") || path.equals("/admin/logout");
+        if (freshStaff.isMustChangePassword() && !isAllowedPage) {
+            response.sendRedirect(request.getContextPath() + "/admin/password");
+            return;
+        }
         chain.doFilter(request, response);
     }
 }

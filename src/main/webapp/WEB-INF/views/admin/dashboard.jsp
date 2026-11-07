@@ -23,6 +23,10 @@
         <p class="text-muted mt-2">Here's how the estate looks today.</p>
       </div>
 
+      <c:if test="${param.done == 'password'}">
+        <div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Your password has been changed.</span></div>
+      </c:if>
+
       <div class="mt-8 grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <div class="stat">
           <div class="flex items-center justify-between"><p class="stat-label">Arrivals today</p><span class="stat-icon"><i data-lucide="door-open"></i></span></div>

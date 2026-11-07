@@ -12,6 +12,7 @@ import com.hotel.user.User;
  */
 public class Staff extends User {
     protected boolean active; // true if Active false if Inactive
+    protected boolean mustChangePassword;
 
     public Staff(String id, String name, String email, String passwordHash, boolean active) {
         super(id, name, email, passwordHash);
@@ -66,5 +67,13 @@ public class Staff extends User {
     @Override
     public boolean canCheckOutGuests() {
         return true;
+    }
+
+    public boolean isMustChangePassword() {
+        return mustChangePassword;
+    }
+
+    public void setMustChangePassword(boolean mustChangePassword) {
+        this.mustChangePassword = mustChangePassword;
     }
 }
