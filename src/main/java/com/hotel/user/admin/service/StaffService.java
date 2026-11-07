@@ -38,9 +38,9 @@ public class StaffService {
         int largest = 0;
         for (Staff staff : staffList) {
             try {
-                int currentStaffID = Integer.parseInt(staff.getId().substring(1));
-                if (currentStaffID > largest) {
-                    largest = currentStaffID;
+                int currentStaffId = Integer.parseInt(staff.getId().substring(1));
+                if (currentStaffId > largest) {
+                    largest = currentStaffId;
                 }
             } catch (NumberFormatException | StringIndexOutOfBoundsException e) {
                 continue;
@@ -148,6 +148,11 @@ public class StaffService {
         } else {
             throw new SecurityException("You don't have permission to view staff");
         }
+    }
+
+    // reload the logged-in user in StaffAuthFilter
+    public Staff refreshSessionUser(String id) {
+        return staffDAO.findById(id);
     }
 
     public Staff updateStaffDetails(User currentUser, String id, String name, String email) {
@@ -268,11 +273,17 @@ public class StaffService {
         String passwordHash = hash(password);
         if (role == Role.STAFF) {
             Staff user = new Staff(id, name, email, passwordHash, true);
-            staffDAO.saveStaff(user);
+            boolean isSaveSuccess = staffDAO.saveStaff(user);
+            if (!isSaveSuccess) {
+                throw new IllegalStateException("Save failed");
+            }
             return user;
         } else if (role == Role.ADMIN) {
             Admin user = new Admin(id, name, email, passwordHash, true);
-            staffDAO.saveStaff(user);
+            boolean isSaveSuccess = staffDAO.saveStaff(user);
+            if (!isSaveSuccess) {
+                throw new IllegalStateException("Save failed");
+            }
             return user;
         }
         return null;
@@ -290,7 +301,7 @@ public class StaffService {
         validateEmail(email);
         Staff staff = staffDAO.findById(id);
         if (staff == null) {
-            throw new SecurityException("Invalid id");
+            throw new IllegalArgumentException("Invalid id");
         }
         staff.setName(name);
         if (staffDAO.findByEmail(email) != null && !staffDAO.findByEmail(email).getId().equals(id)) {

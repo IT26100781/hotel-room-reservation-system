@@ -26,6 +26,7 @@ class StaffServiceTests {
     @BeforeEach
     void setUp() {
         dao = mock(StaffDAO.class);
+        when(dao.saveStaff(any())).thenReturn(true);
         service = new StaffService(dao);
 
         admin = new Admin("S01", "Admin One", "admin@test.lk", "hash");
