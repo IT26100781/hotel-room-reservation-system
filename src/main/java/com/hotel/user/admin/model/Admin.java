@@ -52,4 +52,7 @@ public class Admin extends Staff {
     public boolean canModerateReviews() {
         return true;
     }
+
+    @Override
+    public boolean canEditSiteContent() {return true;}
 }

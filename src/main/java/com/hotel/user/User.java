@@ -60,6 +60,7 @@ public abstract class User {
     public boolean canViewStaffUsers() {return false;}
     public boolean canViewAdminUsers() {return false;}
     public boolean canViewGuestUsers() {return false;}
+    public boolean canEditSiteContent(){return false;}
 
     // ---- getters / setters ----
 

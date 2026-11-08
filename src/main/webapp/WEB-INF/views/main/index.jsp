@@ -2,7 +2,10 @@
 <%@ include file="/WEB-INF/views/common/init.jspf" %>
 <%--
   Home page (GET /). Shown by HomeServlet (@WebServlet("")).
-  Static content for now; the search form sends type and capacity to the room module's /rooms page.
+  Request attributes:
+    home - HomeContent with the admin-editable text (hero, announcement, sign-up banner).
+           Each value falls back to the built-in text if home is missing.
+  The search form sends type and capacity to the room module's /rooms page.
 --%>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,17 +16,24 @@
   <%@ include file="/WEB-INF/views/common/public-header.jspf" %>
 
   <main>
+    <c:if test="${home.announcementVisible and not empty home.announcementText}">
+      <div class="bg-forest text-ivory text-sm">
+        <p class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-center gap-2 text-center">
+          <i data-lucide="megaphone" class="w-4 h-4 text-brass-light shrink-0"></i><c:out value="${home.announcementText}"/>
+        </p>
+      </div>
+    </c:if>
+
     <!-- ============ HERO ============ -->
     <section class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 pt-10 lg:pt-16">
       <div class="grid lg:grid-cols-12 gap-12 items-center">
         <div class="lg:col-span-6 reveal">
-          <span class="eyebrow">Hill Country · Sri Lanka</span>
+          <span class="eyebrow"><c:out value="${home.heroEyebrow}" default="Hill Country · Sri Lanka"/></span>
           <h1 class="font-display text-[3.2rem] leading-[1.02] sm:text-7xl lg:text-[5.4rem] font-semibold text-forest mt-6">
-            Stay where time <em class="italic font-medium text-brass">slows down.</em>
+            <c:out value="${home.heroTitle}" default="Stay where time"/> <em class="italic font-medium text-brass"><c:out value="${home.heroHighlight}" default="slows down."/></em>
           </h1>
           <p class="mt-6 text-lg text-ink/70 max-w-lg leading-relaxed">
-            Twenty-four rooms and suites above the tea terraces of Nuwara Eliya. Mountain mornings,
-            unhurried dinners and a front desk that remembers your name.
+            <c:out value="${home.heroText}" default="Twenty-four rooms and suites above the tea terraces of Nuwara Eliya. Mountain mornings, unhurried dinners and a front desk that remembers your name."/>
           </p>
           <div class="mt-9 flex flex-wrap gap-3">
             <a href="${ctx}/rooms" class="btn btn-primary btn-lg">Explore rooms <i data-lucide="arrow-right"></i></a>
@@ -47,7 +57,7 @@
 
         <div class="lg:col-span-6 relative reveal">
           <div class="arch h-[440px] sm:h-[560px] lg:ml-10 shadow-2xl shadow-forest/20 img-zoom">
-            <img class="img-cover" src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80" alt="Pool terrace facing the mountains">
+            <img class="img-cover" src="<c:out value='${home.heroImageUrl}' default='https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80'/>" alt="The Orchid Estate">
           </div>
           <!-- rotating badge -->
           <div class="absolute -left-2 sm:left-0 bottom-16 w-32 h-32 rounded-full bg-ivory grid place-items-center shadow-xl shadow-forest/10">
@@ -270,8 +280,8 @@
       <div class="panel-dark rounded-[28px] overflow-hidden grid md:grid-cols-2 reveal">
         <div class="p-10 sm:p-14">
           <span class="eyebrow">Members save more</span>
-          <h2 class="font-display text-4xl sm:text-5xl font-semibold mt-5 leading-tight">Your window seat is <em class="italic text-brass-light">waiting.</em></h2>
-          <p class="mt-5 text-ivory/65 max-w-md">Create a free account to book in seconds, manage your stays and leave a verified review after you check out. VIP guests enjoy 10% off every stay.</p>
+          <h2 class="font-display text-4xl sm:text-5xl font-semibold mt-5 leading-tight"><c:out value="${home.ctaTitle}" default="Your window seat is"/> <em class="italic text-brass-light"><c:out value="${home.ctaHighlight}" default="waiting."/></em></h2>
+          <p class="mt-5 text-ivory/65 max-w-md"><c:out value="${home.ctaText}" default="Create a free account to book in seconds, manage your stays and leave a verified review after you check out. VIP guests enjoy 10% off every stay."/></p>
           <div class="mt-8 flex flex-wrap gap-3">
             <a href="${ctx}/register" class="btn btn-brass btn-lg">Create an account</a>
             <a href="${ctx}/login" class="btn btn-lg text-ivory border border-ivory/25 hover:bg-ivory/10">Sign in</a>

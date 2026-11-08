@@ -79,6 +79,13 @@
               <i data-lucide="arrow-right" class="w-5 h-5 text-brass mt-3 transition group-hover:translate-x-1"></i>
             </a>
           </c:if>
+          <c:if test="${me.canEditSiteContent()}">
+            <a href="${ctx}/admin/home" class="card card-pad card-hover group">
+              <span class="stat-icon"><i data-lucide="house"></i></span>
+              <h3 class="font-display text-xl font-semibold text-forest mt-4">Home page</h3>
+              <i data-lucide="arrow-right" class="w-5 h-5 text-brass mt-3 transition group-hover:translate-x-1"></i>
+            </a>
+          </c:if>
         </div>
       </section>
     </main>
