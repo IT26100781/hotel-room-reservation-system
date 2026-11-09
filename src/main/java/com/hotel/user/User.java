@@ -11,7 +11,6 @@ package com.hotel.user;
  * before every protected action (never rely on hiding buttons in the JSP).
  */
 public abstract class User {
-
     protected String id;
     protected String name;
     protected String email;
@@ -26,7 +25,6 @@ public abstract class User {
 
     /** Each subclass reports its own role. */
     public abstract Role getRole();
-
 
     // ---- permissions (default-deny) ----
 
@@ -62,7 +60,7 @@ public abstract class User {
     public boolean canViewStaffUsers() {return false;}
     public boolean canViewAdminUsers() {return false;}
     public boolean canViewGuestUsers() {return false;}
-
+    public boolean canEditSiteContent(){return false;}
 
     // ---- getters / setters ----
 

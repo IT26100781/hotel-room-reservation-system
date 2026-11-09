@@ -14,12 +14,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * The AdminDashboardServlet class handles the logic for the admin dashboard
+ * only logged-in staff/admin users can access
+ */
 @WebServlet("/admin")
 public class AdminDashboardServlet extends HttpServlet {
     @Autowired
     private StaffService staffService;
+
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
         if (currentUser == null) {
             response.sendRedirect(request.getContextPath() + "/admin/login");
@@ -29,11 +35,10 @@ public class AdminDashboardServlet extends HttpServlet {
             List<Staff> staffList = staffService.listStaff(currentUser);
             request.setAttribute("staffCount", staffList.size());
             int activeStaffCount = 0;
-            for(Staff staff : staffList){
-                if(staff.isActive()) activeStaffCount++;
+            for (Staff staff : staffList) {
+                if (staff.isActive()) activeStaffCount++;
             }
-            request.setAttribute("activeStaffCount",activeStaffCount);
-
+            request.setAttribute("activeStaffCount", activeStaffCount);
         }
         request.getRequestDispatcher("/WEB-INF/views/admin/dashboard.jsp").forward(request, response);
     }
