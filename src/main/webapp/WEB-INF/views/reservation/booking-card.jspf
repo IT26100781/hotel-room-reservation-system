@@ -1,0 +1,78 @@
+<%@ page pageEncoding="UTF-8" %>
+<%--
+  One booking card on My bookings. Included inside a c:forEach in my-bookings.jsp.
+  Needs before including:
+    b       - BookingDetails of this booking
+    section - upcoming | completed | cancelled
+  Reads paidAmounts (Map bookingId -> amount paid) from the request.
+--%>
+<c:set var="r" value="${b.reservation}"/>
+<c:set var="paid" value="${paidAmounts[r.id]}"/>
+<article class="card overflow-hidden grid md:grid-cols-[260px_1fr] ${section == 'cancelled' ? 'opacity-80' : ''}">
+  <div class="h-52 md:h-full ${section == 'cancelled' ? 'grayscale' : ''}"><img class="img-cover" src="<c:out value='${b.room.imageUrl}'/>" alt="<c:out value='${b.room.roomName}'/>"></div>
+  <div class="p-6 sm:p-7">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <p class="mono text-xs text-muted tracking-wider"><c:out value="${r.id}"/> · <c:out value="${r.sourceLabel}"/></p>
+        <h2 class="font-display text-3xl font-semibold text-forest"><c:out value="${b.room.roomName}"/> · Room <c:out value="${b.room.roomNumber}"/></h2>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <span class="badge ${r.state.badge}"><c:out value="${r.state.label}"/></span>
+        <span class="badge badge-${r.paymentStatus.value}"><c:out value="${r.paymentStatus.label}"/></span>
+      </div>
+    </div>
+
+    <dl class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+      <div><dt class="label !mb-1">Check-in</dt><dd class="font-semibold ${section == 'cancelled' ? 'line-through text-muted' : ''}"><c:out value="${r.checkInLabel}"/></dd></div>
+      <div><dt class="label !mb-1">Check-out</dt><dd class="font-semibold ${section == 'cancelled' ? 'line-through text-muted' : ''}"><c:out value="${r.checkOutLabel}"/></dd></div>
+      <div><dt class="label !mb-1">Nights</dt><dd class="font-semibold"><c:out value="${r.nights}"/></dd></div>
+      <c:choose>
+        <c:when test="${not empty paid}">
+          <div><dt class="label !mb-1">${r.paymentStatus.value == 'refunded' ? 'Refunded' : 'Paid'}</dt><dd class="font-semibold">LKR <fmt:formatNumber value="${paid}" pattern="#,##0"/></dd></div>
+        </c:when>
+        <c:otherwise>
+          <div><dt class="label !mb-1">Estimated</dt><dd class="font-semibold">LKR <fmt:formatNumber value="${b.estimatedTotal}" pattern="#,##0"/></dd></div>
+        </c:otherwise>
+      </c:choose>
+    </dl>
+
+    <c:if test="${section != 'cancelled' or r.refundPending}">
+      <div class="mt-6 pt-5 border-t border-line flex flex-wrap items-center justify-between gap-3">
+        <c:choose>
+          <c:when test="${section == 'completed'}">
+            <p class="text-sm text-muted">How was your stay?</p>
+            <a href="${ctx}/reviews/form?bookingId=<c:out value='${r.id}'/>" class="btn btn-brass btn-sm"><i data-lucide="star"></i>Write a review</a>
+          </c:when>
+          <c:when test="${section == 'cancelled'}">
+            <p class="text-sm text-muted flex items-center gap-2"><i data-lucide="rotate-ccw" class="w-4 h-4 text-clay"></i>Your refund will be returned at the front desk.</p>
+          </c:when>
+          <c:otherwise>
+            <p class="text-sm text-muted flex items-center gap-2">
+              <i data-lucide="clock" class="w-4 h-4 text-brass"></i>
+              <c:choose>
+                <c:when test="${r.state.value == 'inhouse'}">You're staying with us. Enjoy the hills.</c:when>
+                <c:when test="${r.state.value == 'arriving'}">Arriving today, check-in from 2:00 pm.</c:when>
+                <c:otherwise>Arriving in <c:out value="${r.daysUntilCheckIn}"/> ${r.daysUntilCheckIn == 1 ? 'day' : 'days'}.</c:otherwise>
+              </c:choose>
+            </p>
+            <div class="flex flex-wrap gap-2">
+              <c:if test="${r.guestDatesEditable}">
+                <button type="button" class="btn btn-outline btn-sm" data-modal-open="dates-modal"
+                        data-booking="<c:out value='${r.id}'/>" data-checkin="${r.checkIn}" data-checkout="${r.checkOut}"><i data-lucide="calendar-range"></i>Change dates</button>
+              </c:if>
+              <c:choose>
+                <c:when test="${r.guestCancellable}">
+                  <button type="button" class="btn btn-danger-outline btn-sm" data-modal-open="cancel-modal"
+                          data-booking="<c:out value='${r.id}'/>" data-room="<c:out value='${b.room.roomName}'/> · <c:out value='${r.stayLabel}'/>"><i data-lucide="x"></i>Cancel booking</button>
+                </c:when>
+                <c:when test="${not r.guestDatesEditable}">
+                  <span class="text-xs text-muted max-w-xs"><c:out value="${r.cancellationPolicy}"/></span>
+                </c:when>
+              </c:choose>
+            </div>
+          </c:otherwise>
+        </c:choose>
+      </div>
+    </c:if>
+  </div>
+</article>
