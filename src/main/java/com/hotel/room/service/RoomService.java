@@ -18,7 +18,9 @@ public class RoomService {
 
     private final RoomDAO roomDAO;
 
+    //get RoomDAO using Constructor Injection
     public RoomService(RoomDAO roomDAO) {
+
         this.roomDAO = roomDAO;
     }
 
@@ -43,18 +45,19 @@ public class RoomService {
         public int getMaintenance() { return maintenance; }
         public int getRetired() { return retired; }
     }
+    //get all room list through the DAO
 
     public List<Room> getAllRooms() {
         return roomDAO.findAll();
     }
-
+    //find a room using RoomID
     public Room getRoomById(String id) {
         if (id == null || id.trim().isEmpty()) {
             return null;
         }
         return roomDAO.findById(id.trim());
     }
-
+    //find a room using Room Number
     public Room getRoomByNumber(int roomNumber) {
         if (roomNumber <= 0) {
             return null;
@@ -96,7 +99,7 @@ public class RoomService {
                         || room.getRoomId().toLowerCase().contains(term)
                         || String.valueOf(room.getRoomNumber()).contains(term);
                 if (!matchesKeyword) {
-                    continue;
+                    continue;//If it doesn't match, it moves to the next room.
                 }
             }
 
@@ -125,7 +128,7 @@ public class RoomService {
             if (minCapacity != null && room.getCapacity() < minCapacity) {
                 continue;
             }
-
+            //Adds rooms that meet all the conditions.
             filtered.add(room);
         }
         return filtered;

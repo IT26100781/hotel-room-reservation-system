@@ -35,24 +35,24 @@ public class RoomDAO {
                 RoomStatus.fromString(rs.getString("status"))
         );
     }
-
+    // Retrieves all rooms from the database in ascending order (ASC).
     public List<Room> findAll() {
         String sql = "SELECT id, room_number, room_name, room_type, base_rate, capacity, room_size, image_url, status FROM rooms ORDER BY room_number ASC";
         return jdbcTemplate.query(sql, this::mapRow);
     }
-
+    //get a room using RoomID
     public Room findById(String id) {
         String sql = "SELECT id, room_number, room_name, room_type, base_rate, capacity, room_size, image_url, status FROM rooms WHERE id = ?";
         List<Room> list = jdbcTemplate.query(sql, this::mapRow, id);
         return list.isEmpty() ? null : list.get(0);
     }
-
+    //get a room using Room Number
     public Room findByRoomNumber(int roomNumber) {
         String sql = "SELECT id, room_number, room_name, room_type, base_rate, capacity, room_size, image_url, status FROM rooms WHERE room_number = ?";
         List<Room> list = jdbcTemplate.query(sql, this::mapRow, roomNumber);
         return list.isEmpty() ? null : list.get(0);
     }
-
+    //Insert a new room to Database
     public boolean save(Room room) {
         String sql = "INSERT INTO rooms (id, room_number, room_name, room_type, base_rate, capacity, room_size, image_url, status) "
                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -69,6 +69,7 @@ public class RoomDAO {
         return rows == 1;
     }
 
+    // Updates an existing room.
     public boolean update(Room room) {
         String sql = "UPDATE rooms SET room_number = ?, room_name = ?, room_type = ?, base_rate = ?, "
                    + "capacity = ?, room_size = ?, image_url = ?, status = ? WHERE id = ?";
@@ -84,13 +85,13 @@ public class RoomDAO {
                 room.getRoomId());
         return rows == 1;
     }
-
+    // Changes only the status (to Retired or Maintenance).
     public boolean updateStatus(String id, String status) {
         String sql = "UPDATE rooms SET status = ? WHERE id = ?";
         int rows = jdbcTemplate.update(sql, status, id);
         return rows == 1;
     }
-
+    // Checks whether the room number is already in use (ignores its own ID during updates).
     public boolean existsByRoomNumber(int roomNumber, String excludeRoomId) {
         if (excludeRoomId != null) {
             String sql = "SELECT COUNT(*) FROM rooms WHERE room_number = ? AND id <> ?";

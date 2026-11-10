@@ -75,6 +75,7 @@ public abstract class Room {
     /**
      * Maximum guest occupancy allowed for this room category.
      */
+    //getters and setters
     public abstract int getMaxAllowedCapacity();
 
     public String getRoomId() { return roomId; }

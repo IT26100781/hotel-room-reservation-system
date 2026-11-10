@@ -31,13 +31,14 @@ public class RoomSaveServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
+        // Gets the currently logged-in user from the session.
         User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
+        // Sends a 403 Forbidden error if the user does not have permission.
         if (currentUser == null || !currentUser.canManageRooms()) {
             response.sendError(HttpServletResponse.SC_FORBIDDEN, "You do not have permission to manage rooms.");
             return;
         }
-
+        // Gets the submitted form parameters one by one.
         String roomId = request.getParameter("roomId");
         String type = request.getParameter("type");
         String roomNoStr = request.getParameter("roomNo");
@@ -49,16 +50,19 @@ public class RoomSaveServlet extends HttpServlet {
         String statusStr = request.getParameter("status");
 
         Room room = null;
+        // If a roomId exists, it identifies this as an update operation.
         boolean isUpdate = (roomId != null && !roomId.trim().isEmpty());
 
         try {
+            //test Room type
             if (type == null || type.trim().isEmpty()) {
                 throw new IllegalArgumentException("Please select a room type");
             }
+            //test Room Number
             if (roomNoStr == null || roomNoStr.trim().isEmpty()) {
                 throw new IllegalArgumentException("Room number is required");
             }
-
+            // Converts String values into Integer or Double and prevents parsing errors.
             int roomNumber;
             try {
                 roomNumber = Integer.parseInt(roomNoStr.trim());
@@ -100,7 +104,7 @@ public class RoomSaveServlet extends HttpServlet {
 
             // Construct room instance using the single, exact factory method
             room = Room.create(type, roomId, roomName != null ? roomName.trim() : "", roomNumber, rate, capacity, roomSize, imageUrl != null ? imageUrl.trim() : "", status);
-
+            // Calls updateRoom() if updating, otherwise calls addRoom(), and redirects to the View page.
             if (isUpdate) {
                 roomService.updateRoom(currentUser, room);
                 response.sendRedirect(request.getContextPath() + "/admin/rooms?done=updated");
@@ -110,8 +114,10 @@ public class RoomSaveServlet extends HttpServlet {
             }
 
         } catch (SecurityException e) {
+            // When the user does not have permission.
             response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
         } catch (IllegalArgumentException | IllegalStateException e) {
+            // If a validation or database error occurs, returns to the JSP form with an error message (Forward).
             if (isUpdate && room == null) {
                 room = roomService.getRoomById(roomId);
                 request.setAttribute("room",room);
