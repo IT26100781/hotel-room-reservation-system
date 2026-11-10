@@ -1,5 +1,6 @@
 package com.hotel.reservation.servlet;
 
+import com.hotel.reservation.model.BookingDetails;
 import com.hotel.reservation.model.Reservation;
 import com.hotel.reservation.service.ReservationService;
 import com.hotel.user.User;
@@ -13,22 +14,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
+/**
+ * Controller for displaying booking confirmation page.
+ * GET /reservation/confirmation?id=BK01
+ */
 @WebServlet("/reservation/confirmation")
 public class BookingConfirmationServlet extends HttpServlet {
 
     @Autowired
     private ReservationService reservationService;
 
-    public void setReservationService(ReservationService reservationService) {
-        this.reservationService = reservationService;
-    }
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        User user = SessionUtil.getCurrentUser(request.getSession(false));
-        if (user == null) {
+        User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
+        if (currentUser == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
@@ -39,18 +39,25 @@ public class BookingConfirmationServlet extends HttpServlet {
             return;
         }
 
-        try {
-            Reservation reservation = reservationService.getBookingById(user, id.trim());
-            if (reservation == null) {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Booking not found.");
-                return;
-            }
-
-            request.setAttribute("booking", reservation);
-            request.getRequestDispatcher("/WEB-INF/views/reservation/confirmation.jsp").forward(request, response);
-
-        } catch (SecurityException e) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+        Reservation reservation = reservationService.findById(id.trim());
+        if (reservation == null) {
+            response.sendRedirect(request.getContextPath() + "/bookings?error=Reservation+not+found");
+            return;
         }
+
+        // Authorization / IDOR Protection: only owner or staff can view
+        if (!reservation.canBeViewedBy(currentUser)) {
+            response.sendRedirect(request.getContextPath() + "/bookings?error=Access+denied");
+            return;
+        }
+
+        BookingDetails details = reservationService.toDetails(reservation, currentUser);
+        if (details == null) {
+            response.sendRedirect(request.getContextPath() + "/bookings?error=Reservation+details+unavailable");
+            return;
+        }
+
+        request.setAttribute("b", details);
+        request.getRequestDispatcher("/WEB-INF/views/reservation/confirmation.jsp").forward(request, response);
     }
 }

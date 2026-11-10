@@ -1,233 +1,525 @@
+// src/main/java/com/hotel/reservation/service/ReservationService.java
 package com.hotel.reservation.service;
 
 import com.hotel.reservation.dao.ReservationDAO;
-import com.hotel.reservation.model.BookingStatus;
-import com.hotel.reservation.model.DateRange;
-import com.hotel.reservation.model.PaymentStatus;
-import com.hotel.reservation.model.Reservation;
+import com.hotel.reservation.model.*;
 import com.hotel.room.model.Room;
 import com.hotel.room.service.RoomService;
 import com.hotel.user.User;
 import com.hotel.user.guest.model.Guest;
+import com.hotel.user.guest.service.GuestService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Business-logic layer for the reservation module.
+ *
+ * Responsibilities:
+ * <ul>
+ *   <li>Thread-safe BK-prefix ID generation (BK01, BK02 …)</li>
+ *   <li>Availability checking (overlap detection)</li>
+ *   <li>Capacity and room-status validation</li>
+ *   <li>Dynamic pricing: {@code room.calculateTotalRate(nights) × (1 - guest.getDiscount())}</li>
+ *   <li>IDOR protection on cancel / view / date changes</li>
+ *   <li>Cross-module queries for Payment and Review</li>
+ * </ul>
+ */
 @Service
 public class ReservationService {
 
     private final ReservationDAO reservationDAO;
     private final RoomService roomService;
+    private final GuestService guestService;
 
-    public ReservationService(ReservationDAO reservationDAO, RoomService roomService) {
+    /** Guard for thread-safe sequential ID generation. */
+    private final Object idLock = new Object();
+
+    public ReservationService(ReservationDAO reservationDAO,
+                              RoomService roomService,
+                              GuestService guestService) {
         this.reservationDAO = reservationDAO;
         this.roomService = roomService;
+        this.guestService = guestService;
     }
 
+    // =====================================================================
+    //  ID generation
+    // =====================================================================
+
     /**
-     * Generates a thread-safe identifier matching the BK01 / BK1001 project convention.
+     * Generates the next booking ID in the sequence BK01, BK02 … BK100 etc.
+     * Thread-safe via synchronized block on {@code idLock}.
      */
-    public synchronized String nextId() {
-        int largest = 0;
-        for (Reservation r : reservationDAO.findAll()) {
-            if (r.getId() != null && r.getId().matches("BK[0-9]+")) {
-                try {
-                    largest = Math.max(largest, Integer.parseInt(r.getId().substring(2)));
-                } catch (NumberFormatException ignored) {}
-            }
+    private String nextId() {
+        synchronized (idLock) {
+            int next = reservationDAO.findMaxIdNumber() + 1;
+            return String.format("BK%02d", next);
         }
-        return String.format("BK%02d", largest + 1);
     }
 
+    // =====================================================================
+    //  Date parsing (friendly error messages)
+    // =====================================================================
+
     /**
-     * Core business method to create a booking.
-     * Enforces permission checks, active room status, room occupancy, date intervals,
-     * double-booking prevention, and polymorphic pricing.
+     * Parses a date string (yyyy-MM-dd) with a user-friendly error message
+     * instead of exposing raw Java parse exceptions.
+     *
+     * @param value the date string from the form
+     * @param field human label like "Check-in" or "Check-out"
+     * @return the parsed LocalDate
+     * @throws IllegalArgumentException with a friendly message on parse failure
      */
-    @Transactional
-    public synchronized Reservation createBooking(User currentUser, String roomId, LocalDate checkIn, LocalDate checkOut, int guestCount) {
-        if (currentUser == null) {
-            throw new SecurityException("You must be logged in to make a reservation.");
+    public static LocalDate parseDate(String value, String field) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(field + " date is required.");
         }
-        if (!currentUser.canBookForThemselves() && !currentUser.canManageAnyBooking()) {
-            throw new SecurityException("Your account is not authorized to create bookings.");
+        try {
+            return LocalDate.parse(value.trim());
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException(field + " date is not valid. Please use the date picker.");
+        }
+    }
+
+    // =====================================================================
+    //  Online booking (guest self-service)
+    // =====================================================================
+
+    /**
+     * Creates an ONLINE booking for the currently logged-in guest.
+     *
+     * Validates:
+     * <ol>
+     *   <li>User is a Guest and can book for themselves</li>
+     *   <li>Room exists and is ACTIVE</li>
+     *   <li>Guest count ≤ room capacity</li>
+     *   <li>No overlapping active booking for the room</li>
+     * </ol>
+     *
+     * @return the saved Reservation with its generated ID
+     */
+    public synchronized Reservation createOnlineBooking(User currentUser,
+                                                        String roomId,
+                                                        LocalDate checkIn,
+                                                        LocalDate checkOut,
+                                                        int guestCount) {
+        // -- auth: only guests can self-book --
+        if (currentUser == null || !currentUser.canBookForThemselves()) {
+            throw new SecurityException("Please sign in as a guest to make a booking.");
+        }
+        if (!(currentUser instanceof Guest)) {
+            throw new SecurityException("Only registered guests can book online.");
         }
 
-        if (roomId == null || roomId.trim().isEmpty()) {
-            throw new IllegalArgumentException("Room selection is required.");
-        }
+        // -- validate room --
+        Room room = requireActiveRoom(roomId);
+        validateCapacity(room, guestCount);
 
-        DateRange dateRange = new DateRange(checkIn, checkOut);
-        if (dateRange.getCheckIn().isBefore(LocalDate.now())) {
+        // -- validate dates and availability --
+        new DateRange(checkIn, checkOut); // validates checkOut > checkIn
+        if (checkIn.isBefore(LocalDate.now())) {
             throw new IllegalArgumentException("Check-in date cannot be in the past.");
         }
-
-        Room room = roomService.getRoomById(roomId.trim());
-        if (room == null || !room.isActive()) {
-            throw new IllegalArgumentException("Selected room is currently unavailable or inactive.");
+        if (reservationDAO.hasOverlap(roomId, checkIn, checkOut)) {
+            throw new IllegalArgumentException("This room is not available for the selected dates.");
         }
 
-        if (guestCount < 1 || guestCount > room.getCapacity()) {
-            throw new IllegalArgumentException("Guest count exceeds the room capacity of " + room.getCapacity() + ".");
-        }
-
-        // Prevent Double-Booking Race Condition
-        if (reservationDAO.hasOverlap(room.getRoomId(), checkIn, checkOut)) {
-            throw new IllegalStateException("Room " + room.getRoomNumber() + " is already booked for these dates.");
-        }
-
-        // Polymorphic stay pricing calculation
-        long nights = dateRange.getNights();
-        double baseTotal = room.calculateTotalRate((int) nights);
-
-        // Polymorphic guest discount (RegularGuest: 0%, VipGuest: 10%)
-        double discountRate = (currentUser instanceof Guest guest) ? guest.getDiscount() : 0.0;
-        double finalAmount = Math.round((baseTotal * (1.0 - discountRate)) * 100.0) / 100.0;
-
-        Reservation reservation = new Reservation.Builder()
-                .id(nextId())
+        // -- build and save --
+        Reservation r = Reservation.builder()
+                .online()
                 .guestId(currentUser.getId())
-                .roomId(room.getRoomId())
-                .dateRange(dateRange)
+                .roomId(roomId)
+                .checkIn(checkIn)
+                .checkOut(checkOut)
                 .guests(guestCount)
-                .totalAmount(finalAmount)
-                .status(BookingStatus.ACTIVE)
-                .paymentStatus(PaymentStatus.PENDING)
-                .checkedIn(false)
                 .build();
+        r.setId(nextId());
 
-        if (!reservationDAO.save(reservation)) {
-            throw new IllegalStateException("Could not save the reservation. Please try again.");
+        if (!reservationDAO.save(r)) {
+            throw new IllegalStateException("Unable to save the booking. Please try again.");
         }
-
-        return reservation;
-    }
-
-    public Reservation getBookingById(User currentUser, String bookingId) {
-        if (currentUser == null) {
-            throw new SecurityException("Please log in to view booking details.");
-        }
-        Reservation r = reservationDAO.findById(bookingId);
-        if (r == null) {
-            return null;
-        }
-
-        // IDOR ownership check
-        if (!currentUser.canManageAnyBooking() && !r.getGuestId().equals(currentUser.getId())) {
-            throw new SecurityException("You do not have permission to view this booking.");
-        }
-
-        enrichWithRoomDetails(r);
         return r;
     }
 
-    @Transactional
-    public void cancelBooking(User currentUser, String bookingId) {
-        if (currentUser == null) {
-            throw new SecurityException("Authentication required.");
-        }
-        Reservation reservation = reservationDAO.findById(bookingId);
-        if (reservation == null) {
-            throw new IllegalArgumentException("Booking not found: " + bookingId);
+    // =====================================================================
+    //  Desk booking (staff creates for a guest)
+    // =====================================================================
+
+    /**
+     * Creates a DESK booking — staff picks the guest from a dropdown.
+     * The {@code guestId} parameter is the guest's ID, NOT the staff's.
+     *
+     * @param currentUser the logged-in staff member
+     * @param guestId     the guest the booking is for
+     */
+    public synchronized Reservation createDeskBooking(User currentUser,
+                                                      String guestId,
+                                                      String roomId,
+                                                      LocalDate checkIn,
+                                                      LocalDate checkOut,
+                                                      int guestCount) {
+        // -- auth: only staff can create desk bookings --
+        if (currentUser == null || !currentUser.canManageAnyBooking()) {
+            throw new SecurityException("Only staff can create desk bookings.");
         }
 
-        if (!reservation.canBeCancelledBy(currentUser)) {
-            throw new SecurityException("You are not authorized to cancel this booking.");
+        // -- validate guest exists --
+        Guest guest = guestService.findGuestById(currentUser, guestId);
+        if (guest == null) {
+            throw new IllegalArgumentException("Guest not found.");
+        }
+        if (!guest.isActive()) {
+            throw new IllegalArgumentException("This guest account is inactive.");
         }
 
-        reservation.cancel();
-        if (!reservationDAO.updateStatus(bookingId, BookingStatus.CANCELLED)) {
-            throw new IllegalStateException("Failed to cancel booking " + bookingId);
+        // -- validate room --
+        Room room = requireActiveRoom(roomId);
+        validateCapacity(room, guestCount);
+
+        // -- validate dates and availability --
+        new DateRange(checkIn, checkOut);
+        if (reservationDAO.hasOverlap(roomId, checkIn, checkOut)) {
+            throw new IllegalArgumentException("This room is not available for the selected dates.");
         }
+
+        // -- build and save --
+        Reservation r = Reservation.builder()
+                .desk()
+                .guestId(guestId)       // the GUEST's id, not the staff's
+                .roomId(roomId)
+                .checkIn(checkIn)
+                .checkOut(checkOut)
+                .guests(guestCount)
+                .build();
+        r.setId(nextId());
+
+        if (!reservationDAO.save(r)) {
+            throw new IllegalStateException("Unable to save the booking. Please try again.");
+        }
+        return r;
     }
 
-    @Transactional
+    // =====================================================================
+    //  Quote (price check without saving)
+    // =====================================================================
+
+    /**
+     * Builds a {@link BookingDetails} quote for the book.jsp "Check price" flow.
+     * Does NOT persist anything.
+     */
+    public BookingDetails quote(User currentUser, String roomId,
+                                LocalDate checkIn, LocalDate checkOut, int guestCount) {
+        if (!(currentUser instanceof Guest guest)) {
+            throw new SecurityException("Please sign in as a guest.");
+        }
+        Room room = requireActiveRoom(roomId);
+        validateCapacity(room, guestCount);
+        new DateRange(checkIn, checkOut);
+
+        if (checkIn.isBefore(LocalDate.now())) {
+            throw new IllegalArgumentException("Check-in date cannot be in the past.");
+        }
+        if (reservationDAO.hasOverlap(roomId, checkIn, checkOut)) {
+            throw new IllegalArgumentException("This room is not available for the selected dates.");
+        }
+
+        // Build a transient reservation for the quote (no ID, not saved)
+        Reservation r = Reservation.builder()
+                .online()
+                .guestId(guest.getId())
+                .roomId(roomId)
+                .checkIn(checkIn)
+                .checkOut(checkOut)
+                .guests(guestCount)
+                .build();
+        return new BookingDetails(r, room, guest);
+    }
+
+    // =====================================================================
+    //  Cancellation
+    // =====================================================================
+
+    /**
+     * Guest cancels their own online booking (IDOR-protected).
+     */
+    public void cancelByGuest(User currentUser, String bookingId) {
+        if (currentUser == null || !currentUser.canBookForThemselves()) {
+            throw new SecurityException("Please sign in to cancel your booking.");
+        }
+        Reservation r = requireBooking(bookingId);
+        if (!r.isOwnedBy(currentUser)) {
+            throw new SecurityException("You can only cancel your own bookings.");
+        }
+        if (!r.isGuestCancellable()) {
+            throw new IllegalStateException("This booking cannot be cancelled. " + r.getCancellationPolicy());
+        }
+        reservationDAO.cancel(bookingId);
+    }
+
+    /**
+     * Staff cancels any booking.
+     */
+    public void cancelByStaff(User currentUser, String bookingId) {
+        if (currentUser == null || !currentUser.canManageAnyBooking()) {
+            throw new SecurityException("Only staff can cancel bookings from the admin panel.");
+        }
+        Reservation r = requireBooking(bookingId);
+        if (!r.isStaffCancellable()) {
+            throw new IllegalStateException("This booking cannot be cancelled (already cancelled or checked in).");
+        }
+        reservationDAO.cancel(bookingId);
+    }
+
+    // =====================================================================
+    //  Check-in
+    // =====================================================================
+
+    /**
+     * Staff checks a guest in.
+     */
     public void checkInGuest(User currentUser, String bookingId) {
         if (currentUser == null || !currentUser.canCheckInGuests()) {
-            throw new SecurityException("Only front desk staff can check in guests.");
+            throw new SecurityException("Only staff can check in guests.");
         }
-        Reservation reservation = reservationDAO.findById(bookingId);
-        if (reservation == null) {
-            throw new IllegalArgumentException("Booking not found: " + bookingId);
+        Reservation r = requireBooking(bookingId);
+        if (r.getStatus() != BookingStatus.ACTIVE) {
+            throw new IllegalStateException("Cannot check in a cancelled booking.");
         }
-        reservation.markCheckedIn();
-        reservationDAO.updateCheckedIn(bookingId, true);
+        if (r.isCheckedIn()) {
+            throw new IllegalStateException("Guest is already checked in.");
+        }
+        reservationDAO.checkIn(bookingId);
     }
 
-    @Transactional
-    public void updatePaymentStatus(String bookingId, PaymentStatus status) {
-        reservationDAO.updatePaymentStatus(bookingId, status);
-    }
-
-    // ---- Downstream Integration APIs ----
+    // =====================================================================
+    //  Date changes
+    // =====================================================================
 
     /**
-     * Used by the Payment module to list active bookings requiring payment.
+     * Guest changes their own booking dates (IDOR-protected).
      */
-    public List<Reservation> getPendingPaymentBookings() {
-        List<Reservation> list = new ArrayList<>();
-        for (Reservation r : reservationDAO.findAll()) {
-            if (r.isActive() && r.isPendingPayment()) {
-                enrichWithRoomDetails(r);
-                list.add(r);
+    public void changeDatesByGuest(User currentUser, String bookingId,
+                                   LocalDate newCheckIn, LocalDate newCheckOut) {
+        if (currentUser == null) {
+            throw new SecurityException("Please sign in.");
+        }
+        Reservation r = requireBooking(bookingId);
+        if (!r.isOwnedBy(currentUser)) {
+            throw new SecurityException("You can only change your own bookings.");
+        }
+        if (!r.isGuestDatesEditable()) {
+            throw new IllegalStateException("Dates cannot be changed for this booking.");
+        }
+        changeDates(r, newCheckIn, newCheckOut);
+    }
+
+    /**
+     * Staff changes dates on any booking.
+     */
+    public void changeDatesByStaff(User currentUser, String bookingId,
+                                   LocalDate newCheckIn, LocalDate newCheckOut) {
+        if (currentUser == null || !currentUser.canManageAnyBooking()) {
+            throw new SecurityException("Only staff can change booking dates.");
+        }
+        Reservation r = requireBooking(bookingId);
+        if (!r.isStaffDatesEditable()) {
+            throw new IllegalStateException("Dates cannot be changed for this booking.");
+        }
+        changeDates(r, newCheckIn, newCheckOut);
+    }
+
+    /** Shared date-change logic with overlap re-check. */
+    private void changeDates(Reservation r, LocalDate newCheckIn, LocalDate newCheckOut) {
+        new DateRange(newCheckIn, newCheckOut); // validates
+        if (reservationDAO.hasOverlap(r.getRoomId(), newCheckIn, newCheckOut, r.getId())) {
+            throw new IllegalArgumentException("The room is not available for the new dates.");
+        }
+        reservationDAO.updateDates(r.getId(), newCheckIn, newCheckOut);
+    }
+
+    // =====================================================================
+    //  Query helpers
+    // =====================================================================
+
+    /** Find a single booking by ID, or null. */
+    public Reservation findById(String id) {
+        return reservationDAO.findById(id);
+    }
+
+    /** All bookings for a guest. */
+    public List<Reservation> findByGuestId(String guestId) {
+        return reservationDAO.findByGuestId(guestId);
+    }
+
+    /** All bookings in the system (for staff manage page). */
+    public List<Reservation> findAll() {
+        return reservationDAO.findAll();
+    }
+
+    /**
+     * Wraps a list of reservations into BookingDetails, loading the Room and Guest for each.
+     * Skips any booking whose room or guest has been deleted.
+     */
+    public List<BookingDetails> toDetails(List<Reservation> reservations, User viewer) {
+        List<BookingDetails> list = new ArrayList<>();
+        for (Reservation r : reservations) {
+            Room room = roomService.getRoomById(r.getRoomId());
+            if (room == null) continue;
+            Guest guest;
+            try {
+                guest = guestService.findGuestById(viewer, r.getGuestId());
+            } catch (SecurityException e) {
+                // viewer doesn't have permission — skip or use a placeholder
+                continue;
+            }
+            if (guest == null) continue;
+            list.add(new BookingDetails(r, room, guest));
+        }
+        return list;
+    }
+
+    /**
+     * Wraps a single reservation into BookingDetails.
+     */
+    public BookingDetails toDetails(Reservation r, User viewer) {
+        Room room = roomService.getRoomById(r.getRoomId());
+        Guest guest;
+        try {
+            guest = guestService.findGuestById(viewer, r.getGuestId());
+        } catch (SecurityException e) {
+            // If the viewer is the guest themselves, findGuestById should work via owns()
+            return null;
+        }
+        if (room == null || guest == null) return null;
+        return new BookingDetails(r, room, guest);
+    }
+
+    // =====================================================================
+    //  Dashboard metrics (manage.jsp)
+    // =====================================================================
+
+    /**
+     * Computes dashboard statistics in a single pass over all bookings.
+     */
+    public BookingMetrics getMetrics(List<BookingDetails> allDetails) {
+        LocalDate today = LocalDate.now();
+        LocalDate weekStart = today.with(DayOfWeek.MONDAY);
+
+        int arrivingToday = 0, checkedInToday = 0, inHouse = 0,
+            paymentPending = 0, noShowsThisWeek = 0;
+
+        for (BookingDetails bd : allDetails) {
+            Reservation r = bd.getReservation();
+            String state = r.getState().getValue();
+
+            switch (state) {
+                case "arriving" -> {
+                    arrivingToday++;
+                    if (r.getPaymentStatus() == PaymentStatus.PENDING) paymentPending++;
+                }
+                case "inhouse" -> {
+                    inHouse++;
+                    if (r.getCheckIn().equals(today)) checkedInToday++;
+                    if (r.getPaymentStatus() == PaymentStatus.PENDING) paymentPending++;
+                }
+                case "upcoming" -> {
+                    if (r.getPaymentStatus() == PaymentStatus.PENDING) paymentPending++;
+                }
+                case "noshow" -> {
+                    if (!r.getCheckIn().isBefore(weekStart)) noShowsThisWeek++;
+                }
             }
         }
-        return list;
+        return new BookingMetrics(arrivingToday, checkedInToday, inHouse,
+                paymentPending, noShowsThisWeek);
     }
+
+    // =====================================================================
+    //  Room search (availability)
+    // =====================================================================
 
     /**
-     * Used by the Review/Feedback module to ensure verified reviews.
+     * Returns all active rooms that are free for the given dates,
+     * optionally filtered by capacity and room type.
      */
+    public List<Room> searchAvailableRooms(LocalDate checkIn, LocalDate checkOut,
+                                           int minCapacity, String roomType) {
+        new DateRange(checkIn, checkOut); // validates
+        List<String> freeIds = reservationDAO.findFreeRoomIds(checkIn, checkOut);
+        List<Room> allRooms = roomService.getAllRooms();
+        List<Room> results = new ArrayList<>();
+
+        for (Room room : allRooms) {
+            if (!room.isActive()) continue;
+            if (!freeIds.contains(room.getRoomId())) continue;
+            if (room.getCapacity() < minCapacity) continue;
+            if (roomType != null && !roomType.isBlank()) {
+                String type = room.getTypeDisplayName().toLowerCase();
+                if (!type.equalsIgnoreCase(roomType.trim())) continue;
+            }
+            results.add(room);
+        }
+        return results;
+    }
+
+    // =====================================================================
+    //  Cross-module APIs
+    // =====================================================================
+
+    /** For Payment module: all active bookings with pending payment. */
+    public List<Reservation> getPendingPaymentBookings() {
+        return reservationDAO.findPendingPayment();
+    }
+
+    /** For Review module: has the guest completed a stay for this booking? */
     public boolean hasCompletedStay(String guestId, String bookingId) {
-        Reservation r = reservationDAO.findById(bookingId);
-        if (r == null || !r.getGuestId().equals(guestId)) {
-            return false;
-        }
-        return r.isCompleted(LocalDate.now());
+        return reservationDAO.hasCompletedStay(guestId, bookingId);
     }
 
-    public List<Reservation> getGuestBookings(User currentUser, String guestId) {
-        if (currentUser == null) {
-            throw new SecurityException("Authentication required.");
+    // =====================================================================
+    //  Private helpers
+    // =====================================================================
+
+    /** Loads a room and checks it is ACTIVE. */
+    private Room requireActiveRoom(String roomId) {
+        if (roomId == null || roomId.isBlank()) {
+            throw new IllegalArgumentException("Room ID is required.");
         }
-        if (!currentUser.canManageAnyBooking() && !currentUser.getId().equals(guestId)) {
-            throw new SecurityException("Cannot view another guest's bookings.");
+        Room room = roomService.getRoomById(roomId.trim());
+        if (room == null) {
+            throw new IllegalArgumentException("Room not found.");
         }
-        List<Reservation> list = reservationDAO.findByGuestId(guestId);
-        list.forEach(this::enrichWithRoomDetails);
-        return list;
+        if (!room.isActive()) {
+            throw new IllegalArgumentException("This room is not available for booking.");
+        }
+        return room;
     }
 
-    public List<Reservation> getAllBookings(User currentUser) {
-        if (currentUser == null || !currentUser.canManageAnyBooking()) {
-            throw new SecurityException("Access denied: Staff permission required.");
+    /** Validates guest count against room capacity. */
+    private void validateCapacity(Room room, int guestCount) {
+        if (guestCount < 1) {
+            throw new IllegalArgumentException("At least 1 guest is required.");
         }
-        List<Reservation> list = reservationDAO.findAll();
-        list.forEach(this::enrichWithRoomDetails);
-        return list;
+        if (guestCount > room.getCapacity()) {
+            throw new IllegalArgumentException(
+                    "This room holds up to " + room.getCapacity() + " guests.");
+        }
     }
 
-    public int getArrivalsTodayCount() {
-        LocalDate today = LocalDate.now();
-        int count = 0;
-        for (Reservation r : reservationDAO.findAll()) {
-            if (r.isArrivingToday(today)) count++;
+    /** Loads a booking or throws. */
+    private Reservation requireBooking(String id) {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Booking ID is required.");
         }
-        return count;
-    }
-
-    public int getPendingBookingsCount() {
-        return getPendingPaymentBookings().size();
-    }
-
-    private void enrichWithRoomDetails(Reservation r) {
-        Room room = roomService.getRoomById(r.getRoomId());
-        if (room != null) {
-            r.setRoomName(room.getRoomName());
-            r.setRoomNumber(room.getRoomNumber());
+        Reservation r = reservationDAO.findById(id.trim());
+        if (r == null) {
+            throw new IllegalArgumentException("Booking not found.");
         }
+        return r;
     }
 }

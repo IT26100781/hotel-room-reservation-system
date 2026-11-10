@@ -1,8 +1,12 @@
 package com.hotel.reservation.servlet;
 
+import com.hotel.payment.dao.PaymentDAO;
+import com.hotel.payment.model.Payment;
+import com.hotel.reservation.model.BookingDetails;
 import com.hotel.reservation.model.Reservation;
 import com.hotel.reservation.service.ReservationService;
 import com.hotel.user.User;
+import com.hotel.user.guest.model.Guest;
 import com.hotel.util.SessionUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -13,55 +17,70 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+/**
+ * Controller for guest bookings list page (GET /bookings).
+ * Categorizes reservations into upcoming, completed, and cancelled lists.
+ */
 @WebServlet("/bookings")
 public class MyBookingsServlet extends HttpServlet {
 
     @Autowired
     private ReservationService reservationService;
 
-    public void setReservationService(ReservationService reservationService) {
-        this.reservationService = reservationService;
-    }
+    @Autowired(required = false)
+    private PaymentDAO paymentDAO;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        User user = SessionUtil.getCurrentUser(request.getSession(false));
-        if (user == null) {
+        User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
+        if (!(currentUser instanceof Guest)) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        try {
-            List<Reservation> allBookings = reservationService.getGuestBookings(user, user.getId());
-            LocalDate today = LocalDate.now();
+        List<Reservation> reservations = reservationService.findByGuestId(currentUser.getId());
+        List<BookingDetails> allDetails = reservationService.toDetails(reservations, currentUser);
 
-            List<Reservation> upcoming = new ArrayList<>();
-            List<Reservation> completed = new ArrayList<>();
-            List<Reservation> cancelled = new ArrayList<>();
+        List<BookingDetails> upcoming = new ArrayList<>();
+        List<BookingDetails> completed = new ArrayList<>();
+        List<BookingDetails> cancelled = new ArrayList<>();
 
-            for (Reservation r : allBookings) {
-                if (r.isCancelled()) {
-                    cancelled.add(r);
-                } else if (r.isCompleted(today)) {
-                    completed.add(r);
-                } else {
-                    upcoming.add(r);
+        Map<String, Object> paidAmounts = new HashMap<>();
+
+        for (BookingDetails bd : allDetails) {
+            Reservation r = bd.getReservation();
+            String stateVal = r.getState().getValue();
+
+            // Populate paid amounts from Payment module if recorded
+            if (paymentDAO != null) {
+                try {
+                    Payment p = paymentDAO.forBooking(r.getId());
+                    if (p != null) {
+                        paidAmounts.put(r.getId(), p.getAmount());
+                    }
+                } catch (Exception ignored) {
                 }
             }
 
-            request.setAttribute("upcomingBookings", upcoming);
-            request.setAttribute("completedBookings", completed);
-            request.setAttribute("cancelledBookings", cancelled);
-
-            request.getRequestDispatcher("/WEB-INF/views/reservation/my-bookings.jsp").forward(request, response);
-
-        } catch (SecurityException e) {
-            response.sendError(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
+            if ("completed".equalsIgnoreCase(stateVal)) {
+                completed.add(bd);
+            } else if ("cancelled".equalsIgnoreCase(stateVal) || "noshow".equalsIgnoreCase(stateVal)) {
+                cancelled.add(bd);
+            } else {
+                // upcoming, arriving, inhouse
+                upcoming.add(bd);
+            }
         }
+
+        request.setAttribute("upcoming", upcoming);
+        request.setAttribute("completed", completed);
+        request.setAttribute("cancelled", cancelled);
+        request.setAttribute("paidAmounts", paidAmounts);
+        request.setAttribute("minDate", LocalDate.now().toString());
+
+        request.getRequestDispatcher("/WEB-INF/views/reservation/my-bookings.jsp").forward(request, response);
     }
 }
