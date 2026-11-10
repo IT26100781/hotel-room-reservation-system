@@ -26,6 +26,7 @@
     </nav>
 
     <div class="ml-auto flex items-center gap-2">
+      <%@ include file="/WEB-INF/views/common/theme-toggle.jspf" %>
       <c:choose>
         <c:when test="${isGuest}">
           <div class="dropdown" data-dropdown>

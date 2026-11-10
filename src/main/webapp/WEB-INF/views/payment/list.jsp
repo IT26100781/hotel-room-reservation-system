@@ -29,7 +29,7 @@
       </div>
 
       <c:choose>
-        <c:when test="${param.done == 'paid'}"><div class="alert alert-success mt-6">Payment marked as paid.</div></c:when>
+        <c:when test="${param.done == 'paid'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Payment marked as paid. The booking is now paid.</span></div></c:when>
         <c:when test="${param.done == 'deleted'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Payment deleted. The booking is back to payment pending.</span></div></c:when>
         <c:when test="${param.done == 'refunded'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Payment marked as refunded.</span></div></c:when>
       </c:choose>
@@ -101,13 +101,14 @@
                     <c:if test="${p.pending}">
                       <form class="inline" method="post" action="${ctx}/admin/payments/paid">
                         <input type="hidden" name="csrf" value="${sessionScope.paymentCsrf}"><input type="hidden" name="id" value="${p.id}">
-                        <button class="btn btn-outline btn-sm" type="submit">Mark paid</button>
+                        <button class="btn btn-outline btn-sm" type="submit"><i data-lucide="check"></i>Mark paid</button>
                       </form>
                     </c:if>
                     <c:if test="${p.status.value == 'paid'}">
-                      <button type="button" class="btn btn-ghost btn-sm" data-modal-open="refund-modal" data-payment="${p.id}" data-amount="LKR ${p.amount}">Refund</button>
+                      <button type="button" class="btn btn-ghost btn-sm" data-modal-open="refund-modal" data-payment="<c:out value='${p.id}'/>"
+                              data-amount="LKR <fmt:formatNumber value='${p.amount}' pattern='#,##0.00'/>"><i data-lucide="rotate-ccw"></i>Refund</button>
                     </c:if>
-                      <button type="button" class="btn btn-ghost btn-sm text-clay" title="Delete" data-modal-open="delete-modal" data-payment="<c:out value='${p.id}'/>"><i data-lucide="trash-2"></i></button>
+                    <button type="button" class="btn btn-ghost btn-sm text-clay" title="Delete" data-modal-open="delete-modal" data-payment="<c:out value='${p.id}'/>"><i data-lucide="trash-2"></i></button>
                   </td>
                 </tr>
               </c:forEach>

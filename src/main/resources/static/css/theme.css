@@ -1,14 +1,19 @@
 /* ==========================================================================
    The Orchid Estate - shared theme
-   Warm luxury: ivory paper, deep forest green, brass accents.
+   Light mode: ivory paper, deep forest green, brass accents.
+   Dark mode: midnight navy, ivory and champagne gold.
 
    Tailwind handles layout/spacing utilities. This file holds the colour
    tokens and the reusable components (buttons, cards, inputs, badges ...)
    so every page and every team member's JSP looks the same.
+
+   In dark mode the token names keep their light-mode meaning:
+   "forest" holds the heading colour, "brass" the gold.
    ========================================================================== */
 
 /* ---------- 1. Tokens (RGB triplets so Tailwind can add opacity) ---------- */
 :root {
+  --c-page:       247 243 234;
   --c-ivory:      247 243 234;
   --c-paper:      255 252 246;
   --c-sand:       238 231 216;
@@ -31,11 +36,69 @@
   --ease: cubic-bezier(.2, .7, .2, 1);
 }
 
+/* Dark mode: html.dark is set by the theme switch (head.jspf + app.js).
+   Midnight navy surfaces, ivory headings, champagne gold for actions.
+   ivory stays light because it is the text colour on dark panels. */
+@media screen {
+  html.dark {
+    color-scheme: dark;
+    --c-page:       9 14 27;
+    --c-paper:      16 23 41;
+    --c-sand:       27 36 58;
+    --c-line:       42 53 80;
+    --c-forest:     240 235 222;
+    --c-forest-700: 20 30 54;
+    --c-forest-900: 6 10 21;
+    --c-brass:      214 186 134;
+    --c-brass-light:234 216 176;
+    --c-ink:        228 226 220;
+    --c-muted:      148 155 172;
+    --c-clay:       232 130 114;
+    --c-sage:       104 190 158;
+    --c-amber:      228 180 94;
+    --shadow-soft: 0 1px 2px rgb(0 0 0 / .3), 0 10px 30px -14px rgb(0 0 0 / .7);
+    --shadow-lift: 0 2px 4px rgb(0 0 0 / .3), 0 24px 48px -20px rgb(0 0 0 / .85);
+  }
+  html.dark body::before { opacity: .035; }
+
+  /* main actions turn champagne gold on navy */
+  html.dark .btn-primary,
+  html.dark .chip.active,
+  html.dark .step.current .step-dot { background: rgb(var(--c-brass)); border-color: rgb(var(--c-brass)); color: rgb(var(--c-forest-900)); }
+  html.dark .btn-primary:hover { background: rgb(var(--c-brass-light)); box-shadow: 0 8px 20px -10px rgb(var(--c-brass) / .7); }
+  html.dark .btn-outline { border-color: rgb(var(--c-brass) / .45); }
+  html.dark .btn-outline:hover { border-color: rgb(var(--c-brass)); background: rgb(var(--c-brass) / .08); }
+  html.dark .choice input:checked + .choice-body { border-color: rgb(var(--c-brass)); background: rgb(var(--c-brass) / .07); box-shadow: 0 0 0 3px rgb(var(--c-brass) / .15); }
+
+  /* ivory fills need dark text */
+  html.dark .badge-checked,
+  html.dark .room-tile.is-occupied { color: rgb(var(--c-forest-900)); }
+  html.dark .room-tile.is-occupied small { color: rgb(var(--c-forest-900) / .65); }
+
+  html.dark .alert-brass { color: rgb(var(--c-brass-light)); }
+  html.dark .panel-dark { box-shadow: inset -1px 0 0 rgb(var(--c-line) / .6); }
+  html.dark .toast { border: 1px solid rgb(var(--c-line)); }
+  html.dark .modal { background: rgb(0 0 0 / .6); }
+  html.dark img { filter: brightness(.92); }
+}
+
+/* short fade while the theme switches */
+html.theme-fade, html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
+  transition: background-color .35s var(--ease), border-color .35s var(--ease), color .35s var(--ease), fill .35s var(--ease) !important;
+}
+
+/* theme switch: moon in light mode, sun in dark mode */
+.theme-toggle svg { transition: transform .5s var(--ease); }
+.theme-toggle .theme-sun { display: none; }
+html.dark .theme-toggle .theme-sun { display: block; }
+html.dark .theme-toggle .theme-moon { display: none; }
+.theme-toggle.spin svg { transform: rotate(360deg); }
+
 /* ---------- 2. Base ---------- */
 html { scroll-behavior: smooth; }
 
 body {
-  background: rgb(var(--c-ivory));
+  background: rgb(var(--c-page));
   color: rgb(var(--c-ink));
   font-family: Manrope, system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -250,6 +313,16 @@ a { transition: color .2s var(--ease); }
 }
 .choice input:focus-visible + .choice-body { outline: 2px solid rgb(var(--c-brass)); outline-offset: 2px; }
 
+/* simulated test-card picker on the payment form */
+.test-card {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem .75rem;
+  width: 100%; padding: .55rem .8rem; border-radius: .75rem; text-align: left; font-size: .8rem;
+  background: rgb(var(--c-paper) / .7); border: 1px solid rgb(var(--c-line));
+  transition: border-color .15s, background-color .15s;
+}
+.test-card:hover { border-color: rgb(var(--c-brass)); background: rgb(var(--c-paper)); }
+.test-card .mono { color: rgb(var(--c-forest)); font-weight: 600; }
+
 /* toggle switch */
 .switch { position: relative; display: inline-flex; width: 2.6rem; height: 1.5rem; cursor: pointer; }
 .switch input { opacity: 0; width: 0; height: 0; }
@@ -367,7 +440,7 @@ a { transition: color .2s var(--ease); }
 .nav-link.active { color: rgb(var(--c-forest)); }
 
 .header-glass {
-  background: rgb(var(--c-ivory) / .82);
+  background: rgb(var(--c-page) / .82);
   backdrop-filter: saturate(1.4) blur(12px);
   -webkit-backdrop-filter: saturate(1.4) blur(12px);
   border-bottom: 1px solid rgb(var(--c-line) / .7);
@@ -541,6 +614,30 @@ a { transition: color .2s var(--ease); }
 
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
 .reveal.in { opacity: 1; transform: none; }
+.reveal.reveal-zoom { transform: scale(.94); transition-duration: 1.1s; }
+.reveal.reveal-zoom.in { transform: none; }
+
+/* botanical line art behind sections (symbols in common/botanical-art.jspf) */
+.art-clip { overflow-x: clip; }
+.has-art { position: relative; }
+.has-art > :not(.art) { position: relative; z-index: 1; }
+.art {
+  position: absolute; z-index: 0; pointer-events: none; overflow: visible;
+  color: rgb(var(--c-brass)); opacity: .2;
+  fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round;
+  transform: scaleX(var(--flip, 1)) rotate(var(--tilt, 0deg));
+}
+html.dark .art { opacity: .13; }
+.art-light { color: rgb(var(--c-brass-light)); opacity: .16; }
+.art-flip { --flip: -1; }
+.art-sway { transform-origin: 50% 100%; animation: art-sway 16s ease-in-out infinite alternate; }
+@keyframes art-sway {
+  from { transform: scaleX(var(--flip, 1)) rotate(calc(var(--tilt, 0deg) - 1.5deg)); }
+  to   { transform: scaleX(var(--flip, 1)) rotate(calc(var(--tilt, 0deg) + 1.5deg)); }
+}
+/* drawn line by line when scrolled into view (JS adds these classes) */
+.art.art-draw { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 3.2s cubic-bezier(.45, .05, .25, 1); }
+.art.art-draw.drawn { stroke-dashoffset: 0; }
 
 .paid-stamp {
   display: inline-block; padding: .35rem 1rem; border: 2px solid rgb(var(--c-sage));
@@ -558,6 +655,7 @@ a { transition: color .2s var(--ease); }
 /* ---------- 13. Print (invoice) ---------- */
 @media print {
   body::before, .no-print { display: none !important; }
+  .reveal { opacity: 1 !important; transform: none !important; }
   .lg\:pl-72 { padding-left: 0 !important; }
   body { background: #fff; }
   .print-full { margin: 0 !important; padding: 0 !important; }

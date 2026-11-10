@@ -8,9 +8,11 @@
  * is defined in one place and utilities like bg-forest/90 still work.
  */
 tailwind.config = {
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
+        page:   'rgb(var(--c-page) / <alpha-value>)',
         ivory:  'rgb(var(--c-ivory) / <alpha-value>)',
         paper:  'rgb(var(--c-paper) / <alpha-value>)',
         sand:   'rgb(var(--c-sand) / <alpha-value>)',
