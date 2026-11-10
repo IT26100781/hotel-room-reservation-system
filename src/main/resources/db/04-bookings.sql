@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     PRIMARY KEY (id),
     KEY idx_bookings_room (room_id),
     KEY idx_bookings_guest (guest_id),
+    KEY idx_bookings_overlap (room_id, check_in, check_out, status),
     CONSTRAINT fk_bookings_guest FOREIGN KEY (guest_id) REFERENCES guests (id),
     CONSTRAINT fk_bookings_room  FOREIGN KEY (room_id)  REFERENCES rooms (id),
     CONSTRAINT chk_bookings_type    CHECK (booking_type IN ('ONLINE', 'DESK')),
