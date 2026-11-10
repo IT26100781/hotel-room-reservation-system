@@ -1,6 +1,13 @@
 # servlet
 
-This folder holds the classes that handle requests from the browser, such as `RoomListServlet` and `RoomEditServlet`.
-A servlet reads the form inputs, gets the logged-in user with `SessionUtil`, and checks their permission with the `canX()` methods.
-It then calls the service and shows a JSP page from `WEB-INF/views/room/`.
-Keep servlets short: no business rules or file code here.
+| URL | Class | Job |
+|-----|-------|-----|
+| `/rooms` | `PublicRoomListServlet` | Public room list with filters (only active rooms) |
+| `/rooms/detail?id=` | `PublicRoomDetailServlet` | Public room page (retired rooms show 404) |
+| `/admin/rooms` | `RoomManageServlet` | Staff room list with counts |
+| `/admin/rooms/form` | `RoomFormServlet` | Add form, or edit form with `?id=` |
+| `/admin/rooms/save` | `RoomSaveServlet` | Saves the add or edit form |
+| `/admin/rooms/retire` | `RoomRetireServlet` | Retires a room (POST) |
+
+The `/admin/rooms` pages are behind `StaffAuthFilter` and also check `canManageRooms()`.
+Pages are in `WEB-INF/views/room/`. Keep servlets short: no business rules or SQL here.

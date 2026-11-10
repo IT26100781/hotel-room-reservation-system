@@ -13,13 +13,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
+/**
+ * Servlet handles the add/update staff form
+ *
+ *
+ */
 @WebServlet("/admin/staff/form")
 public class StaffFormServlet extends HttpServlet {
     @Autowired
     private StaffService staffService;
 
+
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String id = request.getParameter("id");
         User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
         if (!(currentUser.canManageStaffUsers() || currentUser.getId().equals(id))) {
@@ -30,16 +37,16 @@ public class StaffFormServlet extends HttpServlet {
             request.getRequestDispatcher("/WEB-INF/views/admin/staff-form.jsp").forward(request, response);
             return;
         }
-        try{
+        try {
             Staff staff = staffService.findStaffById(currentUser, id);
             if (staff == null) {
-                response.sendRedirect(request.getContextPath()+"/admin/staff");
+                response.sendRedirect(request.getContextPath() + "/admin/staff");
                 return;
             }
             request.setAttribute("staff", staff);
             request.getRequestDispatcher("/WEB-INF/views/admin/staff-form.jsp").forward(request, response);
-        }catch(SecurityException e){
-            response.sendError(403,e.getMessage());
+        } catch (SecurityException e) {
+            response.sendError(403, e.getMessage());
         }
     }
 }

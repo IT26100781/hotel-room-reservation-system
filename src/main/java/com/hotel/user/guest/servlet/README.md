@@ -1,6 +1,19 @@
-# servlet
+# Guest servlets
 
-This folder holds the classes that handle requests from the browser, such as `GuestRegisterServlet`, `LoginServlet` and `GuestProfileServlet`.
-A servlet reads the form inputs, gets the logged-in user with `SessionUtil`, and checks their permission with the `canX()` methods.
-It then calls the service and shows a JSP page from `WEB-INF/views/guest/`.
-Keep servlets short: no business rules or file code here.
+The guest servlets use the same `@WebServlet`, injected service, `SessionUtil`, JSP forward, and redirect pattern as the admin servlets.
+
+| Route | Methods | Handler |
+| --- | --- | --- |
+| `/register` | GET, POST | GuestRegisterServlet |
+| `/login` | GET, POST | GuestLoginServlet |
+| `/logout` | POST (GET redirects to account) | GuestLogoutServlet |
+| `/account` | GET | GuestAccountServlet |
+| `/profile` | GET, POST | GuestProfileServlet |
+| `/profile/password` | POST | GuestPasswordServlet |
+| `/profile/deactivate` | POST | GuestDeactivateServlet |
+| `/admin/guests` | GET | GuestListServlet |
+| `/admin/guests/update` | POST | GuestUpdateServlet |
+| `/admin/guests/vip` | POST | GuestVipServlet |
+| `/admin/guests/status` | POST | GuestStatusServlet |
+
+`GuestAuthFilter` protects account, profile, and logout routes, reloads the guest from storage, and signs out disabled or missing accounts. The existing `StaffAuthFilter` protects the admin guest routes; the service additionally enforces guest-management permissions. Profile actions derive the guest ID from the session. `GuestServlet` holds shared servlet helpers.

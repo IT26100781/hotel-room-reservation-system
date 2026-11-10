@@ -5,10 +5,12 @@
   Request attributes:
     staffList - List<Staff> to show (required)
     error     - message to show if an action failed (optional)
-  URL parameter ?done=added|updated|status|role shows a success message after a redirect.
+  URL parameter ?done=added|updated|status|role|deleted|password shows a success message after a redirect.
   Actions on this page post to:
-    POST /admin/staff/status  (id, active=true|false)  - activate / deactivate
-    POST /admin/staff/role    (id)                     - switch between Staff and Admin
+    POST /admin/staff/status   (id, active=true|false)   - activate / deactivate
+    POST /admin/staff/role     (id)                      - switch between Staff and Admin
+    POST /admin/staff/delete   (id)                      - permanently delete (only shown for deactivated accounts)
+    POST /admin/staff/password (id, temporaryPassword)   - set a temporary password (not shown on your own row)
 --%>
 <!DOCTYPE html>
 <html lang="en">
@@ -36,6 +38,8 @@
         <c:when test="${param.done == 'updated'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Details updated.</span></div></c:when>
         <c:when test="${param.done == 'status'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Account status changed.</span></div></c:when>
         <c:when test="${param.done == 'role'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Role changed.</span></div></c:when>
+        <c:when test="${param.done == 'deleted'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Account permanently deleted.</span></div></c:when>
+        <c:when test="${param.done == 'password'}"><div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Temporary password set. They must choose a new one when they next sign in.</span></div></c:when>
       </c:choose>
       <c:if test="${not empty error}">
         <div class="alert alert-error mt-6"><i data-lucide="shield-alert"></i><span><c:out value="${error}"/></span></div>
@@ -114,6 +118,10 @@
                         </button>
                       </c:if>
                       <c:if test="${not isMe}">
+                        <button type="button" class="btn btn-ghost btn-sm" data-modal-open="password-modal"
+                                data-staff-id="${fn:escapeXml(s.id)}" data-staff-name="${fn:escapeXml(s.name)}">
+                          <i data-lucide="key-round"></i>Reset password
+                        </button>
                         <c:choose>
                           <c:when test="${s.active}">
                             <button type="button" class="btn btn-ghost btn-sm text-clay" data-modal-open="status-modal"
@@ -127,6 +135,10 @@
                               <input type="hidden" name="active" value="true">
                               <button type="submit" class="btn btn-ghost btn-sm"><i data-lucide="rotate-ccw"></i>Activate</button>
                             </form>
+                            <button type="button" class="btn btn-ghost btn-sm text-clay" data-modal-open="delete-modal"
+                                    data-staff-id="${fn:escapeXml(s.id)}" data-staff-name="${fn:escapeXml(s.name)}">
+                              <i data-lucide="trash-2"></i>Delete
+                            </button>
                           </c:otherwise>
                         </c:choose>
                       </c:if>
@@ -174,6 +186,62 @@
     </div>
   </div>
 
+  <!-- Reset password: the admin types a temporary password and gives it to the person -->
+  <div class="modal" id="password-modal" role="dialog" aria-modal="true" aria-labelledby="password-title">
+    <div class="modal-box">
+      <span class="stat-icon"><i data-lucide="key-round"></i></span>
+      <h2 id="password-title" class="font-display text-3xl font-semibold text-forest mt-4">Reset password for <span data-fill="staffName">this account</span>?</h2>
+      <p class="mt-2 text-sm text-ink/70">Their old password stops working straight away. Give them this temporary password; they must replace it when they next sign in.</p>
+      <form method="post" action="${ctx}/admin/staff/password" class="mt-6">
+        <input type="hidden" name="id" data-fill="staffId">
+        <label class="label" for="temporaryPassword">Temporary password</label>
+        <input id="temporaryPassword" name="temporaryPassword" type="text" class="input" minlength="8" required autocomplete="off">
+        <p class="hint">At least 8 characters, no spaces.</p>
+        <div class="mt-6 flex justify-end gap-2">
+          <button type="button" class="btn btn-ghost" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-primary">Reset password</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete confirmation: the admin must type the person's name to enable the button -->
+  <div class="modal" id="delete-modal" role="dialog" aria-modal="true" aria-labelledby="delete-title">
+    <div class="modal-box">
+      <span class="stat-icon !bg-clay/10 !text-clay"><i data-lucide="trash-2"></i></span>
+      <h2 id="delete-title" class="font-display text-3xl font-semibold text-forest mt-4">Delete <span data-fill="staffName">this account</span>?</h2>
+      <p class="mt-2 text-sm text-ink/70">This permanently removes the account. It can't be undone.</p>
+      <form method="post" action="${ctx}/admin/staff/delete" class="mt-6" id="delete-form">
+        <input type="hidden" name="id" data-fill="staffId">
+        <input type="hidden" id="delete-expected" data-fill="staffName">
+        <label class="label" for="delete-confirm">Type <span class="font-semibold text-ink" data-fill="staffName"></span> to confirm</label>
+        <input id="delete-confirm" class="input" autocomplete="off">
+        <div class="mt-6 flex justify-end gap-2">
+          <button type="button" class="btn btn-ghost" data-modal-close>Cancel</button>
+          <button type="submit" class="btn btn-danger" id="delete-submit" disabled>Delete permanently</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script src="${ctx}/js/app.js"></script>
+  <script>
+    (function () {
+      const expected = document.getElementById('delete-expected');
+      const typed = document.getElementById('delete-confirm');
+      const submit = document.getElementById('delete-submit');
+      const check = () => { submit.disabled = typed.value.trim() === '' || typed.value.trim() !== expected.value.trim(); };
+      typed.addEventListener('input', check);
+      // Clear the box each time the pop-up opens for a different person
+      document.querySelectorAll('[data-modal-open="delete-modal"]').forEach((btn) =>
+        btn.addEventListener('click', () => { typed.value = ''; check(); }));
+      document.getElementById('delete-form').addEventListener('submit', (e) => { if (submit.disabled) e.preventDefault(); });
+
+      // Clear the temporary password each time the pop-up opens for a different person
+      const temporaryPassword = document.getElementById('temporaryPassword');
+      document.querySelectorAll('[data-modal-open="password-modal"]').forEach((btn) =>
+        btn.addEventListener('click', () => { temporaryPassword.value = ''; }));
+    })();
+  </script>
 </body>
 </html>

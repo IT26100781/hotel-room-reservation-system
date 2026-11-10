@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS staff (
     password_hash VARCHAR(255) NOT NULL,
     role          VARCHAR(10)  NOT NULL,
     active        BOOLEAN      NOT NULL DEFAULT TRUE,
+    must_change_password BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY (id),
     UNIQUE KEY uk_staff_email (email),
     CONSTRAINT chk_staff_role CHECK (role IN ('STAFF', 'ADMIN'))

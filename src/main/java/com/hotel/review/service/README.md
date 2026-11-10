@@ -1,6 +1,11 @@
 # service
 
-This folder holds `ReviewService`, which contains the business rules for the review component.
-It decides whether an action is valid (for example, checking for duplicates, availability or permissions) before anything is saved.
-It never touches the file directly; it asks the DAO to load or save data.
-Servlets call the service, so all the important logic lives in one place.
+`ReviewService` goes here. It holds the business rules for a guest review, and servlets call it instead of the DAO.
+
+Follow `StaffService` or `RoomService`:
+- Mark it `@Service` and take the DAO (and any other component's service it needs) in the constructor.
+- Check the logged-in user's `canX()` permission first and throw `SecurityException` if they are not allowed.
+- Validate the input and throw `IllegalArgumentException` with a clear message the page can show.
+- New ids use the `RV` prefix (RV01, RV02, ...).
+- Guests add reviews (`canAddReviews()`); admins moderate them (`canModerateReviews()`).
+- Check the booking belongs to the guest through the Reservation component's service.
