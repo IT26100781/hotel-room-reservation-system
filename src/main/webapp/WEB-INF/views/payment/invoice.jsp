@@ -25,7 +25,7 @@
         <button type="button" class="btn btn-outline btn-sm" data-print><i data-lucide="printer"></i>Print invoice</button>
       </div>
       <c:if test="${param.done == 'recorded'}">
-        <div class="no-print alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Payment recorded. Booking <span class="mono"><c:out value="${p.bookingId}"/></span> is now paid.</span></div>
+        <div class="no-print alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Payment recorded. Booking <span class="mono"><c:out value="${p.bookingId}"/></span> is now <c:out value="${p.status.label}"/>.</span></div>
       </c:if>
 
       <article class="card mt-6 p-8 sm:p-12">
@@ -41,7 +41,7 @@
             <p class="mt-5 text-sm text-muted leading-relaxed">12 Estate Road, Nuwara Eliya<br>+94 52 222 0198 · stay@orchidestate.lk</p>
           </div>
           <div class="sm:text-right">
-            <p class="font-display text-5xl font-semibold text-forest">Invoice</p>
+            <p class="font-display text-5xl font-semibold text-forest">${p.pending ? 'Invoice' : 'Receipt'}</p>
             <dl class="mt-3 text-sm space-y-1">
               <div><dt class="inline text-muted">Payment </dt><dd class="inline mono"><c:out value="${p.id}"/></dd></div>
               <div><dt class="inline text-muted">Booking </dt><dd class="inline mono"><c:out value="${p.bookingId}"/></dd></div>
@@ -67,7 +67,7 @@
           <div>
             <p class="label">Payment method</p>
             <p class="font-semibold flex items-center gap-2"><i data-lucide="${p.method == 'cash' ? 'banknote' : 'credit-card'}" class="w-4 h-4 text-brass"></i><c:out value="${p.methodLabel}"/></p>
-            <p class="text-muted">Received at front desk</p>
+            <p class="text-muted">${p.pending ? 'Awaiting payment' : 'Recorded at front desk'}</p>
           </div>
         </div>
 
@@ -93,13 +93,14 @@
         </table></div>
 
         <div class="mt-6 flex flex-col sm:flex-row items-start sm:items-end justify-between gap-6 border-t border-line pt-6">
-          <span class="paid-stamp ${p.refunded ? '!text-clay !border-clay' : ''}">${p.refunded ? 'REFUNDED' : 'PAID'}</span>
+          <span class="paid-stamp ${p.refunded ? '!text-clay !border-clay' : ''}">${fn:toUpperCase(p.status.value)}</span>
           <div class="sm:text-right">
-            <p class="text-sm text-muted">Total ${p.refunded ? 'refunded' : 'paid'}<c:if test="${p.combinedRate > 0}"> · combined discount <fmt:formatNumber value="${p.combinedRate}" type="percent" maxFractionDigits="1"/></c:if></p>
-            <p class="font-display text-5xl font-semibold text-forest">LKR <fmt:formatNumber value="${p.calculateTotal()}" pattern="#,##0.00"/></p>
+            <p class="text-sm text-muted">Total ${p.pending ? 'due' : (p.refunded ? 'refunded' : 'paid')}<c:if test="${p.combinedRate > 0}"> · combined discount <fmt:formatNumber value="${p.combinedRate}" type="percent" maxFractionDigits="1"/></c:if></p>
+            <p class="font-display text-5xl font-semibold text-forest">LKR <fmt:formatNumber value="${p.amount}" pattern="#,##0.00"/></p>
           </div>
         </div>
 
+        <c:if test="${p.method == 'card'}"><p class="mt-6 text-sm text-muted">Simulated card payment — no real charge or refund was processed.</p></c:if>
         <p class="mt-12 text-center text-xs text-muted">Thank you for staying with us. We hope to welcome you back to the hills soon.</p>
       </article>
     </main>

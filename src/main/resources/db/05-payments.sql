@@ -23,3 +23,15 @@ CREATE TABLE IF NOT EXISTS payments (
     CONSTRAINT chk_payments_status CHECK (status IN ('paid', 'refunded')),
     CONSTRAINT chk_payments_amount CHECK (amount >= 0)
 );
+
+-- Upgrade the original scaffold's status constraint without deleting existing rows.
+ALTER TABLE payments DROP CHECK chk_payments_status,
+    ADD CONSTRAINT chk_payments_status CHECK (status IN ('pending', 'paid', 'refunded'));
+
+-- Row-locked sequence avoids duplicate IDs under concurrent staff submissions.
+CREATE TABLE IF NOT EXISTS payment_sequence (
+    singleton INT NOT NULL PRIMARY KEY,
+    next_value BIGINT NOT NULL DEFAULT 0,
+    CONSTRAINT chk_payment_sequence_singleton CHECK (singleton = 1)
+);
+INSERT IGNORE INTO payment_sequence (singleton, next_value) VALUES (1, 0);
