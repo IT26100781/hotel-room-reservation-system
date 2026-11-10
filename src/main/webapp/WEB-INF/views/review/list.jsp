@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page pageEncoding="UTF-8" %>
 <%@ include file="/WEB-INF/views/common/init.jspf" %>
 <!DOCTYPE html><html lang="en"><c:set var="pageTitle" value="Guest Reviews"/>
 <%@ include file="/WEB-INF/views/common/head.jspf" %>
