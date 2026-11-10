@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guests · Staff portal · The Orchid Estate</title>
+  <link rel="icon" href="../../img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../js/tailwind.config.js"></script>
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../../css/theme.css">
+</head>
+<!-- Owner: Guest/User component (guests.txt: id | name | email | passwordHash | type | vip | status).
+     Staff can set VIP (turns a RegularGuest into a VIPGuest). Deactivate = soft delete. -->
+<body data-root="../" data-layout="staff" data-active="guests" data-user="admin">
+  <div data-slot="sidebar"></div>
+  <div class="lg:pl-72 min-h-screen">
+    <div data-slot="topbar"></div>
+    <main class="px-4 sm:px-8 py-8 max-w-7xl">
+      <span class="eyebrow">Front desk</span>
+      <h1 class="font-display text-4xl sm:text-5xl font-semibold text-forest mt-3">Guests</h1>
+      <p class="text-muted mt-2">Look up guests, update details and grant VIP status.</p>
+
+      <div class="mt-8 grid sm:grid-cols-3 gap-4">
+        <div class="stat flex items-start justify-between"><div><p class="stat-label">Registered</p><p class="stat-value mt-2">6</p></div><span class="stat-icon"><i data-lucide="users"></i></span></div>
+        <div class="stat flex items-start justify-between"><div><p class="stat-label">VIP guests</p><p class="stat-value mt-2">2</p></div><span class="stat-icon"><i data-lucide="crown"></i></span></div>
+        <div class="stat flex items-start justify-between"><div><p class="stat-label">Deactivated</p><p class="stat-value mt-2 !text-muted">1</p></div><span class="stat-icon !bg-sand !text-muted"><i data-lucide="ban"></i></span></div>
+      </div>
+
+      <div class="card mt-8">
+        <div class="p-4 sm:p-5 flex flex-col md:flex-row gap-3 md:items-center justify-between border-b border-line">
+          <div class="flex flex-wrap gap-2" data-chip-filter="#guests-table" data-chip-attr="tier">
+            <button type="button" class="chip active" data-chip="all">Everyone</button>
+            <button type="button" class="chip" data-chip="vip"><i data-lucide="crown" class="w-4 h-4"></i>VIP</button>
+            <button type="button" class="chip" data-chip="regular">Regular</button>
+            <button type="button" class="chip" data-chip="inactive">Deactivated</button>
+          </div>
+          <div class="input-icon md:w-72"><i data-lucide="search"></i><input class="input !py-2.5" placeholder="Search name, email or ID…" data-filter-target="#guests-table"></div>
+        </div>
+        <div class="table-wrap">
+          <table class="table" id="guests-table">
+            <thead><tr><th>Guest</th><th>ID</th><th>Type</th><th>VIP</th><th>Status</th><th class="text-right">Actions</th></tr></thead>
+            <tbody>
+              <tr data-item data-tier="vip">
+                <td><div class="flex items-center gap-3"><span class="avatar avatar-brass">NP</span><div><p class="font-semibold">Nethmi Perera</p><p class="text-xs text-muted">nethmi@example.com</p></div></div></td>
+                <td class="mono">G1001</td><td><span class="badge badge-vip no-dot"><i data-lucide="crown"></i>VIP</span></td>
+                <td><label class="switch" title="VIP status"><input type="checkbox" checked><span></span></label></td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td class="text-right whitespace-nowrap"><button class="btn btn-ghost btn-sm" data-modal-open="edit-modal" data-gid="G1001" data-name="Nethmi Perera" data-email="nethmi@example.com"><i data-lucide="pencil"></i>Edit</button></td>
+              </tr>
+              <tr data-item data-tier="regular">
+                <td><div class="flex items-center gap-3"><span class="avatar">AF</span><div><p class="font-semibold">Ashan Fernando</p><p class="text-xs text-muted">ashan.f@example.com</p></div></div></td>
+                <td class="mono">G1002</td><td><span class="badge badge-outline no-dot">Regular</span></td>
+                <td><label class="switch" title="VIP status"><input type="checkbox"><span></span></label></td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td class="text-right whitespace-nowrap"><button class="btn btn-ghost btn-sm" data-modal-open="edit-modal" data-gid="G1002" data-name="Ashan Fernando" data-email="ashan.f@example.com"><i data-lucide="pencil"></i>Edit</button></td>
+              </tr>
+              <tr data-item data-tier="regular">
+                <td><div class="flex items-center gap-3"><span class="avatar">DJ</span><div><p class="font-semibold">Dilini Jayasuriya</p><p class="text-xs text-muted">dilini.j@example.com</p></div></div></td>
+                <td class="mono">G1003</td><td><span class="badge badge-outline no-dot">Regular</span></td>
+                <td><label class="switch" title="VIP status"><input type="checkbox"><span></span></label></td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td class="text-right whitespace-nowrap"><button class="btn btn-ghost btn-sm" data-modal-open="edit-modal" data-gid="G1003" data-name="Dilini Jayasuriya" data-email="dilini.j@example.com"><i data-lucide="pencil"></i>Edit</button></td>
+              </tr>
+              <tr data-item data-tier="vip">
+                <td><div class="flex items-center gap-3"><span class="avatar avatar-brass">RB</span><div><p class="font-semibold">Ravindu Bandara</p><p class="text-xs text-muted">ravindu.b@example.com</p></div></div></td>
+                <td class="mono">G1004</td><td><span class="badge badge-vip no-dot"><i data-lucide="crown"></i>VIP</span></td>
+                <td><label class="switch" title="VIP status"><input type="checkbox" checked><span></span></label></td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td class="text-right whitespace-nowrap"><button class="btn btn-ghost btn-sm" data-modal-open="edit-modal" data-gid="G1004" data-name="Ravindu Bandara" data-email="ravindu.b@example.com"><i data-lucide="pencil"></i>Edit</button></td>
+              </tr>
+              <tr data-item data-tier="regular">
+                <td><div class="flex items-center gap-3"><span class="avatar">SC</span><div><p class="font-semibold">Sarah Collins</p><p class="text-xs text-muted">sarah.c@example.com</p></div></div></td>
+                <td class="mono">G1005</td><td><span class="badge badge-outline no-dot">Regular</span></td>
+                <td><label class="switch" title="VIP status"><input type="checkbox"><span></span></label></td>
+                <td><span class="badge badge-active">Active</span></td>
+                <td class="text-right whitespace-nowrap"><button class="btn btn-ghost btn-sm" data-modal-open="edit-modal" data-gid="G1005" data-name="Sarah Collins" data-email="sarah.c@example.com"><i data-lucide="pencil"></i>Edit</button></td>
+              </tr>
+              <tr data-item data-tier="regular inactive" class="text-ink/55">
+                <td><div class="flex items-center gap-3"><span class="avatar opacity-60">MR</span><div><p class="font-semibold">Mohamed Rizwan</p><p class="text-xs text-muted">m.rizwan@example.com</p></div></div></td>
+                <td class="mono">G1006</td><td><span class="badge badge-outline no-dot">Regular</span></td>
+                <td><label class="switch opacity-50" title="VIP status"><input type="checkbox" disabled><span></span></label></td>
+                <td><span class="badge badge-retired">Deactivated</span></td>
+                <td class="text-right whitespace-nowrap"><button class="btn btn-ghost btn-sm" data-demo-click="Guest reactivated (prototype)"><i data-lucide="rotate-ccw"></i>Reactivate</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="hidden p-10 text-center text-muted" data-empty-for="#guests-table">No guests match.</div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Edit guest -->
+  <div class="modal" id="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-title">
+    <div class="modal-box">
+      <div class="flex items-start justify-between">
+        <div>
+          <h2 id="edit-title" class="font-display text-3xl font-semibold text-forest">Edit guest</h2>
+          <p class="mono text-sm" data-fill="gid"></p>
+        </div>
+        <button class="btn btn-ghost btn-icon" data-modal-close aria-label="Close"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+      <!-- JSP: action="${pageContext.request.contextPath}/admin/guests/update" method="post" -->
+      <form class="mt-6 space-y-5" data-demo="Guest updated (prototype)">
+        <div><label class="label" for="g-name">Full name</label><input id="g-name" name="name" class="input" data-fill="name" required></div>
+        <div><label class="label" for="g-email">Email</label><input id="g-email" name="email" type="email" class="input" data-fill="email" required></div>
+        <div class="flex items-center justify-between rounded-2xl bg-sand/60 px-4 py-3">
+          <span class="flex items-center gap-3"><i data-lucide="crown" class="w-5 h-5 text-brass"></i><span><span class="block font-semibold text-sm">VIP guest</span><span class="block text-xs text-muted">10% off every booking</span></span></span>
+          <label class="switch"><input type="checkbox" name="vip"><span></span></label>
+        </div>
+        <div class="flex justify-between gap-2 pt-2">
+          <button type="button" class="btn btn-danger-outline btn-sm" data-demo-click="Guest deactivated (prototype)">Deactivate</button>
+          <div class="flex gap-2"><button type="button" class="btn btn-ghost" data-modal-close>Cancel</button><button class="btn btn-primary">Save</button></div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="../../js/layout.js"></script>
+  <script src="../../js/app.js"></script>
+</body>
+</html>

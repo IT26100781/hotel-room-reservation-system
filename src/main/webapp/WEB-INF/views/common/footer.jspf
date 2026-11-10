@@ -1,0 +1,51 @@
+<%@ page pageEncoding="UTF-8" %>
+<%-- Public footer. The year is filled in by app.js ([data-year]). --%>
+<footer class="no-print panel-dark mt-24">
+  <div class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 pt-16 pb-10">
+    <div class="grid gap-12 md:grid-cols-12">
+      <div class="md:col-span-5">
+        <a href="${ctx}/" class="flex items-center gap-3 shrink-0" aria-label="The Orchid Estate home">
+          <%@ include file="/WEB-INF/views/common/logo.jspf" %>
+          <span class="leading-none">
+            <span class="font-display text-[1.45rem] font-semibold block text-ivory">The Orchid Estate</span>
+            <span class="text-[9.5px] tracking-[.3em] uppercase text-ivory/50 block mt-1">Hill Country · Sri Lanka</span>
+          </span>
+        </a>
+        <p class="mt-6 text-ivory/60 text-sm leading-relaxed max-w-sm">
+          A twenty-four room boutique estate among the tea hills, where slow mornings,
+          mountain air and quiet service are the whole point.
+        </p>
+        <p class="mt-6 inline-flex items-center gap-2 text-sm text-ivory/70"><i data-lucide="map-pin" class="w-4 h-4 text-brass"></i>12 Estate Road, Nuwara Eliya</p>
+      </div>
+      <div class="md:col-span-2">
+        <h4 class="text-xs tracking-[.22em] uppercase text-brass font-bold mb-4">Explore</h4>
+        <ul class="space-y-2.5 text-sm text-ivory/70">
+          <li><a class="hover:text-ivory" href="${ctx}/rooms">Rooms &amp; Suites</a></li>
+          <li><a class="hover:text-ivory" href="${ctx}/reviews">Guest stories</a></li>
+          <li><a class="hover:text-ivory" href="${ctx}/#estate">The estate</a></li>
+        </ul>
+      </div>
+      <div class="md:col-span-2">
+        <h4 class="text-xs tracking-[.22em] uppercase text-brass font-bold mb-4">Guests</h4>
+        <ul class="space-y-2.5 text-sm text-ivory/70">
+          <li><a class="hover:text-ivory" href="${ctx}/login">Sign in</a></li>
+          <li><a class="hover:text-ivory" href="${ctx}/register">Create account</a></li>
+          <li><a class="hover:text-ivory" href="${ctx}/bookings">My bookings</a></li>
+        </ul>
+      </div>
+      <div class="md:col-span-3">
+        <h4 class="text-xs tracking-[.22em] uppercase text-brass font-bold mb-4">Front desk</h4>
+        <ul class="space-y-2.5 text-sm text-ivory/70">
+          <li class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-brass"></i>+94 52 222 0198</li>
+          <li class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-brass"></i>stay@orchidestate.lk</li>
+          <li class="flex items-center gap-2"><i data-lucide="clock" class="w-4 h-4 text-brass"></i>Open 24 hours</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ornament mt-14 mb-6 opacity-60"><span></span></div>
+    <div class="flex flex-col sm:flex-row gap-3 justify-between text-xs text-ivory/45">
+      <p>&copy; <span data-year></span> The Orchid Estate · SE1020 OOP project</p>
+      <a href="${ctx}/admin/login" class="inline-flex items-center gap-1.5 hover:text-ivory"><i data-lucide="key-round" class="w-3.5 h-3.5"></i>Staff portal</a>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,81 @@
+<%@ page pageEncoding="UTF-8" %>
+<%--
+  Public (guest-facing) top header.
+  Optional before including:  <c:set var="activeNav" value="rooms"/>   (home | rooms | reviews | bookings)
+  Reads the logged-in user from the session (${me}, set in init.jspf).
+--%>
+<c:set var="isGuest" value="${not empty me and me.role == 'GUEST'}"/>
+<c:set var="isStaff" value="${not empty me and me.role != 'GUEST'}"/>
+<header class="no-print header-glass sticky top-0 z-50">
+  <div class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 h-[76px] flex items-center gap-3 sm:gap-6">
+    <a href="${ctx}/" class="flex items-center gap-3 shrink-0" aria-label="The Orchid Estate home">
+      <%@ include file="/WEB-INF/views/common/logo.jspf" %>
+      <span class="leading-none">
+        <span class="font-display text-[1.25rem] sm:text-[1.45rem] font-semibold block text-forest">The Orchid Estate</span>
+        <span class="text-[9.5px] tracking-[.3em] uppercase text-muted hidden sm:block mt-1">Hill Country · Sri Lanka</span>
+      </span>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-8 ml-6" aria-label="Main">
+      <a href="${ctx}/" class="nav-link ${activeNav == 'home' ? 'active' : ''}">Home</a>
+      <a href="${ctx}/rooms" class="nav-link ${activeNav == 'rooms' ? 'active' : ''}">Rooms &amp; Suites</a>
+      <a href="${ctx}/reviews" class="nav-link ${activeNav == 'reviews' ? 'active' : ''}">Guest Stories</a>
+      <c:if test="${isGuest}">
+        <a href="${ctx}/bookings" class="nav-link ${activeNav == 'bookings' ? 'active' : ''}">My Bookings</a>
+      </c:if>
+    </nav>
+
+    <div class="ml-auto flex items-center gap-2">
+      <c:choose>
+        <c:when test="${isGuest}">
+          <div class="dropdown" data-dropdown>
+            <button class="flex items-center gap-2.5 rounded-full pl-1 pr-3 py-1 hover:bg-forest/5 transition" data-dropdown-toggle aria-haspopup="true">
+              <span class="avatar avatar-brass"><c:out value="${fn:toUpperCase(fn:substring(me.name, 0, 1))}"/></span>
+              <span class="hidden sm:block text-left leading-tight">
+                <span class="block text-sm font-semibold"><c:out value="${me.name}"/></span>
+              </span>
+              <i data-lucide="chevron-down" class="w-4 h-4 text-muted"></i>
+            </button>
+            <div class="dropdown-menu">
+              <a class="dropdown-item" href="${ctx}/account"><i data-lucide="layout-dashboard"></i>My account</a>
+              <a class="dropdown-item" href="${ctx}/bookings"><i data-lucide="calendar-days"></i>My bookings</a>
+              <a class="dropdown-item" href="${ctx}/profile"><i data-lucide="user"></i>Profile &amp; password</a>
+              <div class="my-1 border-t border-line"></div>
+              <form method="post" action="${ctx}/logout">
+                <button type="submit" class="dropdown-item"><i data-lucide="log-out"></i>Sign out</button>
+              </form>
+            </div>
+          </div>
+        </c:when>
+        <c:when test="${isStaff}">
+          <a href="${ctx}/admin" class="btn btn-primary btn-sm"><i data-lucide="key-round"></i>Staff portal</a>
+        </c:when>
+        <c:otherwise>
+          <a href="${ctx}/login" class="btn btn-ghost btn-sm hidden sm:inline-flex">Sign in</a>
+          <a href="${ctx}/rooms" class="btn btn-primary btn-sm hidden sm:inline-flex">Book a stay</a>
+        </c:otherwise>
+      </c:choose>
+      <button class="md:hidden btn btn-ghost btn-icon" data-toggle="#mobile-nav" aria-label="Open menu">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-nav" class="md:hidden hidden border-t border-line/70 px-4 pb-4">
+    <a href="${ctx}/" class="block py-3 border-b border-line/60 font-medium ${activeNav == 'home' ? 'text-forest' : 'text-ink/75'}">Home</a>
+    <a href="${ctx}/rooms" class="block py-3 border-b border-line/60 font-medium ${activeNav == 'rooms' ? 'text-forest' : 'text-ink/75'}">Rooms &amp; Suites</a>
+    <a href="${ctx}/reviews" class="block py-3 border-b border-line/60 font-medium ${activeNav == 'reviews' ? 'text-forest' : 'text-ink/75'}">Guest Stories</a>
+    <c:choose>
+      <c:when test="${isGuest}">
+        <a href="${ctx}/bookings" class="block py-3 border-b border-line/60 font-medium text-ink/75">My Bookings</a>
+      </c:when>
+      <c:when test="${isStaff}">
+        <a href="${ctx}/admin" class="btn btn-primary btn-block mt-4">Staff portal</a>
+      </c:when>
+      <c:otherwise>
+        <a href="${ctx}/login" class="block py-3 border-b border-line/60 font-medium text-ink/75">Sign in</a>
+        <a href="${ctx}/rooms" class="btn btn-primary btn-block mt-4">Book a stay</a>
+      </c:otherwise>
+    </c:choose>
+  </div>
+</header>

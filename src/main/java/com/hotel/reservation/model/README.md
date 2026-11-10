@@ -1,6 +1,5 @@
 # model
 
-This folder holds the classes that describe what a booking is, such as `Reservation`.
+This folder holds the classes that describe a booking, such as `Reservation`.
 Each class keeps its own data in private fields and has the behaviour that belongs to it, like overridden methods in subclasses.
-Each model also has `toFileString()` to turn the object into one line of `bookings.txt`, and `fromFileString()` to turn a line back into an object.
-Do not read files or handle web requests here, only describe the object.
+Models only describe the object. They do not run SQL or handle web requests.

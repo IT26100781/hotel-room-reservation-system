@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpSession;
  * Always get the current user from here, never from a URL parameter.
  */
 public final class SessionUtil {
-
     public static final String CURRENT_USER = "currentUser";
 
     private SessionUtil() {

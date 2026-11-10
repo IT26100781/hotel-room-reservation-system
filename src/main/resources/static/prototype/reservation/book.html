@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Complete your booking · The Orchid Estate</title>
+  <link rel="icon" href="../../img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../js/tailwind.config.js"></script>
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../../css/theme.css">
+</head>
+<!-- Owner: Reservation component (writes bookings.txt). Guest must be logged in.
+     On submit: check Reservation.isAvailable(roomId, checkIn, checkOut), then save with
+     status=active, paymentStatus=pending, checkedIn=no. -->
+<body data-root="../" data-layout="public" data-active="rooms" data-user="guest">
+  <div data-slot="header"></div>
+
+  <main class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 pt-10" data-calc-scope>
+    <div class="steps">
+      <div class="step done"><span class="step-dot"><i data-lucide="check"></i></span>Choose room</div>
+      <span class="step-line"></span>
+      <div class="step current"><span class="step-dot">2</span>Review &amp; confirm</div>
+      <span class="step-line"></span>
+      <div class="step"><span class="step-dot">3</span>Booked</div>
+    </div>
+
+    <h1 class="font-display text-5xl font-semibold text-forest mt-8">Review your stay</h1>
+    <p class="text-muted mt-2">Check the details below. Nothing is charged until you pay at the front desk.</p>
+
+    <div class="mt-10 grid lg:grid-cols-[1fr_400px] gap-10 items-start">
+      <!-- JSP: action="${pageContext.request.contextPath}/reservations" method="post" -->
+      <form id="book-form" class="space-y-6" data-booking-calc data-default-dates data-rate="46000" data-discount="0.10"
+            data-demo="Booking confirmed (prototype)" data-next="confirmation.html">
+        <input type="hidden" name="roomId" value="R301">
+
+        <section class="card card-pad">
+          <h2 class="font-display text-2xl font-semibold text-forest flex items-center gap-3"><span class="sec-num text-xl">i.</span>Your dates</h2>
+          <div class="mt-5 grid sm:grid-cols-3 gap-4">
+            <div>
+              <label class="label" for="checkIn">Check-in</label>
+              <input id="checkIn" type="date" name="checkIn" class="input" required>
+            </div>
+            <div>
+              <label class="label" for="checkOut">Check-out</label>
+              <input id="checkOut" type="date" name="checkOut" class="input" required>
+            </div>
+            <div>
+              <label class="label" for="guests">Guests</label>
+              <select id="guests" name="guests" class="select">
+                <option>1</option><option selected>2</option><option>3</option><option>4</option>
+              </select>
+            </div>
+          </div>
+          <div class="alert alert-success mt-5"><i data-lucide="circle-check"></i><span>Room 301 is available for these dates.</span></div>
+          <!-- When the dates overlap another booking, show instead:
+          <div class="alert alert-error mt-5"><i data-lucide="calendar-x"></i><span>Sorry, this room is booked for part of those dates. Try other dates or <a href="../room/list.html" class="underline">another room</a>.</span></div> -->
+        </section>
+
+        <section class="card card-pad">
+          <h2 class="font-display text-2xl font-semibold text-forest flex items-center gap-3"><span class="sec-num text-xl">ii.</span>Guest details</h2>
+          <p class="text-sm text-muted mt-1">Taken from your profile. <a href="../guest/profile.html" class="text-forest font-semibold underline-offset-4 hover:underline">Edit profile</a></p>
+          <div class="mt-5 grid sm:grid-cols-2 gap-4">
+            <div><label class="label">Full name</label><input class="input" value="Nethmi Perera" readonly></div>
+            <div><label class="label">Email</label><input class="input" value="nethmi@example.com" readonly></div>
+          </div>
+          <div class="mt-4 flex items-center gap-3 rounded-2xl bg-brass/10 border border-brass/30 px-4 py-3">
+            <span class="badge badge-vip no-dot"><i data-lucide="crown"></i>VIP</span>
+            <span class="text-sm text-forest">Your 10% VIP discount is applied automatically.</span>
+          </div>
+        </section>
+
+        <section class="card card-pad">
+          <h2 class="font-display text-2xl font-semibold text-forest flex items-center gap-3"><span class="sec-num text-xl">iii.</span>Payment &amp; policies</h2>
+          <ul class="mt-5 space-y-3 text-sm text-ink/75">
+            <li class="flex gap-3"><i data-lucide="concierge-bell" class="w-5 h-5 text-brass shrink-0"></i>Pay at the front desk by cash or card when you arrive. No card details are taken online.</li>
+            <li class="flex gap-3"><i data-lucide="banknote" class="w-5 h-5 text-brass shrink-0"></i>Paying in cash? You get an extra 5% off, combined with your VIP discount.</li>
+            <li class="flex gap-3"><i data-lucide="calendar-x" class="w-5 h-5 text-brass shrink-0"></i>Free cancellation any time before check-in, from <a href="my-bookings.html" class="font-semibold text-forest">My bookings</a>.</li>
+            <li class="flex gap-3"><i data-lucide="clock" class="w-5 h-5 text-brass shrink-0"></i>If you don't check in on your arrival day, the booking is released.</li>
+          </ul>
+          <label class="mt-6 flex items-start gap-3 text-sm cursor-pointer">
+            <input type="checkbox" required class="mt-1 w-4 h-4 accent-[rgb(31,59,47)]">
+            <span>I understand the cancellation and no-show policy.</span>
+          </label>
+        </section>
+      </form>
+
+      <!-- Summary -->
+      <aside class="lg:sticky lg:top-28">
+        <div class="card overflow-hidden">
+          <div class="h-48"><img class="img-cover" src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80" alt="Estate Suite"></div>
+          <div class="p-6">
+            <p class="text-xs tracking-[.2em] uppercase text-brass font-bold">Suite · Room 301</p>
+            <h2 class="font-display text-3xl font-semibold text-forest mt-1">Estate Suite</h2>
+
+            <dl class="mt-5 grid grid-cols-2 gap-4 text-sm">
+              <div><dt class="label !mb-1">Check-in</dt><dd class="font-semibold" data-out="checkin">—</dd></div>
+              <div><dt class="label !mb-1">Check-out</dt><dd class="font-semibold" data-out="checkout">—</dd></div>
+            </dl>
+
+            <dl class="mt-6 space-y-3 text-sm border-t border-line pt-5">
+              <div class="flex justify-between"><dt class="text-ink/70" data-out="rate-x-nights">—</dt><dd data-out="subtotal">—</dd></div>
+              <div class="flex justify-between text-brass"><dt>VIP discount (10%)</dt><dd data-out="discount">—</dd></div>
+              <div class="flex justify-between border-t border-line pt-3 text-base font-semibold text-forest"><dt>Estimated total</dt><dd data-out="total">—</dd></div>
+            </dl>
+            <p class="mt-2 text-xs text-muted">Final amount is calculated at the desk. Cash payments save a further 5%.</p>
+
+            <button type="submit" form="book-form" class="btn btn-primary btn-lg btn-block mt-6"><i data-lucide="calendar-check"></i>Confirm booking</button>
+            <a href="../room/detail.html" class="btn btn-ghost btn-block mt-2">Back to room</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <div data-slot="footer"></div>
+  <script src="../../js/layout.js"></script>
+  <script src="../../js/app.js"></script>
+</body>
+</html>

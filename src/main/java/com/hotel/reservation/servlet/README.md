@@ -1,6 +1,13 @@
 # servlet
 
-This folder holds the classes that handle requests from the browser, such as `BookRoomServlet`, `MyBookingsServlet` and `CheckInServlet`.
-A servlet reads the form inputs, gets the logged-in user with `SessionUtil`, and checks their permission with the `canX()` methods.
-It then calls the service and shows a JSP page from `WEB-INF/views/reservation/`.
-Keep servlets short: no business rules or file code here.
+This folder holds the servlets for a booking, such as `BookRoomServlet`, `MyBookingsServlet` and `CheckInServlet`.
+
+Follow the admin or room servlets:
+- `@WebServlet("/...")` with `@Autowired` for the service.
+- Get the logged-in user with `SessionUtil.getCurrentUser(...)`.
+- Call the service; after a successful POST, redirect (Post/Redirect/Get). On an error, put `error` in the
+  request and forward back to the JSP.
+- Catch `SecurityException` and send `403`.
+- Staff-only pages go under `/admin/...` so `StaffAuthFilter` protects them automatically.
+
+Pages are in `WEB-INF/views/reservation/`. Keep servlets short: no business rules or SQL here.

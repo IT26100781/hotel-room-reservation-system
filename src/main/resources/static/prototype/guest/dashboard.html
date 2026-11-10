@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My account · The Orchid Estate</title>
+  <link rel="icon" href="../../img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../js/tailwind.config.js"></script>
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../../css/theme.css">
+</head>
+<!-- Owner: Guest/User component (landing page after a guest logs in). The next-stay card reads bookings.txt read-only. -->
+<body data-root="../" data-layout="public" data-active="" data-user="guest">
+  <div data-slot="header"></div>
+
+  <main class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 pt-12">
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+      <div>
+        <span class="eyebrow">Your account</span>
+        <h1 class="font-display text-5xl sm:text-6xl font-semibold text-forest mt-4">Good evening, <em class="italic text-brass">Nethmi.</em></h1>
+      </div>
+      <div class="flex items-center gap-3 rounded-2xl border border-brass/40 bg-brass/10 px-5 py-3">
+        <span class="badge badge-vip no-dot"><i data-lucide="crown"></i>VIP</span>
+        <span class="text-sm text-forest">10% off every stay, applied automatically</span>
+      </div>
+    </div>
+
+    <!-- Next stay -->
+    <section class="mt-10 card overflow-hidden grid lg:grid-cols-[1.1fr_1fr]">
+      <div class="h-72 lg:h-auto relative">
+        <img class="img-cover" src="https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=1000&q=80" alt="Estate Suite">
+        <span class="absolute top-5 left-5 badge no-dot bg-paper/90 text-forest"><i data-lucide="clock"></i>In 5 days</span>
+      </div>
+      <div class="p-8 sm:p-10">
+        <p class="text-xs tracking-[.22em] uppercase text-brass font-bold">Your next stay</p>
+        <h2 class="font-display text-4xl font-semibold text-forest mt-2">Estate Suite · Room 301</h2>
+        <dl class="mt-6 grid grid-cols-3 gap-4 text-sm">
+          <div><dt class="label !mb-1">Check-in</dt><dd class="font-semibold">Mon, 12 Oct</dd></div>
+          <div><dt class="label !mb-1">Check-out</dt><dd class="font-semibold">Thu, 15 Oct</dd></div>
+          <div><dt class="label !mb-1">Booking</dt><dd class="font-semibold mono">BK1024</dd></div>
+        </dl>
+        <div class="mt-6 flex flex-wrap gap-2"><span class="badge badge-active">Active</span><span class="badge badge-pending">Pay at front desk</span></div>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="../reservation/my-bookings.html" class="btn btn-primary">Manage booking</a>
+          <a href="../room/detail.html" class="btn btn-outline">View suite</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick actions -->
+    <section class="mt-10 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <a href="../room/list.html" class="card card-pad card-hover group">
+        <span class="stat-icon"><i data-lucide="bed-double"></i></span>
+        <h3 class="font-display text-2xl font-semibold text-forest mt-5">Book a room</h3>
+        <p class="text-sm text-muted mt-1">Check dates and availability.</p>
+        <i data-lucide="arrow-right" class="w-5 h-5 text-brass mt-4 transition group-hover:translate-x-1"></i>
+      </a>
+      <a href="../reservation/my-bookings.html" class="card card-pad card-hover group">
+        <span class="stat-icon"><i data-lucide="calendar-days"></i></span>
+        <h3 class="font-display text-2xl font-semibold text-forest mt-5">My bookings</h3>
+        <p class="text-sm text-muted mt-1">2 upcoming · 2 completed</p>
+        <i data-lucide="arrow-right" class="w-5 h-5 text-brass mt-4 transition group-hover:translate-x-1"></i>
+      </a>
+      <a href="../review/write.html" class="card card-pad card-hover group">
+        <span class="stat-icon"><i data-lucide="star"></i></span>
+        <h3 class="font-display text-2xl font-semibold text-forest mt-5">Write a review</h3>
+        <p class="text-sm text-muted mt-1">1 stay waiting for your review.</p>
+        <i data-lucide="arrow-right" class="w-5 h-5 text-brass mt-4 transition group-hover:translate-x-1"></i>
+      </a>
+      <a href="profile.html" class="card card-pad card-hover group">
+        <span class="stat-icon"><i data-lucide="user"></i></span>
+        <h3 class="font-display text-2xl font-semibold text-forest mt-5">Profile</h3>
+        <p class="text-sm text-muted mt-1">Name, email and password.</p>
+        <i data-lucide="arrow-right" class="w-5 h-5 text-brass mt-4 transition group-hover:translate-x-1"></i>
+      </a>
+    </section>
+
+    <!-- Past stays -->
+    <section class="mt-14">
+      <div class="flex items-end justify-between">
+        <h2 class="font-display text-3xl font-semibold text-forest">Past stays</h2>
+        <a href="../reservation/my-bookings.html" class="text-sm font-semibold text-forest hover:text-brass">See all →</a>
+      </div>
+      <div class="mt-5 card divide-y divide-line">
+        <div class="p-5 flex flex-wrap items-center gap-4">
+          <img class="w-16 h-16 rounded-2xl object-cover" src="https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=160&q=60" alt="">
+          <div class="flex-1 min-w-[12rem]"><p class="font-semibold">Deluxe Garden Room</p><p class="text-sm text-muted">2 – 5 Sep 2026 · BK0987</p></div>
+          <a href="../review/write.html" class="btn btn-brass btn-sm"><i data-lucide="star"></i>Review</a>
+        </div>
+        <div class="p-5 flex flex-wrap items-center gap-4">
+          <img class="w-16 h-16 rounded-2xl object-cover" src="https://images.unsplash.com/photo-1631049307264-da0ec9d70304?auto=format&fit=crop&w=160&q=60" alt="">
+          <div class="flex-1 min-w-[12rem]"><p class="font-semibold">Standard Room</p><p class="text-sm text-muted">14 – 16 Aug 2026 · BK0952</p></div>
+          <span data-stars="5"></span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div data-slot="footer"></div>
+  <script src="../../js/layout.js"></script>
+  <script src="../../js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Record payment · Staff portal · The Orchid Estate</title>
+  <link rel="icon" href="../../img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../js/tailwind.config.js"></script>
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../../css/theme.css">
+</head>
+<!-- Owner: Payment component (writes payments.txt). Staff only: canRecordPayment().
+     The real total MUST be calculated in Java (Payment.calculateTotal()); the numbers here are a live preview only.
+     CardPayment stores ONLY the last 4 digits and card type. -->
+<body data-root="../" data-layout="staff" data-active="payments" data-user="admin">
+  <div data-slot="sidebar"></div>
+  <div class="lg:pl-72 min-h-screen">
+    <div data-slot="topbar"></div>
+    <main class="px-4 sm:px-8 py-8 max-w-6xl">
+      <a href="list.html" class="text-sm text-muted hover:text-forest inline-flex items-center gap-1.5"><i data-lucide="arrow-left" class="w-4 h-4"></i>Back to payments</a>
+      <h1 class="font-display text-4xl sm:text-5xl font-semibold text-forest mt-3">Record a payment</h1>
+      <p class="text-muted mt-2">Take payment at the desk, then record it here to mark the booking as paid.</p>
+
+      <!-- JSP: action="${pageContext.request.contextPath}/payments" method="post" -->
+      <form class="mt-8 grid lg:grid-cols-[1fr_380px] gap-8 items-start" data-payment-calc data-cash-rate="0.05"
+            data-demo="Payment recorded (prototype)" data-next="invoice.html">
+        <div class="space-y-6">
+          <section class="card card-pad">
+            <label class="label" for="bookingId">Booking</label>
+            <select id="bookingId" name="bookingId" class="select" required>
+              <option value="">Select an unpaid booking…</option>
+              <!-- JSP: one option per active booking with paymentStatus=pending -->
+              <option value="BK1024" selected data-amount="138000" data-vip="0.10" data-guest="Nethmi Perera" data-room="Estate Suite · Room 301" data-stay="12 – 15 Oct · 3 nights">BK1024 · Nethmi Perera · Suite 301 · 12–15 Oct</option>
+              <option value="BK1026" data-amount="84000" data-vip="0" data-guest="Dilini Jayasuriya" data-room="Deluxe Valley Room · 201" data-stay="7 – 10 Oct · 3 nights">BK1026 · Dilini Jayasuriya · Deluxe 201 · 7–10 Oct</option>
+              <option value="BK1031" data-amount="112000" data-vip="0.10" data-guest="Nethmi Perera" data-room="Deluxe Valley Room · 201" data-stay="20 – 24 Dec · 4 nights">BK1031 · Nethmi Perera · Deluxe 201 · 20–24 Dec</option>
+            </select>
+
+            <div class="mt-5 rounded-2xl bg-sand/60 p-4 grid sm:grid-cols-3 gap-4 text-sm" data-booking-summary>
+              <div><p class="label !mb-1">Guest</p><p class="font-semibold flex items-center gap-1.5"><span data-out="guest">—</span><span class="badge badge-vip no-dot !px-1.5 !py-0.5" data-vip-badge><i data-lucide="crown"></i>VIP</span></p></div>
+              <div><p class="label !mb-1">Room</p><p class="font-semibold" data-out="room">—</p></div>
+              <div><p class="label !mb-1">Stay</p><p class="font-semibold" data-out="stay">—</p></div>
+            </div>
+          </section>
+
+          <section class="card card-pad">
+            <p class="label">Payment method</p>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <label class="choice">
+                <input type="radio" name="method" value="cash" checked>
+                <span class="choice-body flex items-center gap-4">
+                  <span class="stat-icon"><i data-lucide="banknote"></i></span>
+                  <span><span class="block font-semibold text-forest">Cash</span><span class="block text-xs text-muted">5% cash discount</span></span>
+                </span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="method" value="card">
+                <span class="choice-body flex items-center gap-4">
+                  <span class="stat-icon"><i data-lucide="credit-card"></i></span>
+                  <span><span class="block font-semibold text-forest">Card</span><span class="block text-xs text-muted">No extra discount</span></span>
+                </span>
+              </label>
+            </div>
+
+            <div class="mt-5 grid sm:grid-cols-2 gap-4 hidden" data-show-when="card">
+              <div>
+                <label class="label" for="cardType">Card type</label>
+                <select id="cardType" name="cardType" class="select">
+                  <option>Visa</option><option>Mastercard</option><option>American Express</option>
+                </select>
+              </div>
+              <div>
+                <label class="label" for="last4">Last 4 digits</label>
+                <div class="input-icon"><i data-lucide="lock"></i><input id="last4" name="last4" class="input tracking-[.4em]" inputmode="numeric" maxlength="4" pattern="\d{4}" placeholder="••••"></div>
+              </div>
+              <p class="sm:col-span-2 hint flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-sage"></i>Never type the full card number. Only the last 4 digits are stored.</p>
+            </div>
+          </section>
+        </div>
+
+        <!-- Breakdown -->
+        <aside class="lg:sticky lg:top-24 card overflow-hidden">
+          <div class="panel-dark p-6">
+            <p class="text-xs tracking-[.22em] uppercase text-brass-light font-bold">Amount due</p>
+            <p class="font-display text-5xl font-semibold mt-2" data-out="total">—</p>
+            <p class="text-ivory/60 text-sm mt-1">Combined discount <span class="text-brass-light font-semibold" data-out="combined">—</span></p>
+          </div>
+          <div class="p-6">
+            <dl class="space-y-3 text-sm">
+              <div class="flex justify-between"><dt class="text-ink/70">Room total</dt><dd data-out="subtotal">—</dd></div>
+              <div class="flex justify-between text-brass"><dt data-out="vip-label">VIP discount</dt><dd data-out="vip">—</dd></div>
+              <div class="flex justify-between text-sage"><dt>Cash discount (5%)</dt><dd data-out="cash">—</dd></div>
+            </dl>
+            <div class="mt-5 rounded-xl bg-sand/60 px-4 py-3">
+              <p class="label !mb-1">How it's calculated</p>
+              <p class="mono text-xs" data-out="formula">—</p>
+              <p class="text-xs text-muted mt-1">Discounts stack, they are not simply added.</p>
+            </div>
+            <button type="submit" class="btn btn-primary btn-lg btn-block mt-6"><i data-lucide="check"></i>Record payment</button>
+            <a href="list.html" class="btn btn-ghost btn-block mt-2">Cancel</a>
+          </div>
+        </aside>
+      </form>
+    </main>
+  </div>
+
+  <script src="../../js/layout.js"></script>
+  <script src="../../js/app.js"></script>
+</body>
+</html>

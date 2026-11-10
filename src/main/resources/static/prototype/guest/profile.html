@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Profile · The Orchid Estate</title>
+  <link rel="icon" href="../../img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Manrope:wght@400;500;600;700;800&display=swap">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="../../js/tailwind.config.js"></script>
+  <script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+  <link rel="stylesheet" href="../../css/theme.css">
+</head>
+<!-- Owner: Guest/User component. A guest can only edit their OWN profile (id from session, never from the URL).
+     Deactivate = soft delete (status flag), because bookings still reference the guest. -->
+<body data-root="../" data-layout="public" data-active="" data-user="guest">
+  <div data-slot="header"></div>
+
+  <main class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 pt-12">
+    <span class="eyebrow">Your account</span>
+    <h1 class="font-display text-5xl font-semibold text-forest mt-4">Profile &amp; password</h1>
+
+    <div class="mt-10 grid lg:grid-cols-[320px_1fr] gap-8 items-start">
+      <!-- Identity card -->
+      <aside class="card card-pad text-center lg:sticky lg:top-28">
+        <span class="avatar avatar-lg avatar-brass mx-auto">NP</span>
+        <h2 class="font-display text-3xl font-semibold text-forest mt-4">Nethmi Perera</h2>
+        <p class="text-sm text-muted">nethmi@example.com</p>
+        <span class="badge badge-vip no-dot mt-4"><i data-lucide="crown"></i>VIP guest</span>
+        <dl class="mt-6 pt-6 border-t border-line grid grid-cols-2 gap-4 text-sm text-left">
+          <div><dt class="label !mb-1">Guest ID</dt><dd class="mono">G1001</dd></div>
+          <div><dt class="label !mb-1">Discount</dt><dd class="font-semibold text-brass">10%</dd></div>
+          <div><dt class="label !mb-1">Stays</dt><dd class="font-semibold">2 completed</dd></div>
+          <div><dt class="label !mb-1">Status</dt><dd><span class="badge badge-active">Active</span></dd></div>
+        </dl>
+      </aside>
+
+      <div class="space-y-6">
+        <!-- Personal details -->
+        <!-- JSP: action="${pageContext.request.contextPath}/profile" method="post" -->
+        <form class="card card-pad" data-demo="Profile updated (prototype)">
+          <h2 class="font-display text-2xl font-semibold text-forest">Personal details</h2>
+          <div class="mt-6 grid sm:grid-cols-2 gap-5">
+            <div><label class="label" for="name">Full name</label><input id="name" name="name" class="input" value="Nethmi Perera" required></div>
+            <div><label class="label" for="email">Email</label><input id="email" name="email" type="email" class="input" value="nethmi@example.com" required></div>
+          </div>
+          <p class="hint mt-4 flex items-center gap-1.5"><i data-lucide="info" class="w-4 h-4"></i>VIP status is managed by our front desk team.</p>
+          <div class="mt-6 flex justify-end"><button class="btn btn-primary"><i data-lucide="check"></i>Save changes</button></div>
+        </form>
+
+        <!-- Password -->
+        <!-- JSP: action="${pageContext.request.contextPath}/profile/password" method="post" -->
+        <form class="card card-pad" data-demo="Password changed (prototype)">
+          <h2 class="font-display text-2xl font-semibold text-forest">Change password</h2>
+          <div class="mt-6 grid sm:grid-cols-3 gap-5">
+            <div><label class="label" for="current">Current</label><input id="current" name="currentPassword" type="password" class="input" autocomplete="current-password" required></div>
+            <div><label class="label" for="newpw">New</label><input id="newpw" name="newPassword" type="password" class="input" minlength="8" autocomplete="new-password" required></div>
+            <div><label class="label" for="confirm">Confirm new</label><div><input id="confirm" name="confirmPassword" type="password" class="input" autocomplete="new-password" required data-match="#newpw"></div><p class="error-text hidden" data-match-msg>Passwords don't match.</p></div>
+          </div>
+          <div class="mt-6 flex justify-end"><button class="btn btn-outline"><i data-lucide="lock"></i>Update password</button></div>
+        </form>
+
+        <!-- Danger zone -->
+        <section class="card card-pad border-clay/30">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 class="font-display text-2xl font-semibold text-clay">Deactivate account</h2>
+              <p class="text-sm text-muted mt-1">You won't be able to sign in. Your past bookings are kept for our records.</p>
+            </div>
+            <button class="btn btn-danger-outline" data-modal-open="deactivate-modal">Deactivate</button>
+          </div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal" id="deactivate-modal" role="dialog" aria-modal="true" aria-labelledby="deact-title">
+    <div class="modal-box">
+      <span class="stat-icon !bg-clay/10 !text-clay"><i data-lucide="shield-alert"></i></span>
+      <h2 id="deact-title" class="font-display text-3xl font-semibold text-forest mt-4">Deactivate your account?</h2>
+      <p class="mt-2 text-sm text-ink/70">Upcoming bookings should be cancelled first. You'll be signed out straight away.</p>
+      <div class="mt-6 flex justify-end gap-2">
+        <button class="btn btn-ghost" data-modal-close>Keep my account</button>
+        <button class="btn btn-danger" data-demo-click="Account deactivated (prototype)">Deactivate</button>
+      </div>
+    </div>
+  </div>
+
+  <div data-slot="footer"></div>
+  <script src="../../js/layout.js"></script>
+  <script src="../../js/app.js"></script>
+</body>
+</html>

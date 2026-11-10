@@ -236,8 +236,6 @@
 
   /* payment: finalRate = 1 - (1 - guestRate) * (1 - methodRate) */
   function initPaymentCalc() {
-    const money = n => Math.round((n + Number.EPSILON) * 100) / 100;
-    const LKR = n => 'LKR ' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     $$('[data-payment-calc]').forEach((form) => {
       const booking = form.querySelector('[name="bookingId"]');
       const out = (key, val) => $$(`[data-out="${key}"]`, form).forEach((el) => { el.textContent = val; });
@@ -249,7 +247,6 @@
         $$('[data-show-when]', form).forEach((el) => el.classList.toggle('hidden', el.dataset.showWhen !== method));
         if (!opt || !opt.dataset.amount) {
           $$('[data-booking-summary]', form).forEach((el) => el.classList.add('hidden'));
-          ['total', 'subtotal', 'vip', 'cash', 'combined', 'formula'].forEach(key => out(key, '—'));
           return;
         }
         $$('[data-booking-summary]', form).forEach((el) => el.classList.remove('hidden'));
@@ -257,19 +254,16 @@
         const g = parseFloat(opt.dataset.vip || '0');
         const m = method === 'cash' ? CASH_RATE : 0;
         const finalRate = 1 - (1 - g) * (1 - m);
-        const guestDiscount = money(amount * g);
-        const total = money((amount - guestDiscount) * (1 - m));
-        const cashDiscount = money(amount - guestDiscount - total);
 
         out('guest', opt.dataset.guest);
         out('room', opt.dataset.room);
         out('stay', opt.dataset.stay);
         out('subtotal', LKR(amount));
-        out('vip', g ? '− ' + LKR(guestDiscount) : '—');
+        out('vip', g ? '− ' + LKR(amount * g) : '—');
         out('vip-label', g ? 'VIP discount (' + pct(g) + ')' : 'VIP discount');
-        out('cash', m ? '− ' + LKR(cashDiscount) : '—');
+        out('cash', m ? '− ' + LKR(amount * (1 - g) * m) : '—');
         out('combined', pct(finalRate));
-        out('total', LKR(total));
+        out('total', LKR(amount * (1 - finalRate)));
         out('formula', `1 − (1 − ${g}) × (1 − ${m}) = ${(Math.round(finalRate * 1000) / 1000)}`);
         $$('[data-vip-badge]', form).forEach((el) => el.classList.toggle('hidden', !g));
       };

@@ -3,7 +3,7 @@ package com.hotel.user;
 /**
  * Shared base class for everyone who can log in.
  *
- * Hierarchy:  User -> Guest -> (RegularGuest, VIPGuest)
+ * Hierarchy:  User -> Guest -> (RegularGuest, VipGuest)
  *             User -> Staff -> Admin
  *
  * Permission methods are DEFAULT-DENY: they all return false here, and subclasses
@@ -11,11 +11,10 @@ package com.hotel.user;
  * before every protected action (never rely on hiding buttons in the JSP).
  */
 public abstract class User {
-
-    private String id;
-    private String name;
-    private String email;
-    private String passwordHash;   // stored as "salt:hash", never the raw password
+    protected String id;
+    protected String name;
+    protected String email;
+    protected String passwordHash;   // stored as "salt:hash", never the raw password
 
     protected User(String id, String name, String email, String passwordHash) {
         this.id = id;
@@ -27,23 +26,23 @@ public abstract class User {
     /** Each subclass reports its own role. */
     public abstract Role getRole();
 
-    /** Each subclass writes itself as one line of its own data file. */
-    public abstract String toFileString();
-
     // ---- permissions (default-deny) ----
 
     public boolean canManageRooms() {
         return false;
     }
 
-    public boolean canManageUsers() {
+    public boolean canManageGuestUsers() {
         return false;
     }
+    public boolean canManageStaffUsers() {return false;}
+    public boolean canManageAdminUsers() {return false;}
 
     public boolean canRecordPayment() {
         return false;
     }
 
+    public boolean canBookForThemselves() {return false;}
     public boolean canManageAnyBooking() {
         return false;
     }
@@ -51,10 +50,17 @@ public abstract class User {
     public boolean canCheckInGuests() {
         return false;
     }
+    public boolean canCheckOutGuests() {return false;}
 
+    public boolean canAddReviews() {return false;}
     public boolean canModerateReviews() {
         return false;
     }
+
+    public boolean canViewStaffUsers() {return false;}
+    public boolean canViewAdminUsers() {return false;}
+    public boolean canViewGuestUsers() {return false;}
+    public boolean canEditSiteContent(){return false;}
 
     // ---- getters / setters ----
 
