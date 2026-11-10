@@ -1,0 +1,6 @@
+<%@ page pageEncoding="UTF-8" %>
+<%-- Light / dark mode switch. app.js handles the click and remembers the choice. --%>
+<button type="button" class="theme-toggle btn btn-ghost btn-icon" data-theme-toggle aria-label="Switch to dark mode" title="Switch to dark mode">
+  <i data-lucide="moon" class="theme-moon w-5 h-5"></i>
+  <i data-lucide="sun" class="theme-sun w-5 h-5"></i>
+</button>

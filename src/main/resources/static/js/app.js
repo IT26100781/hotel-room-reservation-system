@@ -376,13 +376,71 @@
   }
 
   /* ---------------- scroll reveal ---------------- */
+  // Common blocks get .reveal automatically, so pages need no extra markup.
+  // data-no-reveal on an element (or a parent) opts it out.
+  const AUTO_REVEAL = 'main h1, main .eyebrow, main .card, main .stat, main .alert, main .arch, main .arch-sm, main .room-tile, footer .grid > *';
+
+  function autoTagReveal() {
+    $$(AUTO_REVEAL).forEach((el) => {
+      if (el.closest('.reveal, .modal, [data-no-reveal]') || el.querySelector('.reveal')) return;
+      el.classList.add('reveal');
+      if (el.matches('.arch, .arch-sm')) el.classList.add('reveal-zoom');
+    });
+    // items side by side in the same parent come in one after another
+    const seen = new Map();
+    $$('.reveal').forEach((el) => {
+      const n = seen.get(el.parentElement) || 0;
+      seen.set(el.parentElement, n + 1);
+      if (n > 0 && !el.style.transitionDelay) el.style.transitionDelay = Math.min(n * 90, 450) + 'ms';
+    });
+  }
+
   function initReveal() {
+    autoTagReveal();
     const els = $$('.reveal');
-    if (!('IntersectionObserver' in window)) { els.forEach((el) => el.classList.add('in')); return; }
+    // once shown, drop the reveal classes so hover effects get their normal timing back
+    const done = (el) => {
+      el.classList.add('in');
+      setTimeout(() => { el.classList.remove('reveal', 'reveal-zoom', 'in'); el.style.transitionDelay = ''; }, 1300);
+    };
+    if (!('IntersectionObserver' in window)) { els.forEach(done); return; }
     const io = new IntersectionObserver((entries) => {
-      entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
-    }, { threshold: 0.12 });
+      entries.forEach((en) => { if (en.isIntersecting) { done(en.target); io.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
     els.forEach((el) => io.observe(el));
+
+    // botanical artwork draws itself in when it scrolls into view
+    const arts = $$('.art');
+    arts.forEach((a) => a.classList.add('art-draw'));
+    const artIo = new IntersectionObserver((entries) => {
+      entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add('drawn'); artIo.unobserve(en.target); } });
+    }, { threshold: 0.15 });
+    arts.forEach((a) => artIo.observe(a));
+  }
+
+  /* ---------------- light / dark theme ---------------- */
+  function savedTheme() { try { return localStorage.getItem('theme'); } catch (e) { return null; } }
+  function applyTheme(dark) {
+    document.documentElement.classList.toggle('dark', dark);
+    const label = dark ? 'Switch to light mode' : 'Switch to dark mode';
+    $$('[data-theme-toggle]').forEach((b) => { b.setAttribute('aria-label', label); b.title = label; });
+  }
+  function initTheme() {
+    const html = document.documentElement;
+    applyTheme(html.classList.contains('dark'));
+    $$('[data-theme-toggle]').forEach((btn) => btn.addEventListener('click', () => {
+      const dark = !html.classList.contains('dark');
+      html.classList.add('theme-fade');
+      btn.classList.add('spin');
+      applyTheme(dark);
+      try { localStorage.setItem('theme', dark ? 'dark' : 'light'); } catch (e) { /* storage blocked */ }
+      setTimeout(() => { html.classList.remove('theme-fade'); btn.classList.remove('spin'); }, 450);
+    }));
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!savedTheme()) applyTheme(e.matches);
+      });
+    }
   }
 
   /* ---------------- boot ---------------- */
@@ -397,6 +455,7 @@
     initBindings();
     initForms();
     initReveal();
+    initTheme();
     icons();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();

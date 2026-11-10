@@ -14,10 +14,11 @@
 <body>
   <c:set var="activeNav" value="home"/>
   <%@ include file="/WEB-INF/views/common/public-header.jspf" %>
+  <%@ include file="/WEB-INF/views/common/botanical-art.jspf" %>
 
-  <main>
+  <main class="art-clip">
     <c:if test="${home.announcementVisible and not empty home.announcementText}">
-      <div class="bg-forest text-ivory text-sm">
+      <div class="bg-forest-700 text-ivory text-sm">
         <p class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-center gap-2 text-center">
           <i data-lucide="megaphone" class="w-4 h-4 text-brass-light shrink-0"></i><c:out value="${home.announcementText}"/>
         </p>
@@ -25,7 +26,8 @@
     </c:if>
 
     <!-- ============ HERO ============ -->
-    <section class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 pt-10 lg:pt-16">
+    <section class="has-art mx-auto max-w-site px-4 sm:px-6 lg:px-8 pt-10 lg:pt-16">
+      <svg class="art art-sway w-[300px] h-[420px] -left-36 top-2 hidden md:block" style="--tilt:-14deg" aria-hidden="true"><use href="#art-tea"/></svg>
       <div class="grid lg:grid-cols-12 gap-12 items-center">
         <div class="lg:col-span-6 reveal">
           <span class="eyebrow"><c:out value="${home.heroEyebrow}" default="Hill Country · Sri Lanka"/></span>
@@ -60,7 +62,7 @@
             <img class="img-cover" src="<c:out value='${home.heroImageUrl}' default='https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=1200&q=80'/>" alt="The Orchid Estate">
           </div>
           <!-- rotating badge -->
-          <div class="absolute -left-2 sm:left-0 bottom-16 w-32 h-32 rounded-full bg-ivory grid place-items-center shadow-xl shadow-forest/10">
+          <div class="absolute -left-2 sm:left-0 bottom-16 w-32 h-32 rounded-full bg-paper grid place-items-center shadow-xl shadow-forest/10">
             <svg viewBox="0 0 120 120" class="absolute inset-0 w-full h-full rotating-badge text-forest" aria-hidden="true">
               <defs><path id="badge-circle" d="M60,60 m-44,0 a44,44 0 1,1 88,0 a44,44 0 1,1 -88,0"/></defs>
               <text font-size="9.6" letter-spacing="2.6" font-weight="700" fill="currentColor"><textPath href="#badge-circle">BOUTIQUE ESTATE · SINCE 1998 ·</textPath></text>
@@ -113,11 +115,12 @@
     </section>
 
     <!-- ============ ROOMS ============ -->
-    <section class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 mt-28">
+    <section class="has-art mx-auto max-w-site px-4 sm:px-6 lg:px-8 mt-28">
+      <svg class="art art-sway w-[260px] h-[450px] -right-28 -top-16" style="--tilt:16deg" aria-hidden="true"><use href="#art-fern"/></svg>
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 reveal">
         <div>
-          <p class="sec-num text-2xl">01</p>
-          <h2 class="font-display text-4xl sm:text-5xl font-semibold text-forest mt-1">Rooms &amp; suites</h2>
+          <span class="eyebrow">Accommodation</span>
+          <h2 class="font-display text-4xl sm:text-5xl font-semibold text-forest mt-4">Rooms &amp; suites</h2>
           <p class="mt-3 text-ink/65 max-w-xl">Three ways to stay, each with breakfast on the terrace and a view of the hills.</p>
         </div>
         <a href="${ctx}/rooms" class="btn btn-outline">See all rooms <i data-lucide="arrow-right"></i></a>
@@ -169,11 +172,13 @@
     </section>
 
     <!-- ============ THE ESTATE ============ -->
-    <section id="estate" class="mt-32 bg-sand/60 py-24">
+    <section id="estate" class="has-art mt-32 bg-sand/60 py-24 overflow-hidden">
+      <svg class="art art-flip w-[400px] h-[440px] -left-16 -bottom-10" aria-hidden="true"><use href="#art-orchid"/></svg>
+      <svg class="art art-sway w-32 h-32 right-6 top-8" style="--tilt:20deg" aria-hidden="true"><use href="#art-bloom"/></svg>
       <div class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 grid lg:grid-cols-12 gap-12 items-center">
         <div class="lg:col-span-5 reveal">
-          <p class="sec-num text-2xl">02</p>
-          <h2 class="font-display text-4xl sm:text-5xl font-semibold text-forest mt-1">An estate for slow mornings</h2>
+          <span class="eyebrow">The estate</span>
+          <h2 class="font-display text-4xl sm:text-5xl font-semibold text-forest mt-4">An estate for slow mornings</h2>
           <p class="mt-4 text-ink/65 leading-relaxed">Everything you need is a short walk through the gardens. Nothing is rushed, and nothing is far.</p>
 
           <ol class="mt-10 space-y-7">
@@ -216,7 +221,9 @@
     </section>
 
     <!-- ============ AMENITIES ============ -->
-    <section class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 mt-24">
+    <section class="has-art mx-auto max-w-site px-4 sm:px-6 lg:px-8 mt-24">
+      <svg class="art art-sway w-28 h-28 -left-6 -top-14 hidden sm:block" style="--tilt:-24deg" aria-hidden="true"><use href="#art-bloom"/></svg>
+      <svg class="art art-sway w-28 h-28 -right-6 top-6 hidden sm:block" style="--tilt:28deg" aria-hidden="true"><use href="#art-bloom"/></svg>
       <div class="ornament mb-12"><span></span></div>
       <ul class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 text-center reveal">
         <li><span class="stat-icon mx-auto w-14 h-14 rounded-full"><i data-lucide="coffee"></i></span><p class="mt-3 text-sm font-semibold text-forest">Breakfast included</p></li>
@@ -229,11 +236,12 @@
     </section>
 
     <!-- ============ REVIEWS ============ -->
-    <section class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 mt-28">
+    <section class="has-art mx-auto max-w-site px-4 sm:px-6 lg:px-8 mt-28">
+      <svg class="art art-flip art-sway w-[260px] h-[450px] -left-32 -top-20" style="--tilt:14deg" aria-hidden="true"><use href="#art-fern"/></svg>
       <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 reveal">
         <div>
-          <p class="sec-num text-2xl">03</p>
-          <h2 class="font-display text-4xl sm:text-5xl font-semibold text-forest mt-1">Guest stories</h2>
+          <span class="eyebrow">Guest reviews</span>
+          <h2 class="font-display text-4xl sm:text-5xl font-semibold text-forest mt-4">Guest stories</h2>
         </div>
         <div class="flex items-center gap-4">
           <span class="font-display text-5xl font-semibold text-forest">4.8</span>
@@ -277,7 +285,8 @@
 
     <!-- ============ CTA ============ -->
     <section class="mx-auto max-w-site px-4 sm:px-6 lg:px-8 mt-28">
-      <div class="panel-dark rounded-[28px] overflow-hidden grid md:grid-cols-2 reveal">
+      <div class="has-art panel-dark rounded-[28px] overflow-hidden grid md:grid-cols-2 reveal">
+        <svg class="art art-light w-[300px] h-[330px] left-[28%] -bottom-12" aria-hidden="true"><use href="#art-orchid"/></svg>
         <div class="p-10 sm:p-14">
           <span class="eyebrow">Members save more</span>
           <h2 class="font-display text-4xl sm:text-5xl font-semibold mt-5 leading-tight"><c:out value="${home.ctaTitle}" default="Your window seat is"/> <em class="italic text-brass-light"><c:out value="${home.ctaHighlight}" default="waiting."/></em></h2>

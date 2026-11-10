@@ -15,6 +15,7 @@
 <c:set var="pageTitle" value="Sign in"/>
 <%@ include file="/WEB-INF/views/common/head.jspf" %>
 <body>
+  <div class="fixed top-4 right-4 z-50 rounded-full bg-paper/90 border border-line shadow-lg backdrop-blur"><%@ include file="/WEB-INF/views/common/theme-toggle.jspf" %></div>
   <main class="min-h-screen grid lg:grid-cols-2">
     <!-- Image side -->
     <div class="relative hidden lg:block p-6">
