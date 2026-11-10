@@ -341,6 +341,19 @@ class ReservationModelAndServiceTest {
         assertTrue(reloaded.isCheckedIn());
     }
 
+    @Test
+    void testCheckInBeforeArrivalDateThrowsException() {
+        LocalDate in = LocalDate.now().plusDays(14);
+        LocalDate out = in.plusDays(16);
+
+        Reservation res = reservationService.createOnlineBooking(regularGuest, "R101", in, out, 2);
+
+        IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+                reservationService.checkInGuest(staffUser, res.getId())
+        );
+        assertEquals("Check-in opens on the arrival date.", ex.getMessage());
+    }
+
     // ==========================================
     // 8. User-Friendly Date Parsing
     // ==========================================

@@ -293,6 +293,12 @@ public class ReservationService {
         if (r.isCheckedIn()) {
             throw new IllegalStateException("Guest is already checked in.");
         }
+        if (LocalDate.now().isBefore(r.getCheckIn())) {
+            throw new IllegalStateException("Check-in opens on the arrival date.");
+        }
+        if (!LocalDate.now().isBefore(r.getCheckOut())) {
+            throw new IllegalStateException("Cannot check in after check-out date.");
+        }
         reservationDAO.checkIn(bookingId);
     }
 
