@@ -7,9 +7,7 @@ import org.springframework.boot.web.server.servlet.context.ServletComponentScan;
 @SpringBootApplication
 @ServletComponentScan
 public class HotelReservationApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(HotelReservationApplication.class, args);
     }
-
 }

@@ -12,22 +12,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
+/**
+ * StaffStatusServlet use to Activate/detactivate users
+ */
 @WebServlet("/admin/staff/status")
 public class StaffStatusServlet extends HttpServlet {
     @Autowired
     private StaffService staffService;
+
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String id = request.getParameter("id");
         boolean active = Boolean.parseBoolean(request.getParameter("active"));
         User currentUser = SessionUtil.getCurrentUser(request.getSession(false));
         try {
             staffService.setActive(currentUser, id, active);
-            response.sendRedirect(request.getContextPath()+"/admin/staff?done=status");
+            response.sendRedirect(request.getContextPath() + "/admin/staff?done=status");
             return;
-        }catch (SecurityException e) {
+        } catch (SecurityException e) {
             response.sendError(403, e.getMessage());
-        }catch (IllegalArgumentException | IllegalStateException e){
+        } catch (IllegalArgumentException | IllegalStateException e) {
             request.setAttribute("error", e.getMessage());
             request.setAttribute("staffList", staffService.listStaff(currentUser));
             request.getRequestDispatcher("/WEB-INF/views/admin/staff.jsp").forward(request, response);

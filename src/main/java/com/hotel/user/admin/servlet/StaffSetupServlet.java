@@ -11,13 +11,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 
+/**
+ * StaffSetupServlet sets up an admin user It there is no admin account
+ */
 @WebServlet("/admin/setup")
 public class StaffSetupServlet extends HttpServlet {
     @Autowired
     private StaffService staffService;
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         boolean hasAnyAdmin = staffService.hasAnyAdminRole();
         if (hasAnyAdmin) {
             response.sendRedirect(request.getContextPath() + "/admin/login");
@@ -30,13 +34,15 @@ public class StaffSetupServlet extends HttpServlet {
         }
         request.getRequestDispatcher("/WEB-INF/views/admin/setup.jsp").forward(request, response);
     }
+
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
         String username = request.getParameter("name");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirmPassword");
-        if( !password.equals(confirmPassword) ) {
+        if (!password.equals(confirmPassword)) {
             request.setAttribute("error", "Passwords do not match");
             request.getRequestDispatcher("/WEB-INF/views/admin/setup.jsp").forward(request, response);
             return;
@@ -45,7 +51,7 @@ public class StaffSetupServlet extends HttpServlet {
             staffService.createFirstAdmin(username, email, password);
             response.sendRedirect(request.getContextPath() + "/admin/login?created=1");
             return;
-        }catch (IllegalArgumentException | IllegalStateException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/WEB-INF/views/admin/setup.jsp").forward(request, response);
         }

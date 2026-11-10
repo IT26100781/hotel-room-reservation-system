@@ -23,6 +23,10 @@
         <p class="text-muted mt-2">Here's how the estate looks today.</p>
       </div>
 
+      <c:if test="${param.done == 'password'}">
+        <div class="alert alert-success mt-6"><i data-lucide="circle-check"></i><span>Your password has been changed.</span></div>
+      </c:if>
+
       <div class="mt-8 grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <div class="stat">
           <div class="flex items-center justify-between"><p class="stat-label">Arrivals today</p><span class="stat-icon"><i data-lucide="door-open"></i></span></div>
@@ -72,6 +76,13 @@
             <a href="${ctx}/admin/staff" class="card card-pad card-hover group">
               <span class="stat-icon"><i data-lucide="user-cog"></i></span>
               <h3 class="font-display text-xl font-semibold text-forest mt-4">Staff accounts</h3>
+              <i data-lucide="arrow-right" class="w-5 h-5 text-brass mt-3 transition group-hover:translate-x-1"></i>
+            </a>
+          </c:if>
+          <c:if test="${me.canEditSiteContent()}">
+            <a href="${ctx}/admin/home" class="card card-pad card-hover group">
+              <span class="stat-icon"><i data-lucide="house"></i></span>
+              <h3 class="font-display text-xl font-semibold text-forest mt-4">Home page</h3>
               <i data-lucide="arrow-right" class="w-5 h-5 text-brass mt-3 transition group-hover:translate-x-1"></i>
             </a>
           </c:if>
