@@ -313,6 +313,16 @@ a { transition: color .2s var(--ease); }
 }
 .choice input:focus-visible + .choice-body { outline: 2px solid rgb(var(--c-brass)); outline-offset: 2px; }
 
+/* simulated test-card picker on the payment form */
+.test-card {
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: .25rem .75rem;
+  width: 100%; padding: .55rem .8rem; border-radius: .75rem; text-align: left; font-size: .8rem;
+  background: rgb(var(--c-paper) / .7); border: 1px solid rgb(var(--c-line));
+  transition: border-color .15s, background-color .15s;
+}
+.test-card:hover { border-color: rgb(var(--c-brass)); background: rgb(var(--c-paper)); }
+.test-card .mono { color: rgb(var(--c-forest)); font-weight: 600; }
+
 /* toggle switch */
 .switch { position: relative; display: inline-flex; width: 2.6rem; height: 1.5rem; cursor: pointer; }
 .switch input { opacity: 0; width: 0; height: 0; }

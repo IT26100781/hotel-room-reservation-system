@@ -30,7 +30,7 @@
       </c:if>
 
       <c:set var="chosenMethod" value="${param.method == 'card' ? 'card' : 'cash'}"/>
-      <form method="post" action="${ctx}/admin/payments/record" class="mt-8 grid lg:grid-cols-[1fr_380px] gap-8 items-start"
+      <form method="post" action="${ctx}/admin/payments/record" class="mt-8 grid xl:grid-cols-[1fr_380px] gap-8 items-start"
             data-payment-calc data-cash-rate="${cashRate}">
         <input type="hidden" name="csrf" value="${sessionScope.paymentCsrf}">
         <div class="space-y-6">
@@ -78,7 +78,18 @@
 
             <fieldset class="mt-5 grid sm:grid-cols-2 gap-4 ${chosenMethod == 'card' ? '' : 'hidden'}" data-show-when="card" data-card-fields>
               <legend class="label mb-3">Simulated card details</legend>
-              <div class="sm:col-span-2 alert alert-info"><span>Demo only — no money is charged. Use Visa <strong>4242 4242 4242 4242</strong> or Mastercard <strong>5555 5555 5555 4444</strong>. To simulate a decline, use <strong>4000 0000 0000 0002</strong>. Enter a current/future expiry and any 3-digit test CVV.</span></div>
+              <div class="sm:col-span-2 alert alert-info">
+                <i data-lucide="info"></i>
+                <div class="w-full">
+                  <p>Demo only. No money is charged. Click a test card to fill it in:</p>
+                  <div class="mt-3 grid gap-2">
+                    <button type="button" class="test-card" data-test-card="4242 4242 4242 4242"><span>Visa · approved</span><span class="mono">4242 4242 4242 4242</span></button>
+                    <button type="button" class="test-card" data-test-card="5555 5555 5555 4444"><span>Mastercard · approved</span><span class="mono">5555 5555 5555 4444</span></button>
+                    <button type="button" class="test-card" data-test-card="4000 0000 0000 0002"><span>Declined card</span><span class="mono">4000 0000 0000 0002</span></button>
+                  </div>
+                  <p class="mt-3 text-xs">Use any current or future expiry and any 3-digit CVV.</p>
+                </div>
+              </div>
               <div class="sm:col-span-2"><label class="label" for="cardholder">Cardholder name</label><input class="input" id="cardholder" name="cardholder" minlength="2" maxlength="100" autocomplete="off"></div>
               <div class="sm:col-span-2"><label class="label" for="cardNumber">Test card number</label><input class="input mono" id="cardNumber" name="cardNumber" inputmode="numeric" maxlength="19" placeholder="4242 4242 4242 4242" autocomplete="off"></div>
               <div><label class="label" for="expiry">Expiry (MM/YY)</label><input class="input" type="text" id="expiry" name="expiry" inputmode="numeric" placeholder="MM/YY" maxlength="5" pattern="(0[1-9]|1[0-2])/[0-9]{2}" title="Enter the expiry as MM/YY, for example 12/30" autocomplete="off"></div>
@@ -93,7 +104,7 @@
           </section>
         </div>
 
-        <aside class="lg:sticky lg:top-24 card overflow-hidden">
+        <aside class="xl:sticky xl:top-24 card overflow-hidden">
           <div class="panel-dark p-6">
             <p class="text-xs tracking-[.22em] uppercase text-brass-light font-bold">Amount due</p>
             <p class="font-display text-5xl font-semibold mt-2" data-out="total">—</p>
@@ -120,5 +131,13 @@
 
   <script src="${ctx}/js/app.js"></script>
   <script src="${ctx}/js/payments.js"></script>
+  <script>
+    document.querySelectorAll('[data-test-card]').forEach((btn) => btn.addEventListener('click', () => {
+      const number = document.getElementById('cardNumber');
+      number.value = btn.dataset.testCard;
+      number.dispatchEvent(new Event('input', { bubbles: true }));
+      document.getElementById('cardholder').focus();
+    }));
+  </script>
 </body>
 </html>
