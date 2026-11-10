@@ -6,6 +6,7 @@ import com.hotel.user.User;
 import com.hotel.user.guest.model.Guest;
 import com.hotel.user.guest.dao.GuestDAO;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -13,14 +14,27 @@ import java.util.UUID;
 public class ReviewService {
     private final ReviewDAO dao;
     private final GuestDAO guestDAO;
+
     public ReviewService(ReviewDAO dao, GuestDAO guestDAO) {
         this.dao = dao;
         this.guestDAO = guestDAO;
     }
-    public List<Review> allReviews() { return dao.findAll(); }
-    public List<Review> myReviews(User actor) { return dao.findByGuest(requireGuest(actor).getId()); }
-    public Review find(String id) { return dao.findById(id); }
-    public Guest requireActiveGuest(User actor) { return requireGuest(actor); }
+
+    public List<Review> allReviews() {
+        return dao.findAll();
+    }
+
+    public List<Review> myReviews(User actor) {
+        return dao.findByGuest(requireGuest(actor).getId());
+    }
+
+    public Review find(String id) {
+        return dao.findById(id);
+    }
+
+    public Guest requireActiveGuest(User actor) {
+        return requireGuest(actor);
+    }
 
     public void create(User actor, String bookingId, int rating, String text) {
         Guest guest = requireGuest(actor);
@@ -40,6 +54,7 @@ public class ReviewService {
         }
         dao.insert(review);
     }
+
     public void update(User actor, String id, int rating, String text) {
         Guest guest = requireGuest(actor);
         validate(rating, text);
@@ -48,6 +63,7 @@ public class ReviewService {
         if (!existing.getGuestId().equals(guest.getId())) throw new SecurityException("Not your review.");
         dao.update(id, rating, clean(text));
     }
+
     public void delete(User actor, String id) {
         if (actor == null) throw new SecurityException("Sign in first.");
         Review existing = dao.findById(id);
@@ -59,6 +75,7 @@ public class ReviewService {
         }
         dao.delete(id);
     }
+
     private Guest requireGuest(User actor) {
         if (!(actor instanceof Guest) || !actor.canAddReviews())
             throw new SecurityException("An active guest account is required.");
@@ -68,10 +85,14 @@ public class ReviewService {
             throw new SecurityException("Your guest account is deactivated.");
         return current;
     }
+
     private void validate(int rating, String text) {
         if (rating < 1 || rating > 5) throw new IllegalArgumentException("Rating must be 1–5 stars.");
         if (text == null || text.strip().isEmpty() || text.strip().length() > 500)
             throw new IllegalArgumentException("Review text must be between 1 and 500 characters.");
     }
-    private String clean(String text) { return text.strip().replace('|', ' '); }
+
+    private String clean(String text) {
+        return text.strip().replace('|', ' ');
+    }
 }
