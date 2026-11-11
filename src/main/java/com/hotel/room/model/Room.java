@@ -6,6 +6,7 @@ package com.hotel.room.model;
  * maximum capacities, and stay pricing calculations.
  */
 public abstract class Room {
+//proprties and methods for the all rooms((Standard, Deluxe, Suite)
     private String roomId;
     private String roomName;
     private int roomNumber;
@@ -14,12 +15,12 @@ public abstract class Room {
     private int roomSize;
     private String imageUrl;
     private RoomStatus status;
-
+    // Constructors
     public Room(String roomId, String roomName, int roomNumber, double baseRate, int capacity, int roomSize, String imageUrl, RoomStatus status) {
         this.roomId = roomId;
         this.roomName = roomName;
         this.roomNumber = roomNumber;
-        this.baseRate = baseRate;
+        this.baseRate = baseRate; //Base Price per night
         this.capacity = capacity;
         this.roomSize = roomSize;
         this.imageUrl = imageUrl;
@@ -35,9 +36,11 @@ public abstract class Room {
      */
     public static Room create(String type, String roomId, String roomName, int roomNumber,
                               double baseRate, int capacity, int roomSize, String imageUrl, RoomStatus status) {
+        //Checking whether the room type is empty or not.
         if (type == null || type.trim().isEmpty()) {
             throw new IllegalArgumentException("Room type cannot be empty");
         }
+        //Creates and returns the relevant class based on the given String type.
         switch (type.trim()) {
             case "StandardRoom":
                 return new StandardRoom(roomId, roomName, roomNumber, baseRate, capacity, roomSize, imageUrl, status);
@@ -72,6 +75,7 @@ public abstract class Room {
     /**
      * Maximum guest occupancy allowed for this room category.
      */
+    //getters and setters
     public abstract int getMaxAllowedCapacity();
 
     public String getRoomId() { return roomId; }
