@@ -24,16 +24,16 @@
     <p class="text-ink/65 mt-3 max-w-xl">Choose your dates and we'll show only the rooms that are free for the whole stay.</p>
 
     <form action="${ctx}/reservation/search" method="get" data-booking-calc
-          class="card mt-8 p-3 sm:p-4 grid gap-3 md:grid-cols-[1fr_1fr_.8fr_1fr_auto] items-end">
+          class="card mt-8 p-3 sm:p-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_.8fr_1fr_auto] items-end">
       <label class="block px-3 py-2">
         <span class="label">Check-in</span>
         <input type="date" name="checkIn" required min="${minDate}" value="<c:out value='${param.checkIn}'/>" class="w-full bg-transparent font-semibold text-forest focus:outline-none">
       </label>
-      <label class="block px-3 py-2 md:border-l md:border-line">
+      <label class="block px-3 py-2 lg:border-l lg:border-line">
         <span class="label">Check-out</span>
         <input type="date" name="checkOut" required value="<c:out value='${param.checkOut}'/>" class="w-full bg-transparent font-semibold text-forest focus:outline-none">
       </label>
-      <label class="block px-3 py-2 md:border-l md:border-line">
+      <label class="block px-3 py-2 lg:border-l lg:border-line">
         <span class="label">Guests</span>
         <select name="guests" class="w-full bg-transparent font-semibold text-forest focus:outline-none">
           <c:forEach var="n" begin="1" end="4">
@@ -41,7 +41,7 @@
           </c:forEach>
         </select>
       </label>
-      <label class="block px-3 py-2 md:border-l md:border-line">
+      <label class="block px-3 py-2 lg:border-l lg:border-line">
         <span class="label">Room type</span>
         <select name="type" class="w-full bg-transparent font-semibold text-forest focus:outline-none">
           <option value="">Any room</option>
@@ -50,7 +50,7 @@
           <option value="suite" ${param.type == 'suite' ? 'selected' : ''}>Suite</option>
         </select>
       </label>
-      <button type="submit" class="btn btn-brass btn-lg h-full min-h-[3.5rem]"><i data-lucide="search"></i>Check availability</button>
+      <button type="submit" class="btn btn-brass btn-lg h-full min-h-[3.5rem] sm:col-span-2 lg:col-span-1"><i data-lucide="search"></i>Check availability</button>
     </form>
     <p class="mt-3 text-center text-xs text-muted"><span data-out="nights">—</span> · payment is taken at the front desk, never online</p>
 

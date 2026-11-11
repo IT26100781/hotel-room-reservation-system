@@ -126,8 +126,9 @@
             </div>
             <div class="sm:col-span-2">
               <label class="label" for="imageUrl">Image URL</label>
-              <input id="imageUrl" name="imageUrl" class="input" placeholder="https://images.unsplash.com/..."
+              <input id="imageUrl" name="imageUrl" type="url" maxlength="500" class="input" placeholder="https://images.unsplash.com/..."
                      value="<c:out value='${room != null ? room.imageUrl : param.imageUrl}'/>">
+              <p class="hint">Paste a direct image link (up to 500 characters), not a Google Images page link.</p>
             </div>
           </div>
 

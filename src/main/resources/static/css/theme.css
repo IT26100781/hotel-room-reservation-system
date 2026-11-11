@@ -282,6 +282,10 @@ a { transition: color .2s var(--ease); }
   background-repeat: no-repeat;
   background-position: right .9rem center;
 }
+html.dark .select {
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23949bac' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>");
+}
+select option, select optgroup { background-color: rgb(var(--c-paper)); color: rgb(var(--c-ink)); }
 .textarea { min-height: 8rem; resize: vertical; }
 .hint { font-size: .8rem; color: rgb(var(--c-muted)); margin-top: .4rem; }
 .error-text { font-size: .8rem; color: rgb(var(--c-clay)); margin-top: .4rem; }
@@ -377,6 +381,18 @@ a { transition: color .2s var(--ease); }
 .badge-paid        { background: rgb(var(--c-forest) / .1);  color: rgb(var(--c-forest)); }
 .badge-pending     { background: rgb(var(--c-amber) / .13);  color: rgb(var(--c-amber)); }
 .badge-maintenance { background: rgb(var(--c-amber) / .13);  color: rgb(var(--c-amber)); }
+
+/* Darker brass and amber for text on light backgrounds, so small labels stay readable. */
+html:not(.dark) .text-brass { color: rgb(158 120 64); }
+html:not(.dark) .eyebrow,
+html:not(.dark) .text-xs.text-brass,
+html:not(.dark) .text-sm .text-brass,
+html:not(.dark) .text-sm.text-brass { color: rgb(134 100 50); }
+html:not(.dark) .badge-pending,
+html:not(.dark) .badge-maintenance { color: rgb(140 96 20); }
+html:not(.dark) .panel-dark .text-brass,
+html:not(.dark) .panel-dark .text-xs.text-brass,
+html:not(.dark) .panel-dark .eyebrow { color: rgb(var(--c-brass)); }
 .badge-cancelled   { background: rgb(var(--c-clay) / .1);    color: rgb(var(--c-clay)); }
 .badge-refunded    { background: rgb(var(--c-clay) / .07);   color: rgb(var(--c-clay)); border-color: rgb(var(--c-clay) / .25); }
 .badge-retired     { background: rgb(var(--c-muted) / .12);  color: rgb(var(--c-muted)); }
@@ -466,7 +482,7 @@ a { transition: color .2s var(--ease); }
 .side-link.active svg { color: rgb(var(--c-brass-light)); }
 .side-group {
   font-size: .64rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase;
-  color: rgb(var(--c-ivory) / .38); padding: 0 .9rem; margin: 1.4rem 0 .5rem;
+  color: rgb(var(--c-ivory) / .5); padding: 0 .9rem; margin: 1.4rem 0 .5rem;
 }
 .side-tag {
   margin-left: auto; font-size: .58rem; font-weight: 700; letter-spacing: .12em;
@@ -577,6 +593,20 @@ a { transition: color .2s var(--ease); }
   background: rgb(var(--c-brass) / .14); color: rgb(var(--c-brass));
 }
 .stat-icon svg { width: 1.2rem; height: 1.2rem; }
+.stat-link { display: block; transition: border-color .2s, transform .35s var(--ease), box-shadow .35s var(--ease); }
+.stat-link:hover { border-color: rgb(var(--c-brass) / .6); transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+
+.action-card {
+  display: flex; flex-direction: column; gap: .9rem; position: relative;
+  background: rgb(var(--c-paper)); border: 1px solid rgb(var(--c-line) / .8);
+  border-radius: var(--radius-lg); padding: 1.25rem 1.35rem;
+  transition: border-color .2s, transform .35s var(--ease), box-shadow .35s var(--ease);
+}
+.action-card:hover { border-color: rgb(var(--c-brass) / .6); transform: translateY(-2px); box-shadow: var(--shadow-lift); }
+.action-title { display: block; font-family: "Cormorant Garamond", Georgia, serif; font-size: 1.3rem; font-weight: 600; line-height: 1.2; color: rgb(var(--c-forest)); padding-right: 1.5rem; }
+.action-text { display: block; margin-top: .3rem; font-size: .82rem; line-height: 1.45; color: rgb(var(--c-muted)); }
+.action-arrow { position: absolute; top: 1.4rem; right: 1.3rem; width: 1.1rem; height: 1.1rem; color: rgb(var(--c-brass)); transition: transform .2s; }
+.action-card:hover .action-arrow { transform: translateX(3px); }
 
 .ring {
   --p: 0;

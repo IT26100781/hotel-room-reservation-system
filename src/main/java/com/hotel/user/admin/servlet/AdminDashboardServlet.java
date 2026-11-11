@@ -1,5 +1,8 @@
 package com.hotel.user.admin.servlet;
 
+import com.hotel.reservation.model.BookingDetails;
+import com.hotel.reservation.service.ReservationService;
+import com.hotel.room.service.RoomService;
 import com.hotel.user.User;
 import com.hotel.user.admin.model.Staff;
 import com.hotel.user.admin.service.StaffService;
@@ -22,6 +25,10 @@ import java.util.List;
 public class AdminDashboardServlet extends HttpServlet {
     @Autowired
     private StaffService staffService;
+    @Autowired
+    private RoomService roomService;
+    @Autowired
+    private ReservationService reservationService;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -39,6 +46,13 @@ public class AdminDashboardServlet extends HttpServlet {
                 if (staff.isActive()) activeStaffCount++;
             }
             request.setAttribute("activeStaffCount", activeStaffCount);
+        }
+        request.setAttribute("roomCount", roomService.getMetrics(roomService.getAllRooms()).getTotal());
+        request.setAttribute("activeRoomCount", roomService.getMetrics(roomService.getAllRooms()).getActive());
+        if (currentUser.canManageAnyBooking()) {
+            List<BookingDetails> reservationList = reservationService.toDetails(reservationService.findAll(), currentUser);
+            request.setAttribute("arrivalsToday", reservationService.getMetrics(reservationList).getArrivingToday());
+            request.setAttribute("pendingPayments", reservationService.getMetrics(reservationList).getPaymentPending());
         }
         request.getRequestDispatcher("/WEB-INF/views/admin/dashboard.jsp").forward(request, response);
     }
