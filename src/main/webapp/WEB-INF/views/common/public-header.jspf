@@ -49,7 +49,7 @@
           </div>
         </c:when>
         <c:when test="${isStaff}">
-          <a href="${ctx}/admin" class="btn btn-primary btn-sm"><i data-lucide="key-round"></i>Staff portal</a>
+          <a href="${ctx}/admin" class="btn btn-primary btn-sm hidden sm:inline-flex"><i data-lucide="key-round"></i>Staff portal</a>
         </c:when>
         <c:otherwise>
           <a href="${ctx}/login" class="btn btn-ghost btn-sm hidden sm:inline-flex">Sign in</a>
